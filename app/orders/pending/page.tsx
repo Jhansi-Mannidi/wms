@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type PendingOrder = {
@@ -160,14 +161,16 @@ export default function PendingOrdersPage() {
                 <td className="px-4 py-3 text-amber-600"><span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{o.waitTime}</span></td>
                 <td className="px-4 py-3 text-muted-foreground text-xs">{o.reason}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(o)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => allocate(o)} title="Allocate stock" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><Check className="w-3.5 h-3.5" /></button>
-                    {o.priority !== "Urgent" && (
-                      <button onClick={() => escalate(o)} title="Escalate to Urgent" className="p-1.5 rounded-md text-warning hover:bg-warning/10 transition-colors"><AlertTriangle className="w-3.5 h-3.5" /></button>
-                    )}
-                    <button onClick={() => setCancelTarget(o)} title="Cancel order" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><XCircle className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(o) },
+                      { label: "Allocate stock", icon: <Check />, onSelect: () => allocate(o), tone: "success" as const },
+                      ...(o.priority !== "Urgent"
+                        ? [{ label: "Escalate to Urgent", icon: <AlertTriangle />, onSelect: () => escalate(o) }]
+                        : []),
+                      { label: "Cancel order", icon: <XCircle />, onSelect: () => setCancelTarget(o), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

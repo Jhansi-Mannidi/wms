@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Invoice = {
@@ -162,10 +163,12 @@ export default function BillingInvoicesPage() {
                 <td className="px-4 py-3 text-foreground">{i.due}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusStyle[i.status])}>{i.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(i)} title="View invoice" className="text-muted-foreground hover:text-foreground transition-colors"><Eye className="w-4 h-4" /></button>
-                    <button onClick={() => download(i)} title="Download PDF" className="text-brand hover:text-brand/70 transition-colors"><Download className="w-4 h-4" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View invoice", icon: <Eye />, onSelect: () => setDetail(i) },
+                      { label: "Download PDF", icon: <Download />, onSelect: () => download(i) },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type ImportRun = {
@@ -176,11 +177,13 @@ export default function SKUImportPage() {
                       <td className="px-4 py-3 text-muted-foreground text-xs">{r.importedAt}</td>
                       <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusStyle[r.status] ?? "bg-success/10 text-success")}>{r.status}</span></td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => setDetail(r)} title="View import summary" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => openImport(SAMPLE_NAMES.includes(r.file) ? r.file : "")} title="Re-import this file" className="p-1.5 rounded-md text-brand hover:bg-brand/10 transition-colors"><Upload className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => setDeleteTarget(r)} title="Remove log entry" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                        </div>
+                        <RowActions
+                          items={[
+                            { label: "View import summary", icon: <Eye />, onSelect: () => setDetail(r) },
+                            { label: "Re-import this file", icon: <Upload />, onSelect: () => openImport(SAMPLE_NAMES.includes(r.file) ? r.file : "") },
+                            { label: "Remove log entry", icon: <Trash2 />, onSelect: () => setDeleteTarget(r), tone: "danger" as const },
+                          ]}
+                        />
                       </td>
                     </tr>
                   ))}

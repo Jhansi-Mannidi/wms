@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type ShipOrder = {
@@ -156,12 +157,14 @@ export default function ReadyToShipPage() {
                 <td className="px-4 py-3 text-foreground">{o.shipTo}</td>
                 <td className="px-4 py-3 text-foreground">{o.sla}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(o)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => printLabel(o)} title="Print shipping label" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Printer className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => dispatch(o)} title="Mark dispatched" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><Check className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setHoldTarget(o)} title="Hold shipment" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><XCircle className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(o) },
+                      { label: "Print shipping label", icon: <Printer />, onSelect: () => printLabel(o) },
+                      { label: "Mark dispatched", icon: <Check />, onSelect: () => dispatch(o), tone: "success" as const },
+                      { label: "Hold shipment", icon: <XCircle />, onSelect: () => setHoldTarget(o), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

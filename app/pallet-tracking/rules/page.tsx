@@ -5,6 +5,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, TextArea, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Rule = { id: string; name: string; desc: string; scope: string; active: boolean }
@@ -97,9 +98,13 @@ export default function PalletRulesPage() {
               <p className="text-xs text-muted-foreground mt-1">Scope: <span className="text-foreground">{r.scope}</span></p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <button onClick={() => setDetail(r)} title="View rule details" className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-              <button onClick={() => openEdit(r)} title="Edit rule" className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
-              <button onClick={() => setDeleteTarget(r)} title="Delete rule" className="p-1.5 rounded-lg text-muted-foreground hover:bg-danger/10 hover:text-danger transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+              <RowActions
+                items={[
+                  { label: "View rule details", icon: <Eye />, onSelect: () => setDetail(r) },
+                  { label: "Edit rule", icon: <Pencil />, onSelect: () => openEdit(r) },
+                  { label: "Delete rule", icon: <Trash2 />, onSelect: () => setDeleteTarget(r), tone: "danger" as const },
+                ]}
+              />
               <button onClick={() => toggle(r)} title={r.active ? "Disable rule" : "Enable rule"} className={`relative w-10 h-5 rounded-full transition-colors ml-1 ${r.active?"bg-brand":"bg-muted"}`}><span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${r.active?"translate-x-5":"translate-x-0.5"}`} /></button>
             </div>
           </div>

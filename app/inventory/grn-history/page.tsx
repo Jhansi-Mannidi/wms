@@ -7,6 +7,7 @@ import { Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type GRN = {
@@ -88,19 +89,15 @@ export default function GRNHistoryPage() {
                 <td className="px-4 py-3 text-foreground">{g.receivedBy}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", g.discrepancy ? "bg-amber-100 text-amber-700" : "bg-success/10 text-success")}>{g.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(g)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    {g.discrepancy && (
-                      <button onClick={() => resolveDiscrepancy(g)} title="Resolve discrepancy" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                        <Check className="w-4 h-4" />
-                      </button>
-                    )}
-                    <button onClick={() => setVoidTarget(g)} title="Void GRN" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(g) },
+                      ...(g.discrepancy
+                        ? [{ label: "Resolve discrepancy", icon: <Check />, onSelect: () => resolveDiscrepancy(g), tone: "success" as const }]
+                        : []),
+                      { label: "Void GRN", icon: <Trash2 />, onSelect: () => setVoidTarget(g), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

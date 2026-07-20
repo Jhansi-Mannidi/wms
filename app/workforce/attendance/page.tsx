@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type AttendanceRecord = {
@@ -184,21 +185,17 @@ export default function AttendancePage() {
                   <span className={cn("px-2 py-1 rounded-full text-xs font-medium", statusColor[r.status])}>{r.status}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(r)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    {(r.status === "Active" || r.status === "Late") && (
-                      <button onClick={() => checkOut(r)} title="Check out" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                        <LogOut className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    {r.status !== "Absent" && (
-                      <button onClick={() => setAbsentTarget(r)} title="Mark absent" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                        <UserX className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(r) },
+                      ...(r.status === "Active" || r.status === "Late"
+                        ? [{ label: "Check out", icon: <LogOut />, onSelect: () => checkOut(r), tone: "success" as const }]
+                        : []),
+                      ...(r.status !== "Absent"
+                        ? [{ label: "Mark absent", icon: <UserX />, onSelect: () => setAbsentTarget(r), tone: "danger" as const }]
+                        : []),
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

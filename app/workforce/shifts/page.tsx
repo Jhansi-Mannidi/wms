@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Shift = {
@@ -234,22 +235,16 @@ export default function ShiftsPage() {
                   <span className={cn("px-2 py-1 rounded-full text-xs font-medium", statusColor[s.status])}>{s.status}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(s)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => openEdit(s)} title="Edit shift" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    {nextStatus[s.status] && (
-                      <button onClick={() => advance(s)} title={`Move to ${nextStatus[s.status]}`} className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <button onClick={() => setDeleteTarget(s)} title="Delete shift" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(s) },
+                      { label: "Edit shift", icon: <Pencil />, onSelect: () => openEdit(s) },
+                      ...(nextStatus[s.status]
+                        ? [{ label: `Move to ${nextStatus[s.status]}`, icon: <ChevronRight />, onSelect: () => advance(s), tone: "success" as const }]
+                        : []),
+                      { label: "Delete shift", icon: <Trash2 />, onSelect: () => setDeleteTarget(s), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

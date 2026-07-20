@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Attribute = { id: string; name: string; type: string; required: boolean; skus: number; example: string }
@@ -165,12 +166,14 @@ export default function SKUAttributesPage() {
                 <td className="px-4 py-3 text-muted-foreground">{a.skus.toLocaleString()}</td>
                 <td className="px-4 py-3 text-muted-foreground text-xs">{a.example}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(a)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => openEdit(a)} title="Edit attribute" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => toggleRequired(a)} title={a.required ? "Make optional" : "Make required"} className="p-1.5 rounded-md text-warning hover:bg-warning/10 transition-colors"><ToggleLeft className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setDeleteTarget(a)} title="Delete attribute" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(a) },
+                      { label: "Edit attribute", icon: <Edit2 />, onSelect: () => openEdit(a) },
+                      { label: a.required ? "Make optional" : "Make required", icon: <ToggleLeft />, onSelect: () => toggleRequired(a) },
+                      { label: "Delete attribute", icon: <Trash2 />, onSelect: () => setDeleteTarget(a), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

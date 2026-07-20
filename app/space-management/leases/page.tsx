@@ -5,6 +5,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Lease = {
@@ -145,15 +146,17 @@ export default function SpaceLeasesPage() {
                 </td>
                 <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusClass(l.status)}`}>{l.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(l)} title={`View ${l.id}`} className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    {l.status !== "Terminated" && (
-                      <>
-                        <button onClick={() => renew(l)} title={`Renew ${l.id}`} className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => setTerminateTarget(l)} title={`Terminate ${l.id}`} className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><XCircle className="w-3.5 h-3.5" /></button>
-                      </>
-                    )}
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: `View ${l.id}`, icon: <Eye />, onSelect: () => setDetail(l) },
+                      ...(l.status !== "Terminated"
+                        ? [
+                            { label: `Renew ${l.id}`, icon: <RefreshCw />, onSelect: () => renew(l), tone: "success" as const },
+                            { label: `Terminate ${l.id}`, icon: <XCircle />, onSelect: () => setTerminateTarget(l), tone: "danger" as const },
+                          ]
+                        : []),
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

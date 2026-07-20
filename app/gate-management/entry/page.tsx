@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Entry = {
@@ -189,15 +190,17 @@ export default function GateEntryPage() {
                 <td className="px-4 py-3 text-muted-foreground">{e.time}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusClass(e.status))}>{e.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(e)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    {e.status !== "Cancelled" && e.status !== "Loading" && (
-                      <button onClick={() => advance(e)} title="Advance status" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><Check className="w-3.5 h-3.5" /></button>
-                    )}
-                    {e.status !== "Cancelled" && (
-                      <button onClick={() => setCancelTarget(e)} title="Cancel entry" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><XIcon className="w-3.5 h-3.5" /></button>
-                    )}
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(e) },
+                      ...(e.status !== "Cancelled" && e.status !== "Loading"
+                        ? [{ label: "Advance status", icon: <Check />, onSelect: () => advance(e), tone: "success" as const }]
+                        : []),
+                      ...(e.status !== "Cancelled"
+                        ? [{ label: "Cancel entry", icon: <XIcon />, onSelect: () => setCancelTarget(e), tone: "danger" as const }]
+                        : []),
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

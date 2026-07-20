@@ -6,6 +6,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Preset = {
@@ -120,11 +121,15 @@ export default function AuditExportPage() {
               </p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <button onClick={() => setDetail(p)} title="View preset details" className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-              <button onClick={() => setDeleteTarget(p)} title="Delete preset" className="p-1.5 rounded-lg text-muted-foreground hover:bg-danger/10 hover:text-danger transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
               <button onClick={() => download(p)} title={`Download ${p.name}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs text-foreground hover:bg-muted transition-colors shrink-0">
                 <Download className="w-3.5 h-3.5" /> Download
               </button>
+              <RowActions
+                items={[
+                  { label: "View preset details", icon: <Eye />, onSelect: () => setDetail(p) },
+                  { label: "Delete preset", icon: <Trash2 />, onSelect: () => setDeleteTarget(p), tone: "danger" as const },
+                ]}
+              />
             </div>
           </div>
         ))}

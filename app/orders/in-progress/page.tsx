@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type ActiveOrder = {
@@ -177,12 +178,14 @@ export default function InProgressOrdersPage() {
                 <td className="px-4 py-3 text-muted-foreground">{o.started}</td>
                 <td className="px-4 py-3 text-foreground">{o.sla}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(o)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => advance(o)} title="Advance stage" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><ChevronRight className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => openReassign(o)} title="Reassign operator" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><UserPlus className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setAbortTarget(o)} title="Abort order" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><XCircle className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(o) },
+                      { label: "Advance stage", icon: <ChevronRight />, onSelect: () => advance(o), tone: "success" as const },
+                      { label: "Reassign operator", icon: <UserPlus />, onSelect: () => openReassign(o) },
+                      { label: "Abort order", icon: <XCircle />, onSelect: () => setAbortTarget(o), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

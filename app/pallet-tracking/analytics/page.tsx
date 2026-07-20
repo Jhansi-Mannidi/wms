@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Zone = { zone: string; pallets: number; capacity: number; util: number }
@@ -147,8 +148,12 @@ export default function PalletAnalyticsPage() {
                 <button onClick={() => setDetail(z)} title={`View ${z.zone} detail`} className="font-medium text-foreground hover:text-brand transition-colors">{z.zone}</button>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">{z.pallets} / {z.capacity} pallets &bull; {z.util}%</span>
-                  <button onClick={() => setDetail(z)} title="View zone details" className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => openEdit(z)} title="Edit zone capacity" className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
+                  <RowActions
+                    items={[
+                      { label: "View zone details", icon: <Eye />, onSelect: () => setDetail(z) },
+                      { label: "Edit zone capacity", icon: <Pencil />, onSelect: () => openEdit(z) },
+                    ]}
+                  />
                 </div>
               </div>
               <div className="w-full bg-muted rounded-full h-2"><div className={`h-2 rounded-full ${z.util>=85?"bg-amber-400":z.util>=70?"bg-brand":"bg-success"}`} style={{width:`${Math.min(z.util, 100)}%`}} /></div>

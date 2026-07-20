@@ -6,6 +6,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, TextArea, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Incident = {
@@ -137,19 +138,15 @@ export default function MHEIncidentsPage() {
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", severityClass(i.severity))}>{i.severity}</span></td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusClass(i.status))}>{i.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(i)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    {i.status !== "Closed" && (
-                      <button onClick={() => advance(i)} title={i.status === "Under Review" ? "Mark resolved" : "Close incident"} className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                        <Check className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <button onClick={() => setDeleteTarget(i)} title="Delete incident" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(i) },
+                      ...(i.status !== "Closed"
+                        ? [{ label: i.status === "Under Review" ? "Mark resolved" : "Close incident", icon: <Check />, onSelect: () => advance(i), tone: "success" as const }]
+                        : []),
+                      { label: "Delete incident", icon: <Trash2 />, onSelect: () => setDeleteTarget(i), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

@@ -5,6 +5,7 @@ import { Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Breach = {
@@ -58,12 +59,14 @@ export default function ColdChainBreachesPage() {
                 <td className="px-4 py-3 text-muted-foreground text-xs">{b.detected}</td>
                 <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${b.resolved?"bg-success/10 text-success":"bg-danger/10 text-danger"}`}>{b.resolved?"Resolved":"Active"}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(b)} title={`View ${b.id} details`} className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    {!b.resolved && (
-                      <button onClick={() => setResolveTarget(b)} title={`Resolve ${b.id}`} className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><CheckCircle2 className="w-3.5 h-3.5" /></button>
-                    )}
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: `View ${b.id} details`, icon: <Eye />, onSelect: () => setDetail(b) },
+                      ...(!b.resolved
+                        ? [{ label: `Resolve ${b.id}`, icon: <CheckCircle2 />, onSelect: () => setResolveTarget(b), tone: "success" as const }]
+                        : []),
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

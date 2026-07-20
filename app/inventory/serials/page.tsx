@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Serial = {
@@ -236,32 +237,22 @@ export default function SerialTrackingPage() {
                 <td className="px-4 py-3 font-mono text-xs text-brand">{s.orderId || "—"}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusColor[s.status])}>{s.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(s)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => openEdit(s)} title="Edit serial" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    {s.status === "In Stock" && (
-                      <button onClick={() => { setAllocTarget(s); setAllocOrder(""); setAllocError("") }} title="Allocate to order" className="p-1.5 rounded-md text-brand hover:bg-brand/10 transition-colors">
-                        <PackageCheck className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    {s.status === "Allocated" && (
-                      <button onClick={() => advance(s)} title="Mark in transit" className="p-1.5 rounded-md text-amber-600 hover:bg-amber-500/10 transition-colors">
-                        <Truck className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    {s.status === "In Transit" && (
-                      <button onClick={() => advance(s)} title="Mark shipped" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                        <Check className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <button onClick={() => setDeleteTarget(s)} title="Delete serial" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(s) },
+                      { label: "Edit serial", icon: <Pencil />, onSelect: () => openEdit(s) },
+                      ...(s.status === "In Stock"
+                        ? [{ label: "Allocate to order", icon: <PackageCheck />, onSelect: () => { setAllocTarget(s); setAllocOrder(""); setAllocError("") } }]
+                        : []),
+                      ...(s.status === "Allocated"
+                        ? [{ label: "Mark in transit", icon: <Truck />, onSelect: () => advance(s) }]
+                        : []),
+                      ...(s.status === "In Transit"
+                        ? [{ label: "Mark shipped", icon: <Check />, onSelect: () => advance(s), tone: "success" as const }]
+                        : []),
+                      { label: "Delete serial", icon: <Trash2 />, onSelect: () => setDeleteTarget(s), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

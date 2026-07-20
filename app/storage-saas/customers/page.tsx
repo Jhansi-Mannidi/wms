@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 import { cn } from "@/lib/utils"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
@@ -273,11 +274,13 @@ export default function StorageCustomersPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => setDetail(c)} title="View customer details" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-brand transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => openEdit(c)} title="Edit customer" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-brand transition-colors"><Edit className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => setDeleteTarget(c)} title="Delete customer" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-danger/10 text-muted-foreground hover:text-danger transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                      </div>
+                      <RowActions
+                        items={[
+                          { label: "View customer details", icon: <Eye />, onSelect: () => setDetail(c) },
+                          { label: "Edit customer", icon: <Edit />, onSelect: () => openEdit(c) },
+                          { label: "Delete customer", icon: <Trash2 />, onSelect: () => setDeleteTarget(c), tone: "danger" as const },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))}

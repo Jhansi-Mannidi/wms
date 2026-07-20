@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Batch = {
@@ -247,22 +248,16 @@ export default function BatchManagementPage() {
                 <td className="px-4 py-3 font-mono text-xs text-foreground">{b.location}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusColor[b.status])}>{b.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(b)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => openEdit(b)} title="Edit batch" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    {b.qty > 0 && (b.status === "Expired" || b.status === "Expiring Soon") && (
-                      <button onClick={() => setDisposeTarget(b)} title="Dispose batch" className="p-1.5 rounded-md text-amber-600 hover:bg-amber-500/10 transition-colors">
-                        <AlertTriangle className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <button onClick={() => setDeleteTarget(b)} title="Delete batch" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(b) },
+                      { label: "Edit batch", icon: <Pencil />, onSelect: () => openEdit(b) },
+                      ...(b.qty > 0 && (b.status === "Expired" || b.status === "Expiring Soon")
+                        ? [{ label: "Dispose batch", icon: <AlertTriangle />, onSelect: () => setDisposeTarget(b), tone: "danger" as const }]
+                        : []),
+                      { label: "Delete batch", icon: <Trash2 />, onSelect: () => setDeleteTarget(b), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

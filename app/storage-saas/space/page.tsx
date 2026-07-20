@@ -6,6 +6,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 import { cn } from "@/lib/utils"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
@@ -267,14 +268,12 @@ export default function SpaceManagerPage() {
                       </td>
                       <td className="px-4 py-3 text-xs font-bold text-success">₹{marginAmt.toLocaleString()}</td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => setAllocDetail(a)} title="View allocation details" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-brand transition-colors">
-                            <ArrowUpRight className="w-3.5 h-3.5" />
-                          </button>
-                          <button onClick={() => setDeleteAlloc(a)} title="Release allocation" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-danger/10 text-muted-foreground hover:text-danger transition-colors">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        <RowActions
+                          items={[
+                            { label: "View allocation details", icon: <ArrowUpRight />, onSelect: () => setAllocDetail(a) },
+                            { label: "Release allocation", icon: <Trash2 />, onSelect: () => setDeleteAlloc(a), tone: "danger" as const },
+                          ]}
+                        />
                       </td>
                     </tr>
                   )
@@ -335,12 +334,12 @@ export default function SpaceManagerPage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-warning/20 text-warning font-semibold">Leased-In</span>
-                    <button onClick={() => setLeaseDetail(ls)} title="View lease details" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-brand transition-colors">
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => setDeleteLease(ls)} title="End lease" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-danger/10 text-muted-foreground hover:text-danger transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <RowActions
+                      items={[
+                        { label: "View lease details", icon: <ArrowUpRight />, onSelect: () => setLeaseDetail(ls) },
+                        { label: "End lease", icon: <Trash2 />, onSelect: () => setDeleteLease(ls), tone: "danger" as const },
+                      ]}
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 mb-3 text-xs">

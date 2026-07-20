@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Client = {
@@ -209,12 +210,14 @@ export default function WarehouseClientsPage() {
                 <td className="px-4 py-3 text-muted-foreground">{c.skus}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusClass(c.status))}>{c.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(c)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => openEdit(c)} title="Edit client" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => toggleStatus(c)} title={c.status === "Suspended" ? "Reactivate client" : "Suspend client"} className={cn("p-1.5 rounded-md transition-colors", c.status === "Suspended" ? "text-success hover:bg-success/10" : "text-warning hover:bg-warning/10")}><Power className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setDeleteTarget(c)} title="Offboard client" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(c) },
+                      { label: "Edit client", icon: <Edit2 />, onSelect: () => openEdit(c) },
+                      { label: c.status === "Suspended" ? "Reactivate client" : "Suspend client", icon: <Power />, onSelect: () => toggleStatus(c) },
+                      { label: "Offboard client", icon: <Trash2 />, onSelect: () => setDeleteTarget(c), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

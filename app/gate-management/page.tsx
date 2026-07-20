@@ -3,7 +3,7 @@
 import { useState } from "react"
 import {
   Truck, Plus, Clock, CheckCircle, XCircle, LogIn, LogOut,
-  ChevronDown, Eye, MoreHorizontal, Search, Filter, Trash2
+  ChevronDown, Eye, Settings2, Search, Filter, Trash2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ExportButton } from "@/components/wms/export-button"
@@ -11,6 +11,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type GateEntry = {
@@ -425,10 +426,12 @@ export default function GateManagementPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => setDetail(entry)} title="View details" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => openManage(entry)} title="Manage entry" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
-                      </div>
+                      <RowActions
+                        items={[
+                          { label: "View details", icon: <Eye />, onSelect: () => setDetail(entry) },
+                          { label: "Manage entry", icon: <Settings2 />, onSelect: () => openManage(entry) },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))}

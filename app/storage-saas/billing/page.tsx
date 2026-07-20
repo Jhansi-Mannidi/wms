@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Bill = {
@@ -168,19 +169,15 @@ export default function StorageSaasBillingPage() {
                 <td className="px-4 py-3 font-bold text-foreground">{b.total}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusStyle[b.status])}>{b.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(b)} title="View invoice details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    {b.status !== "Paid" && (
-                      <button onClick={() => markPaid(b)} title="Mark as paid" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                        <Check className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <button onClick={() => setVoidTarget(b)} title="Void invoice" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View invoice details", icon: <Eye />, onSelect: () => setDetail(b) },
+                      ...(b.status !== "Paid"
+                        ? [{ label: "Mark as paid", icon: <Check />, onSelect: () => markPaid(b), tone: "success" as const }]
+                        : []),
+                      { label: "Void invoice", icon: <Trash2 />, onSelect: () => setVoidTarget(b), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

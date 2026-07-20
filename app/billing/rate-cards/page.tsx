@@ -5,6 +5,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type RateCard = {
@@ -109,10 +110,12 @@ export default function RateCardsPage() {
                 <td className="px-4 py-3 text-foreground">{r.minCharge}</td>
                 <td className="px-4 py-3 text-muted-foreground">{r.effectiveFrom}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => setDetail(r)} title="View rate card" className="text-muted-foreground hover:text-foreground transition-colors"><Eye className="w-4 h-4" /></button>
-                    <button onClick={() => openEdit(r)} title="Edit rate card" className="text-muted-foreground hover:text-brand transition-colors"><Edit2 className="w-4 h-4" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View rate card", icon: <Eye />, onSelect: () => setDetail(r) },
+                      { label: "Edit rate card", icon: <Edit2 />, onSelect: () => openEdit(r) },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

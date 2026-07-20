@@ -6,6 +6,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Unit = {
@@ -96,25 +97,20 @@ export default function MHETrackingPage() {
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusClass(e.status))}>{e.status}</span></td>
                 <td className="px-4 py-3 text-muted-foreground text-xs">{e.lastMove}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(e)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    {e.operator === "Unassigned" ? (
-                      <button onClick={() => openAssign(e)} title="Assign operator" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                        <UserPlus className="w-3.5 h-3.5" />
-                      </button>
-                    ) : (
-                      <button onClick={() => setReleaseTarget(e)} title="Release operator" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                        <UserMinus className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    {e.status !== "Charging" && e.status !== "Maintenance" && (
-                      <button onClick={() => sendToCharge(e)} title="Send to charging bay" className="p-1.5 rounded-md text-brand hover:bg-brand/10 transition-colors">
-                        <Zap className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(e) },
+                      ...(e.operator === "Unassigned"
+                        ? [{ label: "Assign operator", icon: <UserPlus />, onSelect: () => openAssign(e) }]
+                        : []),
+                      ...(e.status !== "Charging" && e.status !== "Maintenance"
+                        ? [{ label: "Send to charging bay", icon: <Zap />, onSelect: () => sendToCharge(e) }]
+                        : []),
+                      ...(e.operator !== "Unassigned"
+                        ? [{ label: "Release operator", icon: <UserMinus />, onSelect: () => setReleaseTarget(e), tone: "danger" as const }]
+                        : []),
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

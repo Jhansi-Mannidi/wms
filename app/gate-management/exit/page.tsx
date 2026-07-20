@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Exit = {
@@ -185,12 +186,14 @@ export default function GateExitPage() {
                 <td className="px-4 py-3 text-muted-foreground">{e.dwell}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", clearanceClass(e.clearance))}>{e.clearance}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(e)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    {e.clearance !== "Cleared" && (
-                      <button onClick={() => setClearTarget(e)} title="Grant clearance" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><Check className="w-3.5 h-3.5" /></button>
-                    )}
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(e) },
+                      ...(e.clearance !== "Cleared"
+                        ? [{ label: "Grant clearance", icon: <Check />, onSelect: () => setClearTarget(e), tone: "success" as const }]
+                        : []),
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

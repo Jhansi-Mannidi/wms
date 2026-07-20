@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Worker = {
@@ -267,25 +268,13 @@ export default function ProductivityPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(w)} title="View scorecard" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => recognize(w)}
-                      title={w.note === "Recognized" ? "Remove recognition" : "Recognize worker"}
-                      className={cn("p-1.5 rounded-md transition-colors", w.note === "Recognized" ? "text-success bg-success/10" : "text-muted-foreground hover:bg-success/10 hover:text-success")}
-                    >
-                      <Award className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setCoachTarget(w)}
-                      title="Flag for coaching"
-                      className="p-1.5 rounded-md text-warning hover:bg-warning/10 transition-colors"
-                    >
-                      <Flag className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View scorecard", icon: <Eye />, onSelect: () => setDetail(w) },
+                      { label: w.note === "Recognized" ? "Remove recognition" : "Recognize worker", icon: <Award />, onSelect: () => recognize(w), tone: w.note === "Recognized" ? ("default" as const) : ("success" as const) },
+                      { label: "Flag for coaching", icon: <Flag />, onSelect: () => setCoachTarget(w) },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

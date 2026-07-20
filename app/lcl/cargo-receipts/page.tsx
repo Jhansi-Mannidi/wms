@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Receipt = {
@@ -149,19 +150,15 @@ export default function LCLCargoReceiptsPage() {
                 <td className="px-4 py-3 font-mono text-xs text-foreground">{r.lot}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusClass(r.status))}>{r.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(r)} title="View receipt details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    {r.status !== "Received" && (
-                      <button onClick={() => markReceived(r)} title={r.status === "Expected" ? "Mark partially received" : "Mark fully received"} className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                        <Check className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <button onClick={() => setDeleteTarget(r)} title="Delete receipt" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View receipt details", icon: <Eye />, onSelect: () => setDetail(r) },
+                      ...(r.status !== "Received"
+                        ? [{ label: r.status === "Expected" ? "Mark partially received" : "Mark fully received", icon: <Check />, onSelect: () => markReceived(r), tone: "success" as const }]
+                        : []),
+                      { label: "Delete receipt", icon: <Trash2 />, onSelect: () => setDeleteTarget(r), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

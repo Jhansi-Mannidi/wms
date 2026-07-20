@@ -11,6 +11,7 @@ import { Modal } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type WarehouseRow = {
@@ -421,10 +422,12 @@ export default function WarehouseSetupPage() {
                       <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">{zone.racking}</td>
                       <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">{zone.temp}</td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => openZoneEdit(zone)} title="Edit zone" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Edit2 className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => setDeleteZone(zone)} title="Delete zone" className="p-1.5 rounded-lg hover:bg-danger/10 transition-colors text-muted-foreground hover:text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
-                        </div>
+                        <RowActions
+                          items={[
+                            { label: "Edit zone", icon: <Edit2 />, onSelect: () => openZoneEdit(zone) },
+                            { label: "Delete zone", icon: <Trash2 />, onSelect: () => setDeleteZone(zone), tone: "danger" as const },
+                          ]}
+                        />
                       </td>
                     </tr>
                   ))}
@@ -473,10 +476,12 @@ export default function WarehouseSetupPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => openDockEdit(dock)} title="Edit dock" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Edit2 className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => setDeleteDock(dock)} title="Delete dock" className="p-1.5 rounded-lg hover:bg-danger/10 transition-colors text-muted-foreground hover:text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
-                        </div>
+                        <RowActions
+                          items={[
+                            { label: "Edit dock", icon: <Edit2 />, onSelect: () => openDockEdit(dock) },
+                            { label: "Delete dock", icon: <Trash2 />, onSelect: () => setDeleteDock(dock), tone: "danger" as const },
+                          ]}
+                        />
                       </td>
                     </tr>
                   ))}

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { Field, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 const tabs = ["All", "Outstanding", "Paid", "Overdue"]
 
@@ -169,20 +170,12 @@ export default function PortalBillingPage() {
                     Pay
                   </button>
                 )}
-                <button
-                  onClick={() => setDetail(inv)}
-                  title="View invoice details"
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E4E9F0] dark:border-border hover:bg-[#F7F9FC] dark:hover:bg-muted transition-colors"
-                >
-                  <Eye className="w-3.5 h-3.5 text-muted-foreground" />
-                </button>
-                <button
-                  onClick={() => download(inv)}
-                  title="Download invoice PDF"
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E4E9F0] dark:border-border hover:bg-[#F7F9FC] dark:hover:bg-muted transition-colors"
-                >
-                  <Download className="w-3.5 h-3.5 text-muted-foreground" />
-                </button>
+                <RowActions
+                  items={[
+                    { label: "View invoice details", icon: <Eye />, onSelect: () => setDetail(inv) },
+                    { label: "Download invoice PDF", icon: <Download />, onSelect: () => download(inv) },
+                  ]}
+                />
               </div>
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-px bg-[#E4E9F0] dark:bg-border">

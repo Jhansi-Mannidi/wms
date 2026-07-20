@@ -10,6 +10,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Job = {
@@ -341,14 +342,18 @@ export default function SchedulerPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <button onClick={() => runJob(job)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-brand" title="Run now">
-                        <Play className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => toggleJob(job)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title={job.enabled ? "Disable" : "Enable"}>
-                        {job.enabled ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                      </button>
-                      <button onClick={() => setJobDetail(job)} title="View job details" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => openEditJob(job)} title="Edit job" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
+                      <RowActions
+                        items={[
+                          { label: "Run now", icon: <Play />, onSelect: () => runJob(job) },
+                          {
+                            label: job.enabled ? "Disable" : "Enable",
+                            icon: job.enabled ? <Pause /> : <Play />,
+                            onSelect: () => toggleJob(job),
+                          },
+                          { label: "View job details", icon: <Eye />, onSelect: () => setJobDetail(job) },
+                          { label: "Edit job", icon: <MoreHorizontal />, onSelect: () => openEditJob(job) },
+                        ]}
+                      />
                     </div>
                   </div>
                 </div>

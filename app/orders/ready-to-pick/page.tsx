@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type PickOrder = {
@@ -168,12 +169,16 @@ export default function ReadyToPickPage() {
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", o.status === "In Picking" ? "bg-brand/10 text-brand" : "bg-muted text-muted-foreground")}>{o.status}</span></td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(o)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => openAssign(o)} title="Assign picker" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><UserPlus className="w-3.5 h-3.5" /></button>
                     {o.status === "Ready" && (
                       <button onClick={() => startPick(o)} className="flex items-center gap-1 px-2 py-1 rounded-md bg-brand text-white text-xs hover:bg-brand/90"><Play className="w-3 h-3" /> Start</button>
                     )}
-                    <button onClick={() => setCancelTarget(o)} title="Remove from queue" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><XCircle className="w-3.5 h-3.5" /></button>
+                    <RowActions
+                      items={[
+                        { label: "View details", icon: <Eye />, onSelect: () => setDetail(o) },
+                        { label: "Assign picker", icon: <UserPlus />, onSelect: () => openAssign(o) },
+                        { label: "Remove from queue", icon: <XCircle />, onSelect: () => setCancelTarget(o), tone: "danger" as const },
+                      ]}
+                    />
                   </div>
                 </td>
               </tr>

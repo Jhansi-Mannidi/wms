@@ -8,6 +8,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type StockItem = {
@@ -329,29 +330,13 @@ export default function InventoryPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => setDetail(item)}
-                        title="View details"
-                        className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => { setAdjustSku(item.sku); setAdjustOpen(true) }}
-                        title="Adjust this item"
-                        className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                      >
-                        <SlidersHorizontal className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setRemoveTarget(item)}
-                        title="Remove item"
-                        className="p-1.5 rounded-lg text-danger hover:bg-danger/10 transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    <RowActions
+                      items={[
+                        { label: "View details", icon: <Eye />, onSelect: () => setDetail(item) },
+                        { label: "Adjust this item", icon: <SlidersHorizontal />, onSelect: () => { setAdjustSku(item.sku); setAdjustOpen(true) } },
+                        { label: "Remove item", icon: <X />, onSelect: () => setRemoveTarget(item), tone: "danger" as const },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}

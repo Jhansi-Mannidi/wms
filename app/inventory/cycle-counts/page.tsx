@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type CycleCount = {
@@ -192,24 +193,18 @@ export default function CycleCountsPage() {
                 </td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusStyle[c.status])}>{c.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(c)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    {c.status === "Pending" && (
-                      <button onClick={() => startCount(c)} title="Start count" className="p-1.5 rounded-md text-blue-600 hover:bg-blue-500/10 transition-colors">
-                        <Play className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    {c.status === "In Progress" && (
-                      <button onClick={() => openComplete(c)} title="Complete count" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <button onClick={() => setDeleteTarget(c)} title="Delete count" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(c) },
+                      ...(c.status === "Pending"
+                        ? [{ label: "Start count", icon: <Play />, onSelect: () => startCount(c) }]
+                        : []),
+                      ...(c.status === "In Progress"
+                        ? [{ label: "Complete count", icon: <CheckCircle2 />, onSelect: () => openComplete(c), tone: "success" as const }]
+                        : []),
+                      { label: "Delete count", icon: <Trash2 />, onSelect: () => setDeleteTarget(c), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

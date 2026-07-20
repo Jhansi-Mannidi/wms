@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, TextArea, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type BreachedOrder = {
@@ -154,13 +155,15 @@ export default function SLABreachedPage() {
                 <td className="px-4 py-3 text-muted-foreground text-xs">{o.reason}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", o.escalated ? "bg-danger/10 text-danger" : "bg-muted text-muted-foreground")}>{o.escalated ? "Yes" : "No"}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(o)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    {!o.escalated && (
-                      <button onClick={() => escalate(o)} title="Escalate" className="p-1.5 rounded-md text-warning hover:bg-warning/10 transition-colors"><ArrowUpCircle className="w-3.5 h-3.5" /></button>
-                    )}
-                    <button onClick={() => setResolveTarget(o)} title="Resolve breach" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><Check className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(o) },
+                      ...(!o.escalated
+                        ? [{ label: "Escalate", icon: <ArrowUpCircle />, onSelect: () => escalate(o) }]
+                        : []),
+                      { label: "Resolve breach", icon: <Check />, onSelect: () => setResolveTarget(o), tone: "success" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

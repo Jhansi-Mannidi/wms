@@ -9,6 +9,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Agreement = {
@@ -350,14 +351,16 @@ export default function AgreementsPage() {
                           </button>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1">
-                            <button onClick={() => setDetail(a)} title="View agreement" className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-brand hover:bg-brand/10 transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => openEdit(a)} title="Edit agreement" className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => notify.info("Contract document", `Generating the signed contract PDF for ${a.id}.`)} title="Contract document" className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><FileText className="w-3.5 h-3.5" /></button>
-                            {a.status !== "expired" && (
-                              <button onClick={() => setTerminateTarget(a)} title="Terminate agreement" className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                            )}
-                          </div>
+                          <RowActions
+                            items={[
+                              { label: "View agreement", icon: <Eye />, onSelect: () => setDetail(a) },
+                              { label: "Edit agreement", icon: <Edit2 />, onSelect: () => openEdit(a) },
+                              { label: "Contract document", icon: <FileText />, onSelect: () => notify.info("Contract document", `Generating the signed contract PDF for ${a.id}.`) },
+                              ...(a.status !== "expired"
+                                ? [{ label: "Terminate agreement", icon: <Trash2 />, onSelect: () => setTerminateTarget(a), tone: "danger" as const }]
+                                : []),
+                            ]}
+                          />
                         </td>
                       </tr>
                     )

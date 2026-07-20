@@ -10,6 +10,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, TextArea, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Equipment = {
@@ -307,11 +308,13 @@ export default function MHEOperationsPage() {
                           {eq.nextService}
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1">
-                            <button onClick={() => setEquipDetail(eq)} title="View details" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => openEquipEdit(eq)} title="Edit equipment" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Pencil className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => setEquipDeleteTarget(eq)} title="Retire equipment" className="p-1.5 rounded-lg hover:bg-danger/10 transition-colors text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
-                          </div>
+                          <RowActions
+                            items={[
+                              { label: "View details", icon: <Eye />, onSelect: () => setEquipDetail(eq) },
+                              { label: "Edit equipment", icon: <Pencil />, onSelect: () => openEquipEdit(eq) },
+                              { label: "Retire equipment", icon: <Trash2 />, onSelect: () => setEquipDeleteTarget(eq), tone: "danger" as const },
+                            ]}
+                          />
                         </td>
                       </tr>
                     ))}
@@ -357,12 +360,14 @@ export default function MHEOperationsPage() {
                         </td>
                         <td className="px-4 py-3 text-muted-foreground text-xs max-w-48 truncate">{log.notes}</td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1">
-                            <button onClick={() => setMntDetail(log)} title="View log details" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                            {log.status !== "Completed" && (
-                              <button onClick={() => completeLog(log)} title="Mark completed" className="p-1.5 rounded-lg hover:bg-success/10 transition-colors text-success"><CheckCircle2 className="w-3.5 h-3.5" /></button>
-                            )}
-                          </div>
+                          <RowActions
+                            items={[
+                              { label: "View log details", icon: <Eye />, onSelect: () => setMntDetail(log) },
+                              ...(log.status !== "Completed"
+                                ? [{ label: "Mark completed", icon: <CheckCircle2 />, onSelect: () => completeLog(log), tone: "success" as const }]
+                                : []),
+                            ]}
+                          />
                         </td>
                       </tr>
                     ))}

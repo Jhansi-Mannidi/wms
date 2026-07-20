@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Report = { id: string; name: string; period: string; size: string; status: string }
@@ -114,9 +115,6 @@ export default function LCLReportsPage() {
               <p className="text-xs text-muted-foreground mt-0.5">{r.period} &bull; {r.size} &bull; <span className="font-mono">{r.id}</span></p>
             </div>
             <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium mr-2", r.status === "Ready" ? "bg-success/10 text-success" : "bg-amber-50 text-amber-600")}>{r.status}</span>
-            <button onClick={() => setDetail(r)} title="View report details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-              <Eye className="w-4 h-4" />
-            </button>
             {r.status === "Ready" ? (
               <button
                 onClick={() => notify.success("Download started", `${r.name} (${r.period}, ${r.size}) is downloading.`)}
@@ -133,9 +131,12 @@ export default function LCLReportsPage() {
                 <FileText className="w-3.5 h-3.5" /> Finish Generating
               </button>
             )}
-            <button onClick={() => setDeleteTarget(r)} title="Delete report" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-              <Trash2 className="w-4 h-4" />
-            </button>
+            <RowActions
+              items={[
+                { label: "View report details", icon: <Eye />, onSelect: () => setDetail(r) },
+                { label: "Delete report", icon: <Trash2 />, onSelect: () => setDeleteTarget(r), tone: "danger" as const },
+              ]}
+            />
           </div>
         ))}
         {reports.length === 0 && (

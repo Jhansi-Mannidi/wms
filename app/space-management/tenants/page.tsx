@@ -5,6 +5,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type SpaceTenant = {
@@ -117,13 +118,15 @@ export default function SpaceTenantsPage() {
                 <td className="px-4 py-3 text-muted-foreground">{t.lease}</td>
                 <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${t.status==="Active"?"bg-success/10 text-success":"bg-amber-50 text-amber-600"}`}>{t.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(t)} title={`View ${t.name} details`} className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    {t.status === "Provisional" && (
-                      <button onClick={() => activate(t)} title={`Activate ${t.name}`} className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><CheckCircle2 className="w-3.5 h-3.5" /></button>
-                    )}
-                    <button onClick={() => setDeleteTarget(t)} title={`Remove ${t.name}`} className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: `View ${t.name} details`, icon: <Eye />, onSelect: () => setDetail(t) },
+                      ...(t.status === "Provisional"
+                        ? [{ label: `Activate ${t.name}`, icon: <CheckCircle2 />, onSelect: () => activate(t), tone: "success" as const }]
+                        : []),
+                      { label: `Remove ${t.name}`, icon: <Trash2 />, onSelect: () => setDeleteTarget(t), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

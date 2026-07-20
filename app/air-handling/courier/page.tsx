@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 type Stage = "Ready" | "Assigned" | "Out-for-Delivery" | "Delivered" | "RTO"
 
@@ -293,24 +294,22 @@ export default function CourierConsolePage() {
                   <td className="px-4 py-3">{job.pod ? <CheckCircle2 className="w-4 h-4 text-success" /> : <span className="text-xs text-muted-foreground">—</span>}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => setDetail(job)} title="View job details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
                       {job.stage !== "Delivered" && job.stage !== "RTO" && (
-                        <>
-                          <button onClick={() => advance(job.id)} className="text-[10px] px-2 py-1 rounded bg-[#F7941D] text-white font-semibold hover:bg-[#F7941D]/90">
-                            {job.stage === "Ready" ? "Assign" : job.stage === "Assigned" ? "Dispatch" : "Delivered"}
-                          </button>
-                          <button onClick={() => setRtoTarget(job)} title="Mark as RTO" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                            <AlertTriangle className="w-3.5 h-3.5" />
-                          </button>
-                        </>
-                      )}
-                      {job.stage === "RTO" && (
-                        <button onClick={() => reattempt(job)} title="Schedule reattempt" className="p-1.5 rounded-md text-brand hover:bg-brand/10 transition-colors">
-                          <RotateCcw className="w-3.5 h-3.5" />
+                        <button onClick={() => advance(job.id)} className="text-[10px] px-2 py-1 rounded bg-[#F7941D] text-white font-semibold hover:bg-[#F7941D]/90">
+                          {job.stage === "Ready" ? "Assign" : job.stage === "Assigned" ? "Dispatch" : "Delivered"}
                         </button>
                       )}
+                      <RowActions
+                        items={[
+                          { label: "View job details", icon: <Eye />, onSelect: () => setDetail(job) },
+                          ...(job.stage === "RTO"
+                            ? [{ label: "Schedule reattempt", icon: <RotateCcw />, onSelect: () => reattempt(job) }]
+                            : []),
+                          ...(job.stage !== "Delivered" && job.stage !== "RTO"
+                            ? [{ label: "Mark as RTO", icon: <AlertTriangle />, onSelect: () => setRtoTarget(job), tone: "danger" as const }]
+                            : []),
+                        ]}
+                      />
                     </div>
                   </td>
                 </tr>

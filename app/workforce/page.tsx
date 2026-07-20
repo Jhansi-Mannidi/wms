@@ -11,6 +11,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Worker = {
@@ -328,10 +329,12 @@ export default function WorkforcePage() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex items-center gap-1">
-                              <button onClick={() => setWorkerDetail(w)} title="View worker details" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                              <button onClick={() => openManageWorker(w)} title="Manage worker" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
-                            </div>
+                            <RowActions
+                              items={[
+                                { label: "View worker details", icon: <Eye />, onSelect: () => setWorkerDetail(w) },
+                                { label: "Manage worker", icon: <MoreHorizontal />, onSelect: () => openManageWorker(w) },
+                              ]}
+                            />
                           </td>
                         </tr>
                       )

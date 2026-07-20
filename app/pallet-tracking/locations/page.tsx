@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type PalletLocation = {
@@ -112,11 +113,13 @@ export default function PalletLocationsPage() {
                 <td className="px-4 py-3 text-muted-foreground">{p.owner}</td>
                 <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusClass(p.status)}`}>{p.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(p)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => openMove(p)} title="Relocate pallet" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Move className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setReleaseTarget(p)} title="Release location" className="p-1.5 rounded-md text-muted-foreground hover:bg-danger/10 hover:text-danger transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(p) },
+                      { label: "Relocate pallet", icon: <Move />, onSelect: () => openMove(p) },
+                      { label: "Release location", icon: <Trash2 />, onSelect: () => setReleaseTarget(p), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

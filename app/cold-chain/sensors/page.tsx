@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { Drawer } from "@/components/ui/modal"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Sensor = {
@@ -70,10 +71,12 @@ export default function ColdChainSensorsPage() {
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium",s.status==="ok"?"bg-success/10 text-success":s.status==="warn"?"bg-amber-50 text-amber-600":"bg-danger/10 text-danger")}>{statusLabel(s.status)}</span></td>
                 <td className="px-4 py-3 text-muted-foreground text-xs">{s.lastPing}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(s)} title={`View ${s.id} details`} className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => ping(s)} title={`Ping ${s.id}`} className="p-1.5 rounded-md text-brand hover:bg-brand/10 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: `View ${s.id} details`, icon: <Eye />, onSelect: () => setDetail(s) },
+                      { label: `Ping ${s.id}`, icon: <RefreshCw />, onSelect: () => ping(s) },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

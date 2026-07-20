@@ -12,6 +12,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Order = {
@@ -126,7 +127,6 @@ export default function OrdersPage() {
   const [waveErrors, setWaveErrors] = useState<Record<string, string>>({})
 
   const [detail, setDetail] = useState<Order | null>(null)
-  const [actionsFor, setActionsFor] = useState<Order | null>(null)
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null)
 
   const filtered = orders.filter((o) => {
@@ -284,19 +284,16 @@ export default function OrdersPage() {
       return
     }
     setOrders((prev) => prev.map((x) => (x.id === o.id ? { ...x, status: next } : x)))
-    setActionsFor(null)
     notify.success("Status updated", `${o.id} moved to ${next}.`)
   }
 
   function escalate(o: Order) {
     setOrders((prev) => prev.map((x) => (x.id === o.id ? { ...x, priority: "Urgent" } : x)))
-    setActionsFor(null)
     notify.warning("Order escalated", `${o.id} is now Urgent priority.`)
   }
 
   function cancelOrder(o: Order) {
     setOrders((prev) => prev.map((x) => (x.id === o.id ? { ...x, status: "Cancelled" } : x)))
-    setActionsFor(null)
     notify.warning("Order cancelled", `${o.id} has been cancelled.`)
   }
 
@@ -464,10 +461,14 @@ export default function OrdersPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => setDetail(order)} title="View details" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => setActionsFor(order)} title="More actions" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
-                    </div>
+                    <RowActions
+                      items={[
+                        { label: "View details", icon: <Eye />, onSelect: () => setDetail(order) },
+                        { label: "Advance status", icon: <ChevronRight />, onSelect: () => advance(order), tone: "success" as const },
+                        { label: "Escalate to Urgent", icon: <AlertTriangle />, onSelect: () => escalate(order) },
+                        { label: "Cancel order", icon: <XCircle />, onSelect: () => setCancelTarget(order), tone: "danger" as const },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}
@@ -592,33 +593,6 @@ export default function OrdersPage() {
             <TextInput type="date" value={rangeDraft.to} onChange={(e) => setRangeDraft({ ...rangeDraft, to: e.target.value })} />
           </Field>
         </div>
-      </Modal>
-
-      {/* Row actions */}
-      <Modal
-        open={!!actionsFor}
-        onOpenChange={(o) => !o && setActionsFor(null)}
-        title={actionsFor ? `Actions — ${actionsFor.id}` : ""}
-        description="Move the order forward or intervene"
-        size="sm"
-      >
-        {actionsFor && (
-          <div className="space-y-2">
-            <button onClick={() => advance(actionsFor)} className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
-              <span className="flex items-center gap-2"><ChevronRight className="w-4 h-4 text-brand" /> Advance status</span>
-              <span className="text-xs text-muted-foreground">{actionsFor.status}</span>
-            </button>
-            <button onClick={() => escalate(actionsFor)} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
-              <AlertTriangle className="w-4 h-4 text-warning" /> Escalate to Urgent
-            </button>
-            <button onClick={() => { setDetail(actionsFor); setActionsFor(null) }} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
-              <Eye className="w-4 h-4 text-muted-foreground" /> View full detail
-            </button>
-            <button onClick={() => setCancelTarget(actionsFor)} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg border border-danger/30 bg-danger/5 text-sm text-danger hover:bg-danger/10 transition-colors">
-              <XCircle className="w-4 h-4" /> Cancel order
-            </button>
-          </div>
-        )}
       </Modal>
 
       {/* Detail drawer */}

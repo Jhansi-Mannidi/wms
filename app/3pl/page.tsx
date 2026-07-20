@@ -2,11 +2,12 @@
 
 import { useState } from "react"
 import {
-  Search, Filter, Plus, MoreHorizontal, Eye, Edit,
+  Search, Filter, Plus, UserMinus, Eye, Edit,
   Globe, AlertCircle, LayoutGrid, List, TrendingUp,
   CheckCircle2, ExternalLink
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { RowActions } from "@/components/ui/row-actions"
 import { ExportButton } from "@/components/wms/export-button"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
@@ -273,12 +274,14 @@ export default function ThreePLPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => setDetail(c)} title="View client detail" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-brand"><Eye className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => openEdit(c)} title="Edit client" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-brand"><Edit className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => notify.info("Client portal", `Opening the ${c.name} portal workspace in a new session.`)} title="Open client portal" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-brand"><ExternalLink className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => setOffboardTarget(c)} title="Offboard client" className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-danger"><MoreHorizontal className="w-3.5 h-3.5" /></button>
-                      </div>
+                      <RowActions
+                        items={[
+                          { label: "View client detail", icon: <Eye />, onSelect: () => setDetail(c) },
+                          { label: "Edit client", icon: <Edit />, onSelect: () => openEdit(c) },
+                          { label: "Open client portal", icon: <ExternalLink />, onSelect: () => notify.info("Client portal", `Opening the ${c.name} portal workspace in a new session.`) },
+                          { label: "Offboard client", icon: <UserMinus />, onSelect: () => setOffboardTarget(c), tone: "danger" as const },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))}

@@ -7,6 +7,7 @@ import { Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type AwaitingPkg = {
@@ -189,12 +190,12 @@ export default function RoutingBoardPage() {
                 <div key={p.id} className="flex items-center justify-between gap-2">
                   <p className="text-xs text-muted-foreground">{p.id} · {p.consigneeCity}</p>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(p)} title="View package details" className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3 h-3" />
-                    </button>
-                    <button onClick={() => unroute(p, "local")} title="Undo routing" className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Undo2 className="w-3 h-3" />
-                    </button>
+                    <RowActions
+                      items={[
+                        { label: "View package details", icon: <Eye />, onSelect: () => setDetail(p) },
+                        { label: "Undo routing", icon: <Undo2 />, onSelect: () => unroute(p, "local") },
+                      ]}
+                    />
                   </div>
                 </div>
               ))}
@@ -207,12 +208,12 @@ export default function RoutingBoardPage() {
                 <div key={p.id} className="flex items-center justify-between gap-2">
                   <p className="text-xs text-muted-foreground">{p.id} · {p.consigneeCity}</p>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(p)} title="View package details" className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3 h-3" />
-                    </button>
-                    <button onClick={() => unroute(p, "export")} title="Undo routing" className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Undo2 className="w-3 h-3" />
-                    </button>
+                    <RowActions
+                      items={[
+                        { label: "View package details", icon: <Eye />, onSelect: () => setDetail(p) },
+                        { label: "Undo routing", icon: <Undo2 />, onSelect: () => unroute(p, "export") },
+                      ]}
+                    />
                   </div>
                 </div>
               ))}

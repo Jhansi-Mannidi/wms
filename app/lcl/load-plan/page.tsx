@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 const CBM_MAX = 28.3
 const KG_MAX = 21700
@@ -342,22 +343,17 @@ export default function LCLLoadPlanPage() {
                     <FillGauge used={con.kg} max={KG_MAX} unit="kg" />
                   </div>
                 </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setDetail(con) }}
-                  title="View container details"
-                  className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0 mt-1.5"
-                >
-                  <Eye className="w-4 h-4" />
-                </button>
-                {(con.status === "building" || con.status === "confirmed") && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setCancelTarget(con) }}
-                    title="Cancel container"
-                    className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors shrink-0 mt-1.5"
-                  >
-                    <XCircle className="w-4 h-4" />
-                  </button>
-                )}
+                {/* stop the row's expand/collapse handler from firing when using the menu */}
+                <span onClick={(e) => e.stopPropagation()} className="shrink-0 mt-1.5">
+                  <RowActions
+                    items={[
+                      { label: "View container details", icon: <Eye />, onSelect: () => setDetail(con) },
+                      ...(con.status === "building" || con.status === "confirmed"
+                        ? [{ label: "Cancel container", icon: <XCircle />, onSelect: () => setCancelTarget(con), tone: "danger" as const }]
+                        : []),
+                    ]}
+                  />
+                </span>
                 <ChevronDown className={cn("w-4 h-4 text-muted-foreground shrink-0 transition-transform mt-3", isExpanded && "rotate-180")} />
               </div>
 

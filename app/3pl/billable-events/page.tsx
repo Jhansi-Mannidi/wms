@@ -8,6 +8,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type BillableEvent = {
@@ -224,12 +225,14 @@ export default function BillableEventsPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(e)} title="View event detail" className="w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-brand hover:bg-brand/10 transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    {e.status === "Pending" && (
-                      <button onClick={() => setVoidTarget(e)} title="Void event" className="w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                    )}
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View event detail", icon: <Eye />, onSelect: () => setDetail(e) },
+                      ...(e.status === "Pending"
+                        ? [{ label: "Void event", icon: <Trash2 />, onSelect: () => setVoidTarget(e), tone: "danger" as const }]
+                        : []),
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

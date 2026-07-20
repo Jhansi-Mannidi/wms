@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Transfer = {
@@ -163,21 +164,17 @@ export default function TransferOrdersPage() {
                 <td className="px-4 py-3 text-muted-foreground">{t.date}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusStyle[t.status])}>{t.status}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(t)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    {(t.status === "Pending" || t.status === "In Progress") && (
-                      <>
-                        <button onClick={() => advance(t)} title={t.status === "Pending" ? "Start transfer" : "Complete transfer"} className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                          <Check className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => setCancelTarget(t)} title="Cancel transfer" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                          <XIcon className="w-3.5 h-3.5" />
-                        </button>
-                      </>
-                    )}
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(t) },
+                      ...(t.status === "Pending" || t.status === "In Progress"
+                        ? [
+                            { label: t.status === "Pending" ? "Start transfer" : "Complete transfer", icon: <Check />, onSelect: () => advance(t), tone: "success" as const },
+                            { label: "Cancel transfer", icon: <XIcon />, onSelect: () => setCancelTarget(t), tone: "danger" as const },
+                          ]
+                        : []),
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

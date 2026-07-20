@@ -8,6 +8,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, TextArea, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type WorkOrder = {
@@ -301,26 +302,22 @@ export default function VASWorkOrdersPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0 mt-1">
-                    {(w.status === "open" || w.status === "paused") && (
-                      <button onClick={() => setStatus(w, "in-progress", "started")} title="Start work order" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                        <Play className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    {w.status === "in-progress" && (
-                      <>
-                        <button onClick={() => setStatus(w, "paused", "paused")} title="Pause work order" className="p-1.5 rounded-md text-warning hover:bg-warning/10 transition-colors">
-                          <Pause className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => setStatus(w, "done", "completed")} title="Complete work order" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                        </button>
-                      </>
-                    )}
-                    {w.status !== "done" && (
-                      <button onClick={() => setCancelTarget(w)} title="Cancel work order" className="p-1.5 rounded-md text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    )}
+                    <RowActions
+                      items={[
+                        ...(w.status === "open" || w.status === "paused"
+                          ? [{ label: "Start work order", icon: <Play />, onSelect: () => setStatus(w, "in-progress", "started") }]
+                          : []),
+                        ...(w.status === "in-progress"
+                          ? [
+                              { label: "Pause work order", icon: <Pause />, onSelect: () => setStatus(w, "paused", "paused") },
+                              { label: "Complete work order", icon: <CheckCircle2 />, onSelect: () => setStatus(w, "done", "completed"), tone: "success" as const },
+                            ]
+                          : []),
+                        ...(w.status !== "done"
+                          ? [{ label: "Cancel work order", icon: <Trash2 />, onSelect: () => setCancelTarget(w), tone: "danger" as const }]
+                          : []),
+                      ]}
+                    />
                     <button onClick={() => setDetail(w)} title="Open work order detail" className="text-[11px] text-brand hover:underline flex items-center gap-1 ml-1">
                       Open <ChevronRight className="w-3 h-3" />
                     </button>

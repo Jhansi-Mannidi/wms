@@ -11,6 +11,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Invoice = {
@@ -379,11 +380,13 @@ export default function BillingPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1">
-                            <button onClick={() => setDetail(inv)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="View"><Eye className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => sendInvoice(inv)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Send"><Send className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => openEditInvoice(inv)} title="Edit invoice" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
-                          </div>
+                          <RowActions
+                            items={[
+                              { label: "View", icon: <Eye />, onSelect: () => setDetail(inv) },
+                              { label: "Send", icon: <Send />, onSelect: () => sendInvoice(inv) },
+                              { label: "Edit invoice", icon: <MoreHorizontal />, onSelect: () => openEditInvoice(inv) },
+                            ]}
+                          />
                         </td>
                       </tr>
                     ))}

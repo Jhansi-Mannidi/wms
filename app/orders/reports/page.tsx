@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Report = { name: string; desc: string; lastRun: string; format: string; schedule: string }
@@ -114,9 +115,13 @@ export default function OrderReportsPage() {
             <div className="flex items-center justify-between pt-1 border-t border-border">
               <span className="text-xs text-muted-foreground">Last run: {r.lastRun}</span>
               <div className="flex items-center gap-1">
-                <button onClick={() => setDetail(r)} title="View report details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                <button onClick={() => openSchedule(r)} title="Change schedule" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><CalendarClock className="w-3.5 h-3.5" /></button>
                 <button onClick={() => openRun(r)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-brand/10 text-brand text-xs font-medium hover:bg-brand/20 transition-colors"><Download className="w-3 h-3" /> Run</button>
+                <RowActions
+                  items={[
+                    { label: "View report details", icon: <Eye />, onSelect: () => setDetail(r) },
+                    { label: "Change schedule", icon: <CalendarClock />, onSelect: () => openSchedule(r) },
+                  ]}
+                />
               </div>
             </div>
           </div>

@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 import { cn } from "@/lib/utils"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
@@ -243,15 +244,7 @@ export default function StorageBillingPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
                       {generated.includes(row.id) ? (
-                        <>
-                          <span className="text-[11px] px-2 py-0.5 rounded-full bg-success/15 text-success font-semibold">Invoice Ready</span>
-                          <button
-                            onClick={() => notify.success("Download started", `Invoice for ${row.customer} — ₹${row.total.toLocaleString()} (${period})`)}
-                            title="Download invoice"
-                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                            <Download className="w-3.5 h-3.5" />
-                          </button>
-                        </>
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-success/15 text-success font-semibold">Invoice Ready</span>
                       ) : (
                         <button
                           onClick={() => handleGenerate(row.id)}
@@ -261,18 +254,19 @@ export default function StorageBillingPage() {
                           {generatingFor === row.id ? "Generating..." : "Generate Invoice"}
                         </button>
                       )}
-                      <button
-                        onClick={() => setDetail(row)}
-                        title="View billing detail"
-                        className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteTarget(row)}
-                        title="Void billing line"
-                        className="w-6 h-6 flex items-center justify-center rounded hover:bg-danger/10 text-muted-foreground hover:text-danger transition-colors">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <RowActions
+                        items={[
+                          ...(generated.includes(row.id)
+                            ? [{
+                                label: "Download invoice",
+                                icon: <Download />,
+                                onSelect: () => notify.success("Download started", `Invoice for ${row.customer} — ₹${row.total.toLocaleString()} (${period})`),
+                              }]
+                            : []),
+                          { label: "View billing detail", icon: <Eye />, onSelect: () => setDetail(row) },
+                          { label: "Void billing line", icon: <Trash2 />, onSelect: () => setDeleteTarget(row), tone: "danger" as const },
+                        ]}
+                      />
                     </div>
                   </td>
                 </tr>

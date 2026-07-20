@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type PackedOrder = {
@@ -154,14 +155,16 @@ export default function PackedOrdersPage() {
                 <td className="px-4 py-3 text-muted-foreground">{o.courier}</td>
                 <td className="px-4 py-3 font-mono text-xs text-brand">{o.awb || <span className="text-amber-600">Pending</span>}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(o)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    {!o.awb && (
-                      <button onClick={() => generateAwb(o)} title="Generate AWB" className="p-1.5 rounded-md text-brand hover:bg-brand/10 transition-colors"><Barcode className="w-3.5 h-3.5" /></button>
-                    )}
-                    <button onClick={() => handover(o)} title="Hand over to courier" className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><Truck className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setUnpackTarget(o)} title="Reverse pack" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><XCircle className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(o) },
+                      ...(!o.awb
+                        ? [{ label: "Generate AWB", icon: <Barcode />, onSelect: () => generateAwb(o) }]
+                        : []),
+                      { label: "Hand over to courier", icon: <Truck />, onSelect: () => handover(o), tone: "success" as const },
+                      { label: "Reverse pack", icon: <XCircle />, onSelect: () => setUnpackTarget(o), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

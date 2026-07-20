@@ -3,13 +3,14 @@
 import { useState } from "react"
 import {
   Box, MapPin, Clock, CheckCircle2, AlertTriangle,
-  Plus, Search, ChevronDown, Eye, MoreHorizontal, QrCode, RefreshCw, Trash2
+  Plus, Search, ChevronDown, Eye, Move, QrCode, RefreshCw, Trash2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Pallet = {
@@ -257,11 +258,13 @@ export default function PalletTrackingPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => setDetail(p)} title="View details" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => openMove(p)} title="Relocate / change status" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => setDeleteTarget(p)} title="Decommission pallet" className="p-1.5 rounded-lg hover:bg-danger/10 transition-colors text-muted-foreground hover:text-danger"><Trash2 className="w-3.5 h-3.5" /></button>
-                      </div>
+                      <RowActions
+                        items={[
+                          { label: "View details", icon: <Eye />, onSelect: () => setDetail(p) },
+                          { label: "Relocate / change status", icon: <Move />, onSelect: () => openMove(p) },
+                          { label: "Decommission pallet", icon: <Trash2 />, onSelect: () => setDeleteTarget(p), tone: "danger" as const },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))}

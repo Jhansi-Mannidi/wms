@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type ReportDef = {
@@ -171,17 +172,13 @@ export default function InventoryReportsPage() {
                   <td className="px-4 py-3 text-muted-foreground">{g.generatedAt}</td>
                   <td className="px-4 py-3 font-semibold text-foreground">{g.rows.toLocaleString("en-IN")}</td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => setDetail(g)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => download(g)} title="Download report" className="p-1.5 rounded-md text-brand hover:bg-brand/10 transition-colors">
-                        <Download className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => setDeleteTarget(g)} title="Delete report" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    <RowActions
+                      items={[
+                        { label: "View details", icon: <Eye />, onSelect: () => setDetail(g) },
+                        { label: "Download report", icon: <Download />, onSelect: () => download(g) },
+                        { label: "Delete report", icon: <Trash2 />, onSelect: () => setDeleteTarget(g), tone: "danger" as const },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}

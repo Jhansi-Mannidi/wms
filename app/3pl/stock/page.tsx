@@ -9,6 +9,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Stock = {
@@ -346,10 +347,12 @@ export default function OwnedStockExplorerPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => setDetail(s)} title="View stock detail" className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-brand hover:bg-brand/10 transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => openAdjust(s)} title="Adjust stock" className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
-                        </div>
+                        <RowActions
+                          items={[
+                            { label: "View stock detail", icon: <Eye />, onSelect: () => setDetail(s) },
+                            { label: "Adjust stock", icon: <RefreshCw />, onSelect: () => openAdjust(s) },
+                          ]}
+                        />
                       </td>
                     </tr>
                   )

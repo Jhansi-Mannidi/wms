@@ -11,6 +11,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type SKU = {
@@ -72,7 +73,6 @@ export default function SKUMasterPage() {
   const [importError, setImportError] = useState("")
 
   const [detail, setDetail] = useState<SKU | null>(null)
-  const [actionsFor, setActionsFor] = useState<SKU | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<SKU | null>(null)
 
   const PAGE_SIZE = 5
@@ -138,7 +138,6 @@ export default function SKUMasterPage() {
     })
     setErrors({})
     setShowAddForm(true)
-    setActionsFor(null)
   }
 
   function saveSku() {
@@ -212,21 +211,18 @@ export default function SKUMasterPage() {
   function toggleStatus(s: SKU) {
     const next = s.status === "Active" ? "Inactive" : "Active"
     setSkus(prev => prev.map(x => x.sku === s.sku ? { ...x, status: next } : x))
-    setActionsFor(null)
     notify.success(`SKU ${next.toLowerCase()}`, `${s.sku} is now ${next}.`)
   }
 
   function duplicate(s: SKU) {
     const copy: SKU = { ...s, sku: nextSkuCode(), name: `${s.name} (Copy)`, barcode: String(Number(s.barcode) + 1000).padStart(13, "0"), status: "Inactive" }
     setSkus(prev => [copy, ...prev])
-    setActionsFor(null)
     setPage(1)
     notify.success("SKU duplicated", `${copy.sku} created from ${s.sku}.`)
   }
 
   function removeSku(s: SKU) {
     setSkus(prev => prev.filter(x => x.sku !== s.sku))
-    setActionsFor(null)
     notify.warning("SKU deleted", `${s.sku} removed from the master.`)
   }
 
@@ -327,11 +323,15 @@ export default function SKUMasterPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => setDetail(item)} title="View details" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => openEdit(item)} title="Edit SKU" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Edit2 className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => setActionsFor(item)} title="More actions" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
-                      </div>
+                      <RowActions
+                        items={[
+                          { label: "View details", icon: <Eye />, onSelect: () => setDetail(item) },
+                          { label: "Edit SKU", icon: <Edit2 />, onSelect: () => openEdit(item) },
+                          { label: `Mark ${item.status === "Active" ? "Inactive" : "Active"}`, icon: <Power />, onSelect: () => toggleStatus(item) },
+                          { label: "Duplicate SKU", icon: <Copy />, onSelect: () => duplicate(item) },
+                          { label: "Delete SKU", icon: <Trash2 />, onSelect: () => setDeleteTarget(item), tone: "danger" as const },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -427,32 +427,6 @@ export default function SKUMasterPage() {
             </div>
           )}
         </div>
-      </Modal>
-
-      {/* Row actions */}
-      <Modal
-        open={!!actionsFor}
-        onOpenChange={(o) => !o && setActionsFor(null)}
-        title={actionsFor ? `Actions — ${actionsFor.sku}` : ""}
-        description="Manage this product definition"
-        size="sm"
-      >
-        {actionsFor && (
-          <div className="space-y-2">
-            <button onClick={() => openEdit(actionsFor)} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
-              <Edit2 className="w-4 h-4 text-brand" /> Edit SKU
-            </button>
-            <button onClick={() => toggleStatus(actionsFor)} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
-              <Power className="w-4 h-4 text-warning" /> Mark {actionsFor.status === "Active" ? "Inactive" : "Active"}
-            </button>
-            <button onClick={() => duplicate(actionsFor)} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
-              <Copy className="w-4 h-4 text-muted-foreground" /> Duplicate SKU
-            </button>
-            <button onClick={() => setDeleteTarget(actionsFor)} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg border border-danger/30 bg-danger/5 text-sm text-danger hover:bg-danger/10 transition-colors">
-              <Trash2 className="w-4 h-4" /> Delete SKU
-            </button>
-          </div>
-        )}
       </Modal>
 
       {/* Detail drawer */}

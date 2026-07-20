@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Zone = {
@@ -200,12 +201,14 @@ export default function WarehouseZonesPage() {
                 <td className="px-4 py-3 text-muted-foreground">{z.temp}</td>
                 <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", z.active?"bg-success/10 text-success":"bg-muted text-muted-foreground")}>{z.active?"Active":"Inactive"}</span></td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setDetail(z)} title="View details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => openEdit(z)} title="Edit zone" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => toggleActive(z)} title={z.active ? "Deactivate zone" : "Activate zone"} className={cn("p-1.5 rounded-md transition-colors", z.active ? "text-warning hover:bg-warning/10" : "text-success hover:bg-success/10")}><Power className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setDeleteTarget(z)} title="Delete zone" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
+                  <RowActions
+                    items={[
+                      { label: "View details", icon: <Eye />, onSelect: () => setDetail(z) },
+                      { label: "Edit zone", icon: <Edit2 />, onSelect: () => openEdit(z) },
+                      { label: z.active ? "Deactivate zone" : "Activate zone", icon: <Power />, onSelect: () => toggleActive(z) },
+                      { label: "Delete zone", icon: <Trash2 />, onSelect: () => setDeleteTarget(z), tone: "danger" as const },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

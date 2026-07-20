@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 const initialClients = ["Apex Pharma Ltd", "Sunrise Electronics", "GlobalTex Fabrics", "MediSupply Corp"]
 const serviceLevels = ["Standard", "Express", "Priority Overnight", "Economy"]
@@ -443,20 +444,14 @@ export default function AirCapturePage() {
                   <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{p.hold}</td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">{p.attachments.length}</td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => setDetail(p)} title="View receipt details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => openPhoto({ scope: "row", id: p.id })} title="Capture photo for this package" className="p-1.5 rounded-md text-brand hover:bg-brand/10 transition-colors">
-                        <Camera className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => openDoc({ scope: "row", id: p.id })} title="Upload document for this package" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                        <Upload className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={() => setVoidTarget(p)} title="Void this receipt" className="p-1.5 rounded-md text-danger hover:bg-danger/10 transition-colors">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    <RowActions
+                      items={[
+                        { label: "View receipt details", icon: <Eye />, onSelect: () => setDetail(p) },
+                        { label: "Capture photo for this package", icon: <Camera />, onSelect: () => openPhoto({ scope: "row", id: p.id }) },
+                        { label: "Upload document for this package", icon: <Upload />, onSelect: () => openDoc({ scope: "row", id: p.id }) },
+                        { label: "Void this receipt", icon: <Trash2 />, onSelect: () => setVoidTarget(p), tone: "danger" as const },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}

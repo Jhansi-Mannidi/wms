@@ -3,13 +3,14 @@
 import { useState } from "react"
 import {
   Building2, Users, LayoutGrid, AlertTriangle,
-  Plus, Search, Eye, MoreHorizontal, MapPin, TrendingUp
+  Plus, Search, Eye, MoreHorizontal, MapPin, TrendingUp, XCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { RowActions } from "@/components/ui/row-actions"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Zone = {
@@ -281,10 +282,18 @@ export default function SpaceManagementPage() {
                           <span className={cn("px-2 py-1 rounded-full text-xs font-medium", t.status === "Active" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground")}>{t.status}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1">
-                            <button onClick={() => setTenantDetail(t)} title={`View ${t.name} details`} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => setTenantEndTarget(t)} disabled={t.status !== "Active"} title={t.status === "Active" ? `End contract with ${t.name}` : "Contract already ended"} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"><MoreHorizontal className="w-3.5 h-3.5" /></button>
-                          </div>
+                          <RowActions
+                            items={[
+                              { label: `View ${t.name} details`, icon: <Eye />, onSelect: () => setTenantDetail(t) },
+                              {
+                                label: t.status === "Active" ? `End contract with ${t.name}` : "Contract already ended",
+                                icon: <XCircle />,
+                                onSelect: () => setTenantEndTarget(t),
+                                disabled: t.status !== "Active",
+                                tone: "danger" as const,
+                              },
+                            ]}
+                          />
                         </td>
                       </tr>
                     ))}
