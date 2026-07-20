@@ -1,0 +1,211 @@
+"use client"
+
+import { useState } from "react"
+import {
+  Building2, Users, LayoutGrid, AlertTriangle,
+  Plus, Search, ChevronDown, Eye, MoreHorizontal, MapPin, TrendingUp
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+
+const zones = [
+  { id: "ZN-A", name: "Zone A", type: "Dry Storage", pallets: 320, capacity: 400, utilization: 80, tenant: "Acme Foods", temp: "Ambient", aisles: 8, racking: "Selective" },
+  { id: "ZN-B", name: "Zone B", type: "Dry Storage", pallets: 185, capacity: 250, utilization: 74, tenant: "Multi-tenant", temp: "Ambient", aisles: 6, racking: "Drive-In" },
+  { id: "ZN-C", name: "Zone C", type: "Bulk Storage", pallets: 112, capacity: 150, utilization: 75, tenant: "Agro Corp", temp: "Ambient", aisles: 4, racking: "Block Stack" },
+  { id: "ZN-D", name: "Zone D", type: "Cold Storage", pallets: 95, capacity: 120, utilization: 79, tenant: "Fresh Farms", temp: "Chilled 2–8°C", aisles: 3, racking: "Selective" },
+  { id: "ZN-E", name: "Zone E", type: "Hazmat", pallets: 18, capacity: 40, utilization: 45, tenant: "Restricted", temp: "Controlled", aisles: 2, racking: "Cantilever" },
+  { id: "ZN-F", name: "Zone F", type: "Staging", pallets: 44, capacity: 60, utilization: 73, tenant: "All Clients", temp: "Ambient", aisles: 2, racking: "Floor" },
+]
+
+const tenants = [
+  { id: "TNT-001", name: "Acme Foods", contract: "Long-term (3yr)", zones: ["Zone A"], pallets: 320, space: "8,000 sqft", rent: "₹1,20,000/mo", status: "Active", since: "2022-01" },
+  { id: "TNT-002", name: "Global Oils", contract: "Annual", zones: ["Zone B partial"], pallets: 90, space: "3,200 sqft", rent: "₹48,000/mo", status: "Active", since: "2023-06" },
+  { id: "TNT-003", name: "Agro Corp", contract: "Annual", zones: ["Zone C"], pallets: 112, space: "4,800 sqft", rent: "₹64,000/mo", status: "Active", since: "2023-03" },
+  { id: "TNT-004", name: "Fresh Farms", contract: "Monthly", zones: ["Zone D"], pallets: 95, space: "3,600 sqft", rent: "₹90,000/mo", status: "Active", since: "2024-07" },
+  { id: "TNT-005", name: "Salt Works", contract: "Annual", zones: ["Zone B partial"], pallets: 55, space: "1,800 sqft", rent: "₹22,000/mo", status: "Active", since: "2023-09" },
+]
+
+function UtilBar({ pct }: { pct: number }) {
+  const color = pct >= 90 ? "bg-danger" : pct >= 75 ? "bg-warning" : "bg-success"
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden min-w-16">
+        <div className={cn("h-full rounded-full transition-all", color)} style={{ width: `${pct}%` }} />
+      </div>
+      <span className={cn("text-xs font-semibold tabular-nums w-8 text-right", pct >= 90 ? "text-danger" : pct >= 75 ? "text-warning" : "text-success")}>
+        {pct}%
+      </span>
+    </div>
+  )
+}
+
+export default function SpaceManagementPage() {
+  const [tab, setTab] = useState<"zones" | "tenants">("zones")
+  const [search, setSearch] = useState("")
+
+  const totalPallets = zones.reduce((s, z) => s + z.pallets, 0)
+  const totalCapacity = zones.reduce((s, z) => s + z.capacity, 0)
+  const overallUtil = Math.round((totalPallets / totalCapacity) * 100)
+
+  const filteredTenants = tenants.filter((t) => {
+    const q = search.toLowerCase()
+    return t.name.toLowerCase().includes(q) || t.id.toLowerCase().includes(q)
+  })
+
+  return (
+    <div className="h-full overflow-y-auto">
+      <div className="w-full p-6 space-y-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Space Management</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Warehouse zones, utilization and tenant management</p>
+          </div>
+          <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
+            <Plus className="w-4 h-4" /> Add Zone
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: "Total Zones", value: zones.length.toString(), sub: "Across warehouse", icon: <LayoutGrid className="w-5 h-5" /> },
+            { label: "Total Capacity", value: `${totalCapacity} Pallets`, sub: "Available positions", icon: <Building2 className="w-5 h-5" /> },
+            { label: "Overall Utilization", value: `${overallUtil}%`, sub: `${totalPallets} pallets stored`, icon: <TrendingUp className="w-5 h-5" /> },
+            { label: "Active Tenants", value: tenants.length.toString(), sub: "Client contracts", icon: <Users className="w-5 h-5" /> },
+          ].map((stat, i) => (
+            <div key={i} className="p-5 rounded-2xl border border-border bg-card">
+              <div className="flex items-start justify-between mb-3">
+                <span className="text-sm text-muted-foreground">{stat.label}</span>
+                <span className={cn(i === 2 && overallUtil >= 85 ? "text-warning" : "text-brand")}>{stat.icon}</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+              <p className="text-xs mt-1 text-muted-foreground">{stat.sub}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Overall utilization banner */}
+        {overallUtil >= 85 && (
+          <div className="flex items-center gap-3 p-4 rounded-2xl border border-warning/30 bg-warning/10">
+            <AlertTriangle className="w-5 h-5 text-warning shrink-0" />
+            <p className="text-sm text-warning font-medium">Warehouse utilization is at {overallUtil}%. Consider expanding capacity or redistributing stock.</p>
+          </div>
+        )}
+
+        {/* Tabs */}
+        <div className="flex gap-1 p-1 rounded-xl bg-muted/50 w-fit">
+          {(["zones", "tenants"] as const).map((t) => (
+            <button key={t} onClick={() => setTab(t)} className={cn("px-4 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors", tab === t ? "bg-brand text-white shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-background/60")}>
+              {t === "zones" ? "Zone Overview" : "Tenants"}
+            </button>
+          ))}
+        </div>
+
+        {tab === "zones" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {zones.map((zone) => (
+              <div key={zone.id} className="p-5 rounded-2xl border border-border bg-card">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-brand/15 flex items-center justify-center">
+                        <MapPin className="w-4 h-4 text-brand" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground">{zone.name}</h3>
+                        <p className="text-xs text-muted-foreground">{zone.type}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs text-muted-foreground">Utilization</span>
+                    <span className="text-xs text-muted-foreground">{zone.pallets} / {zone.capacity} pallets</span>
+                  </div>
+                  <UtilBar pct={zone.utilization} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2 rounded-lg bg-muted/30">
+                    <p className="text-muted-foreground">Tenant</p>
+                    <p className="font-medium text-foreground mt-0.5 truncate">{zone.tenant}</p>
+                  </div>
+                  <div className="p-2 rounded-lg bg-muted/30">
+                    <p className="text-muted-foreground">Temperature</p>
+                    <p className="font-medium text-foreground mt-0.5 truncate">{zone.temp}</p>
+                  </div>
+                  <div className="p-2 rounded-lg bg-muted/30">
+                    <p className="text-muted-foreground">Aisles</p>
+                    <p className="font-medium text-foreground mt-0.5">{zone.aisles}</p>
+                  </div>
+                  <div className="p-2 rounded-lg bg-muted/30">
+                    <p className="text-muted-foreground">Racking</p>
+                    <p className="font-medium text-foreground mt-0.5 truncate">{zone.racking}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab === "tenants" && (
+          <>
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-xl border border-border bg-card">
+                <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground" placeholder="Search tenant..." value={search} onChange={(e) => setSearch(e.target.value)} />
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/30">
+                      {["Tenant ID", "Client Name", "Contract", "Zones", "Pallets", "Space", "Monthly Rent", "Since", "Status", ""].map((h) => (
+                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTenants.map((t, i) => (
+                      <tr key={t.id} className={cn("border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors", i % 2 === 1 ? "bg-muted/10" : "")}>
+                        <td className="px-4 py-3 text-brand font-medium whitespace-nowrap text-xs">{t.id}</td>
+                        <td className="px-4 py-3 font-semibold text-foreground whitespace-nowrap">{t.name}</td>
+                        <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">{t.contract}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <div className="flex gap-1 flex-wrap">
+                            {t.zones.map((z) => (
+                              <span key={z} className="px-1.5 py-0.5 rounded-md bg-brand/10 text-brand text-[10px] font-medium">{z}</span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 font-semibold text-foreground whitespace-nowrap">{t.pallets}</td>
+                        <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">{t.space}</td>
+                        <td className="px-4 py-3 font-bold text-foreground whitespace-nowrap">{t.rent}</td>
+                        <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">{t.since}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-success/15 text-success">{t.status}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1">
+                            <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
+                            <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
