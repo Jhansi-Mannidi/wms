@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Tag, Package, Plus, Search, ChevronDown, Eye, MoreHorizontal,
   Upload, Edit2, Layers, Barcode, FileText, Power, Trash2, Copy
@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { loadDemoEntries } from "@/lib/demo-store"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type SKU = {
@@ -29,6 +30,28 @@ const initialSkus: SKU[] = [
   { sku: "SKU-001239", name: "Iodized Salt 1kg", category: "Salt & Spices", brand: "Pure Salt", uom: "Packets", weight: "1 kg", dimensions: "15×10×5 cm", barcode: "8901234567895", client: "Salt Works", hsn: "2501.00", status: "Active" },
   { sku: "SKU-001240", name: "Tomato Puree 400g", category: "Processed Foods", brand: "FreshFarms", uom: "Cans", weight: "0.45 kg", dimensions: "8×8×12 cm", barcode: "8901234567896", client: "Fresh Farms", hsn: "2002.90", status: "Active" },
   { sku: "SKU-001241", name: "Coconut Milk 400ml", category: "Beverages", brand: "Tropical", uom: "Cans", weight: "0.42 kg", dimensions: "7×7×11 cm", barcode: "8901234567897", client: "Tropical Co", hsn: "2106.90", status: "Active" },
+  { sku: "SKU-001242", name: "Toor Dal 5kg", category: "Pulses", brand: "Farm Direct", uom: "Bags", weight: "5 kg", dimensions: "30×20×12 cm", barcode: "8901234567920", client: "Agro Corp", hsn: "0713.60", status: "Active" },
+  { sku: "SKU-001243", name: "Mustard Oil 2L", category: "Edible Oils", brand: "Sunrise", uom: "Tins", weight: "2.1 kg", dimensions: "15×12×22 cm", barcode: "8901234567921", client: "Global Oils", hsn: "1514.11", status: "Active" },
+  { sku: "SKU-001244", name: "Jaggery Blocks 1kg", category: "Sugar", brand: "Sweet House", uom: "Packets", weight: "1 kg", dimensions: "18×12×6 cm", barcode: "8901234567922", client: "Sweet Mills", hsn: "1701.13", status: "Active" },
+  { sku: "SKU-001245", name: "Black Pepper 500g", category: "Salt & Spices", brand: "Pure Salt", uom: "Packets", weight: "0.5 kg", dimensions: "12×8×5 cm", barcode: "8901234567923", client: "Salt Works", hsn: "0904.11", status: "Active" },
+  { sku: "SKU-001246", name: "Mango Pulp 850g", category: "Processed Foods", brand: "FreshFarms", uom: "Cans", weight: "0.9 kg", dimensions: "10×10×14 cm", barcode: "8901234567924", client: "Fresh Farms", hsn: "2007.99", status: "Active" },
+  { sku: "SKU-001247", name: "Sona Masoori Rice 25kg", category: "Grains", brand: "Nature's Best", uom: "Bags", weight: "25 kg", dimensions: "60×40×20 cm", barcode: "8901234567925", client: "Acme Foods", hsn: "1006.30", status: "Active" },
+  { sku: "SKU-001248", name: "Multigrain Atta 5kg", category: "Flour & Grains", brand: "Mill Fresh", uom: "Bags", weight: "5 kg", dimensions: "30×22×10 cm", barcode: "8901234567926", client: "Acme Foods", hsn: "1101.00", status: "Active" },
+  { sku: "SKU-001249", name: "Tender Coconut Water 200ml", category: "Beverages", brand: "Tropical", uom: "Cans", weight: "0.22 kg", dimensions: "6×6×10 cm", barcode: "8901234567927", client: "Tropical Co", hsn: "2202.99", status: "Active" },
+  { sku: "SKU-001250", name: "Groundnut Oil 15L", category: "Edible Oils", brand: "Sunrise", uom: "Tins", weight: "15.4 kg", dimensions: "30×30×40 cm", barcode: "8901234567928", client: "Global Oils", hsn: "1508.90", status: "Active" },
+  { sku: "SKU-001251", name: "Moong Dal 10kg", category: "Pulses", brand: "Farm Direct", uom: "Bags", weight: "10 kg", dimensions: "40×28×15 cm", barcode: "8901234567929", client: "Agro Corp", hsn: "0713.31", status: "Inactive" },
+  { sku: "SKU-001252", name: "Castor Sugar 2kg", category: "Sugar", brand: "Sweet House", uom: "Packets", weight: "2 kg", dimensions: "22×15×8 cm", barcode: "8901234567930", client: "Sweet Mills", hsn: "1701.99", status: "Active" },
+  { sku: "SKU-001253", name: "Rock Salt 5kg", category: "Salt & Spices", brand: "Pure Salt", uom: "Bags", weight: "5 kg", dimensions: "28×18×10 cm", barcode: "8901234567931", client: "Salt Works", hsn: "2501.00", status: "Active" },
+  { sku: "SKU-001254", name: "Sweet Corn 400g", category: "Processed Foods", brand: "FreshFarms", uom: "Cans", weight: "0.44 kg", dimensions: "8×8×12 cm", barcode: "8901234567932", client: "Fresh Farms", hsn: "2005.80", status: "Inactive" },
+  { sku: "SKU-001255", name: "Pineapple Juice 1L", category: "Beverages", brand: "Tropical", uom: "LTR", weight: "1.05 kg", dimensions: "9×9×24 cm", barcode: "8901234567933", client: "Tropical Co", hsn: "2009.41", status: "Active" },
+  { sku: "SKU-001256", name: "Idli Rice 10kg", category: "Grains", brand: "Nature's Best", uom: "Bags", weight: "10 kg", dimensions: "45×30×15 cm", barcode: "8901234567934", client: "Acme Foods", hsn: "1006.30", status: "Active" },
+  { sku: "SKU-001257", name: "Ragi Flour 2kg", category: "Flour & Grains", brand: "Mill Fresh", uom: "Packets", weight: "2 kg", dimensions: "24×16×8 cm", barcode: "8901234567935", client: "Acme Foods", hsn: "1102.29", status: "Inactive" },
+  { sku: "SKU-001258", name: "Sesame Oil 1L", category: "Edible Oils", brand: "Sunrise", uom: "Tins", weight: "1.1 kg", dimensions: "10×10×22 cm", barcode: "8901234567936", client: "Global Oils", hsn: "1515.50", status: "Active" },
+  { sku: "SKU-001259", name: "Urad Dal 5kg", category: "Pulses", brand: "Farm Direct", uom: "Bags", weight: "5 kg", dimensions: "30×20×12 cm", barcode: "8901234567937", client: "Agro Corp", hsn: "0713.31", status: "Active" },
+  { sku: "SKU-001260", name: "Palm Jaggery Powder 500g", category: "Sugar", brand: "Sweet House", uom: "Packets", weight: "0.5 kg", dimensions: "14×10×6 cm", barcode: "8901234567938", client: "Sweet Mills", hsn: "1701.13", status: "Inactive" },
+  { sku: "SKU-001261", name: "Turmeric Powder 1kg", category: "Salt & Spices", brand: "Pure Salt", uom: "Packets", weight: "1 kg", dimensions: "16×11×6 cm", barcode: "8901234567939", client: "Salt Works", hsn: "0910.30", status: "Active" },
+  { sku: "SKU-001262", name: "Tomato Ketchup 1kg", category: "Processed Foods", brand: "FreshFarms", uom: "PCS", weight: "1.05 kg", dimensions: "11×11×25 cm", barcode: "8901234567940", client: "Fresh Farms", hsn: "2103.20", status: "Active" },
+  { sku: "SKU-001263", name: "Mango Nectar 250ml", category: "Beverages", brand: "Tropical", uom: "Cans", weight: "0.27 kg", dimensions: "6×6×12 cm", barcode: "8901234567941", client: "Tropical Co", hsn: "2009.89", status: "Inactive" },
 ]
 
 const categories = ["All Categories", "Grains", "Flour & Grains", "Edible Oils", "Pulses", "Sugar", "Salt & Spices", "Processed Foods", "Beverages"]
@@ -55,6 +78,11 @@ const emptyForm = { sku: "", name: "", category: "", brand: "", barcode: "", uom
 
 export default function SKUMasterPage() {
   const [skus, setSkus] = useState<SKU[]>(initialSkus)
+
+  useEffect(() => {
+    const stored = loadDemoEntries<SKU>("skus")
+    if (stored.length) setSkus(prev => [...stored, ...prev])
+  }, [])
   const [search, setSearch] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("All Categories")
   const [statusFilter, setStatusFilter] = useState("All Status")

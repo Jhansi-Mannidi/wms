@@ -8,6 +8,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { LCL_MANIFEST_LINES, LCL_MANIFEST_DOCS } from "@/lib/fixtures/lcl"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type ManifestLine = {
@@ -17,21 +18,43 @@ type ManifestLine = {
 
 type Doc = { name: string; type: string; status: string }
 
-const initialManifestLines: ManifestLine[] = [
-  { ref: "CFS-2024-0451", shipper: "Apex Pharma Ltd", initials: "AP", color: "bg-blue-500", pieces: 48, weight: 1240, cbm: 8.2, marks: "AP/HYD/001", pod: "INMUN", hsCode: "3004.90" },
-  { ref: "CFS-2024-0452", shipper: "GlobalTex Fabrics", initials: "GT", color: "bg-amber-500", pieces: 120, weight: 3800, cbm: 22.4, marks: "GT/BLR/002", pod: "INMUN", hsCode: "5208.11" },
-  { ref: "CFS-2024-0453", shipper: "MediSupply Corp", initials: "MS", color: "bg-rose-500", pieces: 36, weight: 720, cbm: 4.6, marks: "MS/CHN/003", pod: "INMUN", hsCode: "3002.20" },
-  { ref: "CFS-2024-0454", shipper: "Sunrise Electronics", initials: "SE", color: "bg-emerald-500", pieces: 24, weight: 960, cbm: 5.1, marks: "SE/HYD/004", pod: "INMUN", hsCode: "8471.30" },
-  { ref: "CFS-2024-0455", shipper: "FreshFarm Organics", initials: "FF", color: "bg-orange-500", pieces: 60, weight: 2100, cbm: 11.8, marks: "FF/MUM/005", pod: "INMUN", hsCode: "0901.11" },
-]
+const SHIPPER_META: Record<string, { initials: string; color: string; hsCode: string }> = {
+  "Apex Pharma": { initials: "AP", color: "bg-blue-500", hsCode: "3004.90" },
+  "GlobalTex": { initials: "GT", color: "bg-amber-500", hsCode: "5208.11" },
+  "FreshFarm": { initials: "FF", color: "bg-orange-500", hsCode: "0901.11" },
+  "Sunrise Elec.": { initials: "SE", color: "bg-emerald-500", hsCode: "8471.30" },
+  "AutoParts India": { initials: "AI", color: "bg-cyan-500", hsCode: "8708.99" },
+  "MediSupply": { initials: "MS", color: "bg-rose-500", hsCode: "3002.20" },
+  "Kirloskar Spares": { initials: "KS", color: "bg-indigo-500", hsCode: "8483.30" },
+  "Vertex Tools": { initials: "VT", color: "bg-slate-500", hsCode: "8205.40" },
+  "Deccan Ceramics": { initials: "DC", color: "bg-teal-500", hsCode: "6911.10" },
+  "BlueLeaf Cosmetics": { initials: "BL", color: "bg-pink-500", hsCode: "3304.99" },
+  "Sweet Mills": { initials: "SM", color: "bg-lime-500", hsCode: "1701.99" },
+}
 
-const initialDocs: Doc[] = [
-  { name: "House Manifest", type: "PDF", status: "Ready" },
-  { name: "B/L Instructions", type: "PDF", status: "Ready" },
-  { name: "E-Way Bill", type: "PDF", status: "Pending" },
-  { name: "Shipping Bill Ref", type: "REF", status: "Ready" },
-  { name: "Packing List", type: "PDF", status: "Ready" },
-]
+function toManifestLine(row: (typeof LCL_MANIFEST_LINES)[number]): ManifestLine {
+  const meta = SHIPPER_META[row.shipper] ?? { initials: row.shipper.slice(0, 2).toUpperCase(), color: "bg-slate-500", hsCode: "9999.00" }
+  return {
+    ref: row.ref,
+    shipper: row.shipper,
+    initials: meta.initials,
+    color: meta.color,
+    pieces: row.pieces,
+    weight: row.kg,
+    cbm: row.cbm,
+    marks: row.hbl,
+    pod: row.pod,
+    hsCode: meta.hsCode,
+  }
+}
+
+const initialManifestLines: ManifestLine[] = LCL_MANIFEST_LINES.map(toManifestLine)
+
+const initialDocs: Doc[] = LCL_MANIFEST_DOCS.map(d => ({
+  name: d.name,
+  type: ["MBL", "Packing List", "SI", "VGM", "Customs", "DG", "Invoice"].includes(d.type) ? "PDF" : d.type,
+  status: d.status,
+}))
 
 const AVATAR_COLORS = ["bg-blue-500", "bg-amber-500", "bg-rose-500", "bg-emerald-500", "bg-orange-500", "bg-cyan-500", "bg-violet-500"]
 

@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Eye, Check, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ExportButton } from "@/components/wms/export-button"
@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { loadDemoEntries } from "@/lib/demo-store"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type GRN = {
@@ -21,11 +22,36 @@ const initialHistory: GRN[] = [
   { id: "GRN-2024-1048", asn: "ASN-2024-0865", supplier: "Global Oils Corp", items: 2, qty: 400, received: "2024-07-17 11:00", dock: "Dock 3", receivedBy: "Meena Patel", discrepancy: true, status: "With Discrepancy" },
   { id: "GRN-2024-1047", asn: "ASN-2024-0860", supplier: "Agro Corp", items: 4, qty: 2000, received: "2024-07-16 16:45", dock: "Dock 2", receivedBy: "Suresh Yadav", discrepancy: false, status: "Completed" },
   { id: "GRN-2024-1046", asn: "ASN-2024-0855", supplier: "Salt Works", items: 1, qty: 5000, received: "2024-07-15 08:00", dock: "Dock 1", receivedBy: "Arjun Nair", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1045", asn: "ASN-2024-0850", supplier: "Fresh Farms", items: 2, qty: 300, received: "2024-07-15 13:20", dock: "Dock 3", receivedBy: "Priya Sharma", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1044", asn: "ASN-2024-0845", supplier: "Acme Foods Ltd", items: 6, qty: 1500, received: "2024-07-14 10:05", dock: "Dock 1", receivedBy: "Ravi Kumar", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1043", asn: "ASN-2024-0840", supplier: "Sweet Mills", items: 3, qty: 720, received: "2024-07-14 15:40", dock: "Dock 2", receivedBy: "Kavitha Rao", discrepancy: true, status: "With Discrepancy" },
+  { id: "GRN-2024-1042", asn: "ASN-2024-0835", supplier: "Agro Corp", items: 4, qty: 1800, received: "2024-07-13 08:55", dock: "Dock 3", receivedBy: "Vikram Sharma", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1041", asn: "ASN-2024-0830", supplier: "Global Oils Corp", items: 2, qty: 380, received: "2024-07-12 12:10", dock: "Dock 1", receivedBy: "Meena Patel", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1040", asn: "ASN-2024-0825", supplier: "Salt Works", items: 1, qty: 4500, received: "2024-07-12 07:45", dock: "Dock 2", receivedBy: "Arjun Nair", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1039", asn: "ASN-2024-0820", supplier: "Fresh Farms", items: 3, qty: 540, received: "2024-07-11 16:25", dock: "Dock 3", receivedBy: "Anita Desai", discrepancy: true, status: "With Discrepancy" },
+  { id: "GRN-2024-1038", asn: "ASN-2024-0815", supplier: "Acme Foods Ltd", items: 5, qty: 1150, received: "2024-07-10 09:30", dock: "Dock 1", receivedBy: "Suresh Yadav", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1037", asn: "ASN-2024-0810", supplier: "Sweet Mills", items: 2, qty: 640, received: "2024-07-10 14:00", dock: "Dock 2", receivedBy: "Rahul Mehta", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1036", asn: "ASN-2024-0805", supplier: "Agro Corp", items: 4, qty: 2200, received: "2024-07-09 11:15", dock: "Dock 3", receivedBy: "Deepa Menon", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1035", asn: "ASN-2024-0800", supplier: "Global Oils Corp", items: 3, qty: 460, received: "2024-07-08 10:40", dock: "Dock 1", receivedBy: "Sanjay Gupta", discrepancy: true, status: "With Discrepancy" },
+  { id: "GRN-2024-1034", asn: "ASN-2024-0795", supplier: "Salt Works", items: 1, qty: 5200, received: "2024-07-08 08:20", dock: "Dock 2", receivedBy: "Ravi Kumar", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1033", asn: "ASN-2024-0790", supplier: "Acme Foods Ltd", items: 6, qty: 1320, received: "2024-07-05 15:05", dock: "Dock 1", receivedBy: "Priya Sharma", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1032", asn: "ASN-2024-0785", supplier: "Fresh Farms", items: 2, qty: 280, received: "2024-07-04 13:50", dock: "Dock 3", receivedBy: "Kavitha Rao", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1031", asn: "ASN-2024-0780", supplier: "Sweet Mills", items: 3, qty: 810, received: "2024-07-03 09:00", dock: "Dock 2", receivedBy: "Vikram Sharma", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1030", asn: "ASN-2024-0775", supplier: "Agro Corp", items: 5, qty: 2600, received: "2024-07-02 17:10", dock: "Dock 3", receivedBy: "Meena Patel", discrepancy: true, status: "With Discrepancy" },
+  { id: "GRN-2024-1029", asn: "ASN-2024-0770", supplier: "Global Oils Corp", items: 2, qty: 420, received: "2024-07-02 11:35", dock: "Dock 1", receivedBy: "Anita Desai", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1028", asn: "ASN-2024-0765", supplier: "Salt Works", items: 1, qty: 4800, received: "2024-07-01 08:15", dock: "Dock 2", receivedBy: "Arjun Nair", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1027", asn: "ASN-2024-0760", supplier: "Acme Foods Ltd", items: 4, qty: 980, received: "2024-07-01 14:45", dock: "Dock 1", receivedBy: "Rahul Mehta", discrepancy: false, status: "Completed" },
+  { id: "GRN-2024-1026", asn: "ASN-2024-0755", supplier: "Fresh Farms", items: 3, qty: 360, received: "2024-06-28 10:25", dock: "Dock 3", receivedBy: "Deepa Menon", discrepancy: false, status: "Completed" },
 ]
 
 export default function GRNHistoryPage() {
   const [history, setHistory] = useState<GRN[]>(initialHistory)
   const [search, setSearch] = useState("")
+
+  useEffect(() => {
+    const stored = loadDemoEntries<GRN>("grns")
+    if (stored.length) setHistory(prev => [...stored, ...prev])
+  }, [])
 
   const [detail, setDetail] = useState<GRN | null>(null)
   const [voidTarget, setVoidTarget] = useState<GRN | null>(null)

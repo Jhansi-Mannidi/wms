@@ -8,8 +8,10 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { DEMO_AIR_RECEIVED } from "@/lib/fixtures/demo"
+import { nextRecordId } from "@/lib/next-id"
 
-const initialClients = ["Apex Pharma Ltd", "Sunrise Electronics", "GlobalTex Fabrics", "MediSupply Corp"]
+const initialClients = ["Apex Pharma Ltd", "Sunrise Electronics", "GlobalTex Fabrics", "MediSupply Corp", "AutoParts India", "Nova Textiles Pvt", "Orient Spices Co", "Vertex Tools Ltd", "BlueLeaf Cosmetics", "Deccan Ceramics Ltd"]
 const serviceLevels = ["Standard", "Express", "Priority Overnight", "Economy"]
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
@@ -51,7 +53,7 @@ export default function AirCapturePage() {
     { id: 1, pieces: "", weight: "", length: "", width: "", height: "", awb: "" }
   ])
   const [draftAttachments, setDraftAttachments] = useState<Attachment[]>([])
-  const [received, setReceived] = useState<ReceivedPackage[]>([])
+  const [received, setReceived] = useState<ReceivedPackage[]>(DEMO_AIR_RECEIVED)
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
 
   const [newShipperOpen, setNewShipperOpen] = useState(false)
@@ -173,9 +175,8 @@ export default function AirCapturePage() {
       return
     }
     const now = new Date()
-    const seq = String(446 + received.length)
     const next: ReceivedPackage = {
-      id: `PKG-0${seq}`,
+      id: nextRecordId(received.map(r => r.id), /^PKG-(\d+)$/, "PKG-", 4),
       shipper,
       consignee: consignee.trim(),
       service,

@@ -21,6 +21,22 @@ const initialCategories: Category[] = [
   { id: "CAT-006", name: "Industrial", parent: null, skus: 98, active: true },
   { id: "CAT-007", name: "Beverages", parent: "Food & Beverage", skus: 82, active: true },
   { id: "CAT-008", name: "Dairy", parent: "Food & Beverage", skus: 55, active: false },
+  { id: "CAT-009", name: "Bakery", parent: "Food & Beverage", skus: 64, active: true },
+  { id: "CAT-010", name: "Frozen Foods", parent: "Food & Beverage", skus: 41, active: true },
+  { id: "CAT-011", name: "Snacks", parent: "Food & Beverage", skus: 73, active: true },
+  { id: "CAT-012", name: "Home Care", parent: "FMCG", skus: 96, active: true },
+  { id: "CAT-013", name: "Personal Care", parent: "FMCG", skus: 128, active: true },
+  { id: "CAT-014", name: "Oral Care", parent: "FMCG", skus: 37, active: false },
+  { id: "CAT-015", name: "OTC Medicines", parent: "Pharma", skus: 88, active: true },
+  { id: "CAT-016", name: "Surgical Supplies", parent: "Pharma", skus: 52, active: true },
+  { id: "CAT-017", name: "Nutraceuticals", parent: "Pharma", skus: 44, active: false },
+  { id: "CAT-018", name: "Mobile Accessories", parent: "Electronics", skus: 61, active: true },
+  { id: "CAT-019", name: "Small Appliances", parent: "Electronics", skus: 39, active: true },
+  { id: "CAT-020", name: "Menswear", parent: "Apparel", skus: 112, active: true },
+  { id: "CAT-021", name: "Womenswear", parent: "Apparel", skus: 134, active: true },
+  { id: "CAT-022", name: "Footwear", parent: "Apparel", skus: 45, active: false },
+  { id: "CAT-023", name: "Packaging Material", parent: "Industrial", skus: 58, active: true },
+  { id: "CAT-024", name: "Cold Chain", parent: null, skus: 27, active: true },
 ]
 
 const emptyForm = { name: "", parent: "", skus: "" }

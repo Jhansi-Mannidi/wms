@@ -25,6 +25,12 @@ const initialReports: Report[] = [
   { id: "RPT-06", name: "Revenue Summary", category: "Billing", desc: "Total revenue by customer, billing period, and service type with MoM comparison", format: "XLSX", icon: <DollarSign className="w-4 h-4" /> },
   { id: "RPT-07", name: "Customer Onboarding Log", category: "Customers", desc: "All registered customers with onboarding date, contract tier, and current storage allocation", format: "XLSX", icon: <Users className="w-4 h-4" /> },
   { id: "RPT-08", name: "Ageing & Near-Expiry Report", category: "Inventory", desc: "Items aged over 60/90/120 days and items within 30/60 days of expiry across all customers", format: "XLSX", icon: <Clock className="w-4 h-4" /> },
+  { id: "RPT-09", name: "Rack Utilisation Heatmap", category: "Space", desc: "Zone and bay level fill rates with own vs leased-in split and idle capacity flagged per aisle", format: "XLSX", icon: <BarChart2 className="w-4 h-4" /> },
+  { id: "RPT-10", name: "Inbound Gate & Vehicle Log", category: "Inbound", desc: "Vehicle arrivals, gate-in and gate-out timestamps, turnaround time and unloading crew per drop-off", format: "XLSX", icon: <FileText className="w-4 h-4" /> },
+  { id: "RPT-11", name: "Dispatch Mode Analysis", category: "Outbound", desc: "Release volumes split by pickup, local delivery and courier with average handling charge per mode", format: "XLSX", icon: <FileText className="w-4 h-4" /> },
+  { id: "RPT-12", name: "Proof-of-Delivery Register", category: "Outbound", desc: "POD references, signatures and OTP confirmations captured against every dispatched release", format: "PDF", icon: <FileText className="w-4 h-4" /> },
+  { id: "RPT-13", name: "Customer Contract & Tariff Sheet", category: "Customers", desc: "Active contracts with tariff slabs, minimum billable slots, notice periods and renewal dates", format: "PDF", icon: <Users className="w-4 h-4" /> },
+  { id: "RPT-14", name: "Lot Condition & Damage Register", category: "Inventory", desc: "Condition grades recorded at intake and audit with damage claims raised per customer lot", format: "XLSX", icon: <Package className="w-4 h-4" /> },
 ]
 
 const categories = ["All", "Inventory", "Space", "Inbound", "Outbound", "Billing", "Customers"]

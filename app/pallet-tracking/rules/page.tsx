@@ -16,6 +16,14 @@ const initialRules: Rule[] = [
   { id:"RULE-003",name:"Client Segregation",desc:"Do not mix pallets from different 3PL clients in same rack",scope:"3PL zones",active:true},
   { id:"RULE-004",name:"Cold Chain Priority Lane",desc:"Route cold chain pallets via dedicated cold aisle only",scope:"Cold Room A,B",active:true},
   { id:"RULE-005",name:"Hazmat Isolation",desc:"Hazardous materials must be stored in HZ-designated zones",scope:"Zone D",active:false},
+  { id:"RULE-006",name:"Max Stack Height",desc:"Limit pallet stacking to 3 units high in open bulk storage",scope:"Bulk Yard",active:true},
+  { id:"RULE-007",name:"FIFO Dry Goods",desc:"Rotate non-perishable dry goods on a first-in-first-out basis",scope:"Zone A,B",active:true},
+  { id:"RULE-008",name:"Aisle Clearance",desc:"Maintain 1.5m clear aisle in front of every fire exit and hydrant",scope:"All zones",active:true},
+  { id:"RULE-009",name:"Damaged Pallet Quarantine",desc:"Move damaged pallets to the quarantine bay within 2 hours of detection",scope:"All zones",active:true},
+  { id:"RULE-010",name:"Cross-Dock Window",desc:"Cross-dock pallets must clear staging within 12 hours of arrival",scope:"Staging Area",active:false},
+  { id:"RULE-011",name:"Rack Load Limit",desc:"No single rack bay may exceed 1200 kg of combined pallet load",scope:"All zones",active:true},
+  { id:"RULE-012",name:"Temperature Log Check",desc:"Verify cold chain temperature log before accepting put-away",scope:"Cold Room A,B and Freezer",active:true},
+  { id:"RULE-013",name:"Mixed SKU Restriction",desc:"One SKU per pallet unless explicitly flagged for consolidation",scope:"3PL zones",active:false},
 ]
 
 const emptyForm = { name: "", desc: "", scope: "" }

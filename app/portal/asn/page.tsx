@@ -3,9 +3,9 @@
 import { useState } from "react"
 import { Inbox, Plus, Search, FileText, Clock, CheckCircle2, AlertTriangle, Truck, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Drawer } from "@/components/ui/modal"
+import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { DetailRow } from "@/components/ui/form"
+import { Field, TextInput, TextArea, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 
 const tabs = ["All ASNs", "Draft", "Submitted", "Received", "Exception"]
@@ -23,6 +23,30 @@ const initialAsns: ASN[] = [
   { id: "ASN-2240", po: "PO-8790", supplier: "Cipla Ltd", lines: 3, cartons: 96, cbm: 1.9, status: "Exception", submitted: "Jul 17", expected: "Jul 18", received: "Jul 19", remarks: "Short receipt — 4 cartons damaged in transit" },
   { id: "ASN-2238", po: "PO-8785", supplier: "Mankind Pharma", lines: 5, cartons: 200, cbm: 4.0, status: "Received", submitted: "Jul 16", expected: "Jul 17", received: "Jul 17", remarks: "" },
   { id: "ASN-2231", po: "PO-8770", supplier: "Abbott India", lines: 7, cartons: 280, cbm: 5.6, status: "Received", submitted: "Jul 14", expected: "Jul 15", received: "Jul 15", remarks: "" },
+  { id: "ASN-2229", po: "PO-8766", supplier: "Lupin Ltd", lines: 5, cartons: 210, cbm: 4.2, status: "In Transit", submitted: "Jul 18", expected: "Jul 21", received: "-", remarks: "" },
+  { id: "ASN-2226", po: "PO-8761", supplier: "Torrent Pharma", lines: 9, cartons: 360, cbm: 7.2, status: "Submitted", submitted: "Jul 18", expected: "Jul 22", received: "-", remarks: "" },
+  { id: "ASN-2224", po: "PO-8757", supplier: "Zydus Lifesciences", lines: 4, cartons: 160, cbm: 3.1, status: "Received", submitted: "Jul 13", expected: "Jul 14", received: "Jul 14", remarks: "" },
+  { id: "ASN-2221", po: "PO-8752", supplier: "Alkem Labs", lines: 6, cartons: 250, cbm: 5.0, status: "In Transit", submitted: "Jul 17", expected: "Jul 20", received: "-", remarks: "" },
+  { id: "ASN-2218", po: "PO-8748", supplier: "Glenmark Pharma", lines: 3, cartons: 120, cbm: 2.4, status: "Exception", submitted: "Jul 15", expected: "Jul 16", received: "Jul 17", remarks: "Temperature excursion logged on 2 cold-chain cartons" },
+  { id: "ASN-2215", po: "PO-8743", supplier: "Aurobindo Pharma", lines: 7, cartons: 290, cbm: 5.8, status: "Received", submitted: "Jul 12", expected: "Jul 13", received: "Jul 13", remarks: "" },
+  { id: "ASN-2212", po: "PO-8739", supplier: "Hetero Drugs", lines: 5, cartons: 195, cbm: 3.9, status: "Draft", submitted: "-", expected: "Jul 24", received: "-", remarks: "Awaiting supplier packing list" },
+  { id: "ASN-2209", po: "PO-8734", supplier: "Intas Pharma", lines: 8, cartons: 315, cbm: 6.3, status: "Received", submitted: "Jul 11", expected: "Jul 12", received: "Jul 12", remarks: "" },
+  { id: "ASN-2206", po: "PO-8730", supplier: "Cipla Ltd", lines: 4, cartons: 175, cbm: 3.5, status: "Submitted", submitted: "Jul 16", expected: "Jul 23", received: "-", remarks: "" },
+  { id: "ASN-2203", po: "PO-8725", supplier: "Sun Pharma", lines: 6, cartons: 245, cbm: 4.9, status: "Received", submitted: "Jul 10", expected: "Jul 11", received: "Jul 11", remarks: "" },
+  { id: "ASN-2200", po: "PO-8721", supplier: "Dr Reddy's", lines: 10, cartons: 400, cbm: 8.1, status: "Received", submitted: "Jul 9", expected: "Jul 10", received: "Jul 10", remarks: "" },
+  { id: "ASN-2197", po: "PO-8716", supplier: "Mankind Pharma", lines: 3, cartons: 110, cbm: 2.2, status: "Draft", submitted: "-", expected: "Jul 25", received: "-", remarks: "Cold chain lane to be confirmed" },
+  { id: "ASN-2194", po: "PO-8712", supplier: "Abbott India", lines: 5, cartons: 205, cbm: 4.1, status: "Received", submitted: "Jul 8", expected: "Jul 9", received: "Jul 9", remarks: "" },
+  { id: "ASN-2191", po: "PO-8707", supplier: "Lupin Ltd", lines: 7, cartons: 280, cbm: 5.6, status: "In Transit", submitted: "Jul 17", expected: "Jul 20", received: "-", remarks: "" },
+  { id: "ASN-2188", po: "PO-8703", supplier: "Torrent Pharma", lines: 4, cartons: 150, cbm: 3.0, status: "Received", submitted: "Jul 6", expected: "Jul 7", received: "Jul 7", remarks: "" },
+  { id: "ASN-2185", po: "PO-8698", supplier: "Zydus Lifesciences", lines: 6, cartons: 235, cbm: 4.7, status: "Exception", submitted: "Jul 4", expected: "Jul 5", received: "Jul 6", remarks: "Batch numbers mismatched against PO — 1 line held for QC" },
+  { id: "ASN-2182", po: "PO-8694", supplier: "Alkem Labs", lines: 5, cartons: 190, cbm: 3.8, status: "Received", submitted: "Jul 3", expected: "Jul 4", received: "Jul 4", remarks: "" },
+  { id: "ASN-2179", po: "PO-8689", supplier: "Glenmark Pharma", lines: 8, cartons: 330, cbm: 6.6, status: "Received", submitted: "Jul 1", expected: "Jul 2", received: "Jul 2", remarks: "" },
+  { id: "ASN-2176", po: "PO-8685", supplier: "Aurobindo Pharma", lines: 4, cartons: 165, cbm: 3.3, status: "Draft", submitted: "-", expected: "Jul 26", received: "-", remarks: "" },
+  { id: "ASN-2173", po: "PO-8680", supplier: "Hetero Drugs", lines: 6, cartons: 260, cbm: 5.2, status: "Submitted", submitted: "Jul 15", expected: "Jul 22", received: "-", remarks: "Consolidated with PO-8681" },
+  { id: "ASN-2170", po: "PO-8676", supplier: "Intas Pharma", lines: 5, cartons: 220, cbm: 4.4, status: "Received", submitted: "Jun 28", expected: "Jun 29", received: "Jun 29", remarks: "" },
+  { id: "ASN-2167", po: "PO-8671", supplier: "Cipla Ltd", lines: 9, cartons: 355, cbm: 7.1, status: "Received", submitted: "Jun 26", expected: "Jun 27", received: "Jun 27", remarks: "" },
+  { id: "ASN-2164", po: "PO-8667", supplier: "Sun Pharma", lines: 4, cartons: 145, cbm: 2.9, status: "Draft", submitted: "-", expected: "Jul 28", received: "-", remarks: "Quarterly restock — pending PO confirmation" },
+  { id: "ASN-2161", po: "PO-8663", supplier: "Dr Reddy's", lines: 6, cartons: 240, cbm: 4.8, status: "Submitted", submitted: "Jul 14", expected: "Jul 23", received: "-", remarks: "" },
 ]
 
 const statusStyle: Record<string, string> = {
@@ -51,7 +75,7 @@ export default function PortalASNPage() {
   const [asns, setAsns] = useState<ASN[]>(initialAsns)
   const [tab, setTab] = useState("All ASNs")
   const [search, setSearch] = useState("")
-  const [showForm, setShowForm] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [detail, setDetail] = useState<ASN | null>(null)
@@ -112,7 +136,7 @@ export default function PortalASNPage() {
       remarks: form.remarks.trim(),
     }
     setAsns(prev => [next, ...prev])
-    setShowForm(false)
+    setCreateOpen(false)
     setForm(emptyForm)
     setErrors({})
     if (status === "Draft") {
@@ -153,7 +177,7 @@ export default function PortalASNPage() {
           <h1 className="text-xl font-bold text-[#1E3A5F] dark:text-foreground">Inbound ASNs</h1>
           <p className="text-sm text-muted-foreground">Submit and track your Advance Shipment Notices</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
+        <button type="button" onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
           <Plus className="w-4 h-4" /> New ASN
         </button>
       </div>
@@ -178,50 +202,33 @@ export default function PortalASNPage() {
         ))}
       </div>
 
-      {/* New ASN Form */}
-      {showForm && (
-        <div className="rounded-2xl border border-[#1E3A5F]/30 dark:border-brand/30 bg-white dark:bg-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-bold text-[#1E3A5F] dark:text-foreground flex items-center gap-2"><FileText className="w-4 h-4" /> Submit New ASN</h2>
-            <button onClick={() => { setShowForm(false); setForm(emptyForm); setErrors({}) }} className="text-xs text-muted-foreground hover:text-foreground">Cancel</button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {fields.map(f => (
-              <div key={f.key}>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
-                  {f.label}{f.required && <span className="ml-0.5 text-danger">*</span>}
-                </label>
-                <input
-                  value={form[f.key]}
-                  onChange={e => set(f.key, e.target.value)}
-                  placeholder={f.placeholder}
-                  className={cn(
-                    "w-full px-3 py-2 rounded-lg border bg-[#F7F9FC] dark:bg-muted/40 text-xs text-[#1E3A5F] dark:text-foreground outline-none transition-colors",
-                    errors[f.key]
-                      ? "border-danger focus:border-danger"
-                      : "border-[#E4E9F0] dark:border-border focus:border-[#1E3A5F] dark:focus:border-brand",
-                  )}
-                />
-                {errors[f.key] && <p className="mt-1 text-[10px] text-danger">{errors[f.key]}</p>}
-              </div>
-            ))}
-          </div>
-          <div className="mt-4">
-            <label className="block text-[11px] font-semibold text-muted-foreground mb-1">Remarks / Special Instructions</label>
-            <textarea
-              rows={2}
-              value={form.remarks}
-              onChange={e => set("remarks", e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-[#E4E9F0] dark:border-border bg-[#F7F9FC] dark:bg-muted/40 text-xs text-[#1E3A5F] dark:text-foreground outline-none focus:border-[#1E3A5F] dark:focus:border-brand transition-colors resize-none"
-              placeholder="Any special handling, cold chain requirements, etc."
-            />
-          </div>
-          <div className="mt-4 flex gap-2 justify-end">
-            <button onClick={() => submitAsn("Draft")} className="px-4 py-2 rounded-xl border border-[#E4E9F0] dark:border-border text-xs font-medium text-muted-foreground hover:bg-[#F7F9FC] dark:hover:bg-muted transition-colors">Save Draft</button>
-            <button onClick={() => submitAsn("Submitted")} className="px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity">Submit ASN</button>
-          </div>
+      <Modal
+        open={createOpen}
+        onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setErrors({}) } }}
+        title="Submit New ASN"
+        description="Advance Shipment Notice for inbound cargo"
+        size="lg"
+        footer={
+          <>
+            <button type="button" onClick={() => setCreateOpen(false)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">Cancel</button>
+            <button type="button" onClick={() => submitAsn("Draft")} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted">Save Draft</button>
+            <button type="button" onClick={() => submitAsn("Submitted")} className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90">Submit ASN</button>
+          </>
+        }
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {fields.map(f => (
+            <Field key={f.key} label={f.label} required={f.required} error={errors[f.key]}>
+              <TextInput value={form[f.key]} invalid={!!errors[f.key]} onChange={e => set(f.key, e.target.value)} placeholder={f.placeholder} />
+            </Field>
+          ))}
         </div>
-      )}
+        <div className="mt-4">
+          <Field label="Remarks / Special Instructions">
+            <TextArea rows={2} value={form.remarks} onChange={e => set("remarks", e.target.value)} placeholder="Any special handling, cold chain requirements, etc." />
+          </Field>
+        </div>
+      </Modal>
 
       {/* Tabs + search */}
       <div className="flex flex-wrap items-center justify-between gap-3">

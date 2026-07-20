@@ -294,6 +294,11 @@ const initialSessions: Session[] = [
   { device: "Chrome — Windows 11", location: "Bengaluru, India", time: "Current session", current: true },
   { device: "Safari — iPhone 14", location: "Bengaluru, India", time: "2 hours ago", current: false },
   { device: "Chrome — MacBook Pro", location: "Mumbai, India", time: "1 day ago", current: false },
+  { device: "Edge — Windows 10", location: "Pune, India", time: "2 days ago", current: false },
+  { device: "Firefox — Ubuntu 24.04", location: "Hyderabad, India", time: "3 days ago", current: false },
+  { device: "Safari — iPad Air", location: "Chennai, India", time: "5 days ago", current: false },
+  { device: "Chrome — Android (Pixel 8)", location: "Delhi, India", time: "1 week ago", current: false },
+  { device: "Zebra TC52 Scanner — Dock 3", location: "Bengaluru, India", time: "2 weeks ago", current: false },
 ]
 
 function SecuritySection() {
@@ -474,6 +479,10 @@ function AppearanceSection() {
 const initialTokens: ApiToken[] = [
   { name: "Production API Key", key: "vwms_prod_••••••••••••••••4a2f", created: "Dec 1, 2024", lastUsed: "2 mins ago" },
   { name: "Staging API Key", key: "vwms_stg_••••••••••••••••8c31", created: "Nov 15, 2024", lastUsed: "1 day ago" },
+  { name: "Mobile Scanner Key", key: "vwms_scanner_••••••••••••••••b7d9", created: "Oct 28, 2024", lastUsed: "18 mins ago" },
+  { name: "Tally Sync Key", key: "vwms_tally_••••••••••••••••1e64", created: "Sep 12, 2024", lastUsed: "6 hours ago" },
+  { name: "Reporting API Key", key: "vwms_reporting_••••••••••••••••9f05", created: "Aug 3, 2024", lastUsed: "3 days ago" },
+  { name: "Legacy Import Key", key: "vwms_legacy_••••••••••••••••2a88", created: "Jun 21, 2024", lastUsed: "Never" },
 ]
 
 function ApiSection() {
@@ -584,6 +593,11 @@ const initialIntegrations: Integration[] = [
   { name: "FedEx / Blue Dart", desc: "Shipping label & tracking", connected: true },
   { name: "WhatsApp Business", desc: "Dispatch notifications", connected: false },
   { name: "SAP B1", desc: "ERP integration", connected: false },
+  { name: "Zoho Books", desc: "Invoice & GST reconciliation", connected: true },
+  { name: "Delhivery", desc: "Last-mile courier manifests", connected: true },
+  { name: "Amazon Seller Central", desc: "Marketplace order intake", connected: false },
+  { name: "Razorpay", desc: "Payment capture for COD settlements", connected: true },
+  { name: "Twilio SMS", desc: "Driver & gate-pass alerts", connected: false },
 ]
 
 function IntegrationsSection() {

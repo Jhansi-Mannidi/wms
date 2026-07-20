@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { LCL_CONSOLIDATION_POOL, LCL_INITIAL_CONSOLS } from "@/lib/fixtures/lcl"
 
 // `type` (not `interface`) so rows stay assignable to Record<string, unknown> consumers
 type PoolReceipt = {
@@ -19,21 +20,12 @@ type Consol = {
   cbmMax: number; kgMax: number; status: string; items: PoolReceipt[]
 }
 
-const receiptPool: PoolReceipt[] = [
-  { id: "CR-0891", shipper: "Apex Pharma", shipperInit: "AP", shipperColor: "bg-blue-500", cbm: 2.4, pieces: 18, kg: 960, pod: "CNSHA", dwell: 4 },
-  { id: "CR-0892", shipper: "GlobalTex", shipperInit: "GT", shipperColor: "bg-amber-500", cbm: 5.6, pieces: 40, kg: 2800, pod: "CNSHA", dwell: 2 },
-  { id: "CR-0894", shipper: "AutoParts India", shipperInit: "AI", shipperColor: "bg-cyan-500", cbm: 8.3, pieces: 62, kg: 4150, pod: "SGSIN", dwell: 1 },
-  { id: "CR-0895", shipper: "MediSupply", shipperInit: "MS", shipperColor: "bg-rose-500", cbm: 1.8, pieces: 12, kg: 540, pod: "AEDXB", dwell: 5, hazmat: true },
-  { id: "CR-0896", shipper: "FreshFarm", shipperInit: "FF", shipperColor: "bg-orange-500", cbm: 3.2, pieces: 24, kg: 1600, pod: "CNSHA", dwell: 3 },
-  { id: "CR-0897", shipper: "Sunrise Elec.", shipperInit: "SE", shipperColor: "bg-emerald-500", cbm: 4.1, pieces: 30, kg: 2050, pod: "CNSHA", dwell: 2 },
-]
+const receiptPool: PoolReceipt[] = LCL_CONSOLIDATION_POOL
 
 const CBM_MAX = 25
 const KG_MAX = 18000
 
-const initialConsols: Consol[] = [
-  { id: "CON-001", route: "INBOM → CNSHA", mode: "FCL 20'", cutoff: "2025-07-28", cbmMax: CBM_MAX, kgMax: KG_MAX, status: "Building", items: [] },
-]
+const initialConsols: Consol[] = LCL_INITIAL_CONSOLS
 
 const ROUTES = ["INBOM → CNSHA", "INBOM → SGSIN", "INMAA → AEDXB", "INBOM → USNYC", "INNSA → NLRTM"] as const
 const MODES = ["LCL", "FCL 20'", "FCL 40'"] as const

@@ -18,6 +18,13 @@ const initialZoneData: Zone[] = [
   { zone:"Zone C", pallets:105, capacity:150, util:70 },
   { zone:"Cold Room A", pallets:32, capacity:40, util:80 },
   { zone:"Freezer", pallets:18, capacity:20, util:90 },
+  { zone:"Zone D", pallets:96, capacity:140, util:69 },
+  { zone:"Zone E", pallets:118, capacity:150, util:79 },
+  { zone:"Cold Room B", pallets:27, capacity:35, util:77 },
+  { zone:"Bulk Yard", pallets:64, capacity:110, util:58 },
+  { zone:"Mezzanine", pallets:41, capacity:60, util:68 },
+  { zone:"Quarantine Bay", pallets:12, capacity:25, util:48 },
+  { zone:"Dispatch Staging", pallets:42, capacity:45, util:93 },
 ]
 
 const PERIODS = ["Today", "7 Days", "30 Days"] as const

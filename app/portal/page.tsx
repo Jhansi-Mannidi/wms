@@ -28,12 +28,28 @@ const initialOrders: RecentOrder[] = [
   { id: "SO-3835", sku: "APX-2209", desc: "IV Drip Set x 100", status: "Picking", date: "Jul 18", eta: "Jul 20" },
   { id: "SO-3830", sku: "APX-1102", desc: "Gloves Nitrile L x 1000", status: "Delivered", date: "Jul 17", eta: "Jul 18" },
   { id: "SO-3825", sku: "APX-0091", desc: "Alcohol Swabs x 2000", status: "Delivered", date: "Jul 16", eta: "Jul 17" },
+  { id: "SO-3821", sku: "APX-3301", desc: "Insulin Glargine 100U/mL x 50", status: "Dispatched", date: "Jul 18", eta: "Jul 20" },
+  { id: "SO-3818", sku: "APX-7790", desc: "Amoxicillin 250mg x 300", status: "Packing", date: "Jul 18", eta: "Jul 20" },
+  { id: "SO-3814", sku: "APX-6601", desc: "Glucose Saline 500mL x 400", status: "Dispatched", date: "Jul 17", eta: "Jul 19" },
+  { id: "SO-3810", sku: "APX-3302", desc: "Adalimumab 40mg Pens x 30", status: "Delivered", date: "Jul 16", eta: "Jul 17" },
+  { id: "SO-3805", sku: "APX-6610", desc: "Normal Saline 1000mL x 250", status: "Delivered", date: "Jul 15", eta: "Jul 16" },
+  { id: "SO-3801", sku: "APX-7712", desc: "Paracetamol 500mg x 600", status: "Delivered", date: "Jul 15", eta: "Jul 16" },
+  { id: "SO-3796", sku: "APX-4421", desc: "Syringes 5ml x 800", status: "Delivered", date: "Jul 14", eta: "Jul 15" },
 ]
 
 const initialAlerts: Alert[] = [
   { type: "warning", msg: "APX-7790 stock below reorder level (48 units remaining)", time: "2h ago" },
   { type: "info", msg: "ASN-2241 received and putaway complete — 240 cartons", time: "4h ago" },
   { type: "danger", msg: "Invoice INV-0441 overdue by 3 days", time: "1d ago" },
+  { type: "warning", msg: "APX-6610 Normal Saline stock below reorder level (420 bags remaining)", time: "1d ago" },
+  { type: "info", msg: "SO-3830 delivered to the Hyderabad depot — POD uploaded", time: "1d ago" },
+  { type: "danger", msg: "ASN-2240 closed with an exception — 4 cartons damaged in transit", time: "2d ago" },
+  { type: "info", msg: "VAS work order VAS-1187 completed — 1,200 units relabelled", time: "2d ago" },
+  { type: "warning", msg: "APX-3301 Insulin Glargine within 60 days of expiry (240 vials)", time: "2d ago" },
+  { type: "info", msg: "ASN-2238 received and putaway complete — 200 cartons", time: "3d ago" },
+  { type: "danger", msg: "Zone C cold-chain utilisation at 91% — allocate additional pallet positions", time: "3d ago" },
+  { type: "info", msg: "Invoice INV-0445 issued for Jul 1–15, 2025 — payable by Jul 30", time: "4d ago" },
+  { type: "warning", msg: "APX-7822 Cefixime 200mg approaching reorder level (640 units)", time: "5d ago" },
 ]
 
 const statusColor: Record<string, string> = {

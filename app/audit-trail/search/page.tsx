@@ -6,6 +6,7 @@ import { ExportButton } from "@/components/wms/export-button"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { Field, TextInput, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { DEMO_AUDIT_RECENT_SEARCHES } from "@/lib/fixtures/demo"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Log = {
@@ -19,6 +20,31 @@ const logs: Log[] = [
   { id: "LOG-003", user: "Ravi Kumar", action: "Picked Order", module: "Orders", entity: "ORD-2025-4421", timestamp: "2025-07-19 12:55:10", ip: "192.168.1.15" },
   { id: "LOG-004", user: "Admin", action: "Changed Rate Card", module: "Billing", entity: "RATE-003", timestamp: "2025-07-19 11:40:00", ip: "192.168.1.1" },
   { id: "LOG-005", user: "Meena Patel", action: "Approved Adjustment", module: "Inventory", entity: "ADJ-0021", timestamp: "2025-07-19 10:28:35", ip: "192.168.1.18" },
+  { id: "LOG-006", user: "Arjun Nair", action: "Picked Order", module: "Orders", entity: "ORD-2025-4420", timestamp: "2025-07-19 09:47:22", ip: "192.168.1.30" },
+  { id: "LOG-007", user: "Kavitha Rao", action: "Posted GRN", module: "GRN", entity: "GRN-2025-0891", timestamp: "2025-07-19 09:05:58", ip: "192.168.1.11" },
+  { id: "LOG-008", user: "Deepa Menon", action: "Generated Invoice", module: "Billing", entity: "INV-2025-0774", timestamp: "2025-07-18 18:12:40", ip: "192.168.1.41" },
+  { id: "LOG-009", user: "Rahul Mehta", action: "Bin Transfer", module: "Inventory", entity: "SKU-001240", timestamp: "2025-07-18 17:33:05", ip: "192.168.1.34" },
+  { id: "LOG-010", user: "Priya Sharma", action: "Packed Order", module: "Orders", entity: "ORD-2025-4419", timestamp: "2025-07-18 16:20:14", ip: "192.168.1.22" },
+  { id: "LOG-011", user: "Anita Desai", action: "QC Rejected", module: "GRN", entity: "GRN-2025-0890", timestamp: "2025-07-18 15:02:31", ip: "192.168.1.27" },
+  { id: "LOG-012", user: "Admin", action: "Updated Rate Card", module: "Billing", entity: "RATE-007", timestamp: "2025-07-18 13:41:09", ip: "192.168.1.1" },
+  { id: "LOG-013", user: "Vijay Kumar", action: "Approved Adjustment", module: "Inventory", entity: "ADJ-0020", timestamp: "2025-07-18 11:19:47", ip: "192.168.1.10" },
+  { id: "LOG-014", user: "Ravi Kumar", action: "Shipped Order", module: "Orders", entity: "ORD-2025-4418", timestamp: "2025-07-18 10:06:52", ip: "192.168.1.15" },
+  { id: "LOG-015", user: "Suresh Yadav", action: "Putaway Completed", module: "Inventory", entity: "SKU-001237", timestamp: "2025-07-17 19:28:33", ip: "192.168.1.36" },
+  { id: "LOG-016", user: "Meena Patel", action: "Created GRN", module: "GRN", entity: "GRN-2025-0889", timestamp: "2025-07-17 17:55:16", ip: "192.168.1.18" },
+  { id: "LOG-017", user: "Deepa Menon", action: "Recorded Payment", module: "Billing", entity: "PAY-2025-0310", timestamp: "2025-07-17 16:11:04", ip: "192.168.1.41" },
+  { id: "LOG-018", user: "Arjun Nair", action: "Cancelled Order", module: "Orders", entity: "ORD-2025-4417", timestamp: "2025-07-17 14:37:29", ip: "192.168.1.30" },
+  { id: "LOG-019", user: "Sanjay Gupta", action: "Updated SKU", module: "Inventory", entity: "SKU-001241", timestamp: "2025-07-17 12:50:41", ip: "192.168.1.5" },
+  { id: "LOG-020", user: "Kavitha Rao", action: "QC Completed", module: "GRN", entity: "GRN-2025-0888", timestamp: "2025-07-17 10:24:18", ip: "192.168.1.11" },
+  { id: "LOG-021", user: "Priya Sharma", action: "Picked Order", module: "Orders", entity: "ORD-2025-4416", timestamp: "2025-07-16 18:44:55", ip: "192.168.1.22" },
+  { id: "LOG-022", user: "Admin", action: "Approved Invoice", module: "Billing", entity: "INV-2025-0773", timestamp: "2025-07-16 16:30:07", ip: "192.168.1.1" },
+  { id: "LOG-023", user: "Rahul Mehta", action: "Stock Adjustment", module: "Inventory", entity: "SKU-001232", timestamp: "2025-07-16 15:08:22", ip: "192.168.1.34" },
+  { id: "LOG-024", user: "Ravi Kumar", action: "Packed Order", module: "Orders", entity: "ORD-2025-4415", timestamp: "2025-07-16 13:19:36", ip: "192.168.1.15" },
+  { id: "LOG-025", user: "Anita Desai", action: "Posted GRN", module: "GRN", entity: "GRN-2025-0887", timestamp: "2025-07-16 11:02:50", ip: "192.168.1.27" },
+  { id: "LOG-026", user: "Vijay Kumar", action: "Hold Released", module: "Inventory", entity: "SKU-001236", timestamp: "2025-07-15 17:46:13", ip: "192.168.1.10" },
+  { id: "LOG-027", user: "Deepa Menon", action: "Credit Note Issued", module: "Billing", entity: "CN-2025-0044", timestamp: "2025-07-15 15:27:39", ip: "192.168.1.41" },
+  { id: "LOG-028", user: "Suresh Yadav", action: "Shipped Order", module: "Orders", entity: "ORD-2025-4414", timestamp: "2025-07-15 12:58:04", ip: "192.168.1.36" },
+  { id: "LOG-029", user: "Meena Patel", action: "QC Completed", module: "GRN", entity: "GRN-2025-0886", timestamp: "2025-07-15 10:15:27", ip: "192.168.1.18" },
+  { id: "LOG-030", user: "Sanjay Gupta", action: "Cycle Count Posted", module: "Inventory", entity: "CC-2025-0118", timestamp: "2025-07-14 16:39:48", ip: "192.168.1.5" },
 ]
 
 const SCOPES = ["All", "Inventory", "GRN", "Orders", "Billing"] as const
@@ -26,7 +52,7 @@ const SCOPES = ["All", "Inventory", "GRN", "Orders", "Billing"] as const
 export default function AuditSearchPage() {
   const [q, setQ] = useState("")
   const [scope, setScope] = useState<string>("All")
-  const [recent, setRecent] = useState<string[]>([])
+  const [recent, setRecent] = useState<string[]>(DEMO_AUDIT_RECENT_SEARCHES)
 
   // Applied date range; the modal edits a draft until Apply is pressed.
   const [range, setRange] = useState({ from: "", to: "" })

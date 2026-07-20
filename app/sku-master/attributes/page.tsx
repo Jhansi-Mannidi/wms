@@ -20,6 +20,23 @@ const initialAttributes: Attribute[] = [
   { id: "ATTR-005", name: "Storage Temp", type: "Select", required: true, skus: 204, example: "Ambient, Cold, Frozen" },
   { id: "ATTR-006", name: "Hazardous", type: "Boolean", required: true, skus: 98, example: "Yes / No" },
   { id: "ATTR-007", name: "Country of Origin", type: "Text", required: false, skus: 1420, example: "India, China, USA" },
+  { id: "ATTR-008", name: "Batch Number", type: "Text", required: true, skus: 1240, example: "BAT-2024-1205" },
+  { id: "ATTR-009", name: "Expiry Date", type: "Date", required: true, skus: 986, example: "2025-06-15" },
+  { id: "ATTR-010", name: "Manufacture Date", type: "Date", required: false, skus: 742, example: "2024-12-05" },
+  { id: "ATTR-011", name: "Net Weight", type: "Number", required: true, skus: 1380, example: "5 (kg)" },
+  { id: "ATTR-012", name: "Gross Weight", type: "Number", required: false, skus: 1105, example: "5.4 (kg)" },
+  { id: "ATTR-013", name: "Pack Size", type: "Select", required: true, skus: 890, example: "Single, Multipack, Bulk" },
+  { id: "ATTR-014", name: "Fragile", type: "Boolean", required: false, skus: 214, example: "Yes / No" },
+  { id: "ATTR-015", name: "Temperature Controlled", type: "Boolean", required: true, skus: 176, example: "Yes / No" },
+  { id: "ATTR-016", name: "Brand", type: "Text", required: true, skus: 1420, example: "Nature's Best, Sunrise" },
+  { id: "ATTR-017", name: "HSN Code", type: "Text", required: true, skus: 1398, example: "1006.30" },
+  { id: "ATTR-018", name: "Grade", type: "Select", required: false, skus: 468, example: "A, B, C" },
+  { id: "ATTR-019", name: "Packaging Type", type: "Select", required: false, skus: 725, example: "Carton, Sack, Pouch" },
+  { id: "ATTR-020", name: "Units Per Case", type: "Number", required: true, skus: 1052, example: "24" },
+  { id: "ATTR-021", name: "Serial Tracked", type: "Boolean", required: false, skus: 132, example: "Yes / No" },
+  { id: "ATTR-022", name: "Best Before Date", type: "Date", required: false, skus: 654, example: "2025-09-30" },
+  { id: "ATTR-023", name: "Flavour", type: "Text", required: false, skus: 298, example: "Plain, Masala, Mint" },
+  { id: "ATTR-024", name: "Shelf Position", type: "Select", required: false, skus: 385, example: "Top, Middle, Bottom" },
 ]
 
 const TYPES = ["Text", "Number", "Select", "Boolean", "Date"] as const

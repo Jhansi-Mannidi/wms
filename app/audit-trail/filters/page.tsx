@@ -7,6 +7,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { DEMO_AUDIT_SAVED_FILTERS } from "@/lib/fixtures/demo"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Log = { id: string; user: string; action: string; module: string; entity: string; ts: string }
@@ -24,6 +25,31 @@ const logs: Log[] = [
   { id:"LOG-005",user:"Meena Patel",action:"Approved",module:"Inventory",entity:"ADJ-0021",ts:"2025-07-19 10:28" },
   { id:"LOG-006",user:"Arjun Nair",action:"Deleted",module:"Inventory",entity:"SKU-999",ts:"2025-07-18 17:05" },
   { id:"LOG-007",user:"Admin",action:"Login",module:"Settings",entity:"—",ts:"2025-07-18 09:00" },
+  { id:"LOG-008",user:"Vijay Kumar",action:"Exported",module:"Billing",entity:"INV-2025-0774",ts:"2025-07-18 08:22" },
+  { id:"LOG-009",user:"Priya Sharma",action:"Created",module:"Orders",entity:"ORD-4420",ts:"2025-07-17 18:41" },
+  { id:"LOG-010",user:"Meena Patel",action:"Rejected",module:"GRN",entity:"GRN-0890",ts:"2025-07-17 16:59" },
+  { id:"LOG-011",user:"Arjun Nair",action:"Updated",module:"Workforce",entity:"SHIFT-0221",ts:"2025-07-17 15:14" },
+  { id:"LOG-012",user:"Admin",action:"Updated",module:"3PL",entity:"3PL-CTR-012",ts:"2025-07-17 13:30" },
+  { id:"LOG-013",user:"Ravi Kumar",action:"Approved",module:"Orders",entity:"ORD-4419",ts:"2025-07-17 11:47" },
+  { id:"LOG-014",user:"Vijay Kumar",action:"Deleted",module:"Billing",entity:"RATE-009",ts:"2025-07-17 10:05" },
+  { id:"LOG-015",user:"Priya Sharma",action:"Created",module:"GRN",entity:"GRN-0889",ts:"2025-07-16 18:23" },
+  { id:"LOG-016",user:"Admin",action:"Logout",module:"Settings",entity:"—",ts:"2025-07-16 17:00" },
+  { id:"LOG-017",user:"Meena Patel",action:"Approved",module:"Inventory",entity:"ADJ-0020",ts:"2025-07-16 15:36" },
+  { id:"LOG-018",user:"Arjun Nair",action:"Exported",module:"Orders",entity:"ORD-BATCH-77",ts:"2025-07-16 14:02" },
+  { id:"LOG-019",user:"Ravi Kumar",action:"Updated",module:"Inventory",entity:"SKU-001240",ts:"2025-07-16 12:18" },
+  { id:"LOG-020",user:"Admin",action:"Created",module:"Workforce",entity:"USR-0044",ts:"2025-07-16 10:44" },
+  { id:"LOG-021",user:"Vijay Kumar",action:"Approved",module:"Billing",entity:"INV-2025-0773",ts:"2025-07-15 17:51" },
+  { id:"LOG-022",user:"Priya Sharma",action:"Rejected",module:"GRN",entity:"GRN-0888",ts:"2025-07-15 16:09" },
+  { id:"LOG-023",user:"Meena Patel",action:"Deleted",module:"Inventory",entity:"SKU-998",ts:"2025-07-15 14:27" },
+  { id:"LOG-024",user:"Arjun Nair",action:"Created",module:"Orders",entity:"ORD-4418",ts:"2025-07-15 12:40" },
+  { id:"LOG-025",user:"Admin",action:"Login",module:"Settings",entity:"—",ts:"2025-07-15 09:02" },
+  { id:"LOG-026",user:"Ravi Kumar",action:"Updated",module:"3PL",entity:"3PL-CTR-008",ts:"2025-07-14 18:15" },
+  { id:"LOG-027",user:"Vijay Kumar",action:"Exported",module:"Workforce",entity:"ATT-JUL-W2",ts:"2025-07-14 16:33" },
+  { id:"LOG-028",user:"Priya Sharma",action:"Approved",module:"Orders",entity:"ORD-4417",ts:"2025-07-14 14:50" },
+  { id:"LOG-029",user:"Meena Patel",action:"Created",module:"Inventory",entity:"ADJ-0019",ts:"2025-07-14 11:26" },
+  { id:"LOG-030",user:"Admin",action:"Logout",module:"Settings",entity:"—",ts:"2025-07-14 09:48" },
+  { id:"LOG-031",user:"Arjun Nair",action:"Updated",module:"Billing",entity:"RATE-007",ts:"2025-07-13 17:12" },
+  { id:"LOG-032",user:"Ravi Kumar",action:"Rejected",module:"3PL",entity:"3PL-CTR-015",ts:"2025-07-13 15:29" },
 ]
 
 export default function AuditFiltersPage() {
@@ -37,7 +63,7 @@ export default function AuditFiltersPage() {
   const [draftRange, setDraftRange] = useState({ from: "", to: "" })
   const [rangeErrors, setRangeErrors] = useState<Record<string, string>>({})
 
-  const [saved, setSaved] = useState<SavedFilter[]>([])
+  const [saved, setSaved] = useState<SavedFilter[]>(DEMO_AUDIT_SAVED_FILTERS)
   const [saveOpen, setSaveOpen] = useState(false)
   const [saveName, setSaveName] = useState("")
   const [saveError, setSaveError] = useState("")

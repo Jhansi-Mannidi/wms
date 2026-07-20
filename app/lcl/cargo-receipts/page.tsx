@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { LCL_CARGO_RECEIPTS } from "@/lib/fixtures/lcl"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Receipt = {
@@ -15,13 +16,7 @@ type Receipt = {
   eta: string; status: string; lot: string
 }
 
-const initialReceipts: Receipt[] = [
-  { id:"CR-001",shipper:"Global Exports Ltd",pieces:48,weight:"1,240 kg",cbm:"8.4",eta:"2025-07-20",status:"Received",lot:"LOT-2025-0441"},
-  { id:"CR-002",shipper:"Acme Trade Co",pieces:120,weight:"3,100 kg",cbm:"22.1",eta:"2025-07-20",status:"Partially Received",lot:"LOT-2025-0442"},
-  { id:"CR-003",shipper:"Pacific Goods",pieces:30,weight:"820 kg",cbm:"5.2",eta:"2025-07-21",status:"Expected",lot:"LOT-2025-0443"},
-  { id:"CR-004",shipper:"Delta Shippers",pieces:200,weight:"4,800 kg",cbm:"34.0",eta:"2025-07-21",status:"Expected",lot:"LOT-2025-0444"},
-  { id:"CR-005",shipper:"Prime Logistics",pieces:60,weight:"1,580 kg",cbm:"11.2",eta:"2025-07-19",status:"Received",lot:"LOT-2025-0440"},
-]
+const initialReceipts: Receipt[] = LCL_CARGO_RECEIPTS
 
 const STATUSES = ["Expected", "Partially Received", "Received"] as const
 const FILTERS = ["All", "Expected", "Partially Received", "Received"] as const

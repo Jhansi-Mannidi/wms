@@ -8,17 +8,12 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { LCL_REPORTS } from "@/lib/fixtures/lcl"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Report = { id: string; name: string; period: string; size: string; status: string }
 
-const initialReports: Report[] = [
-  { id:"RPT-001",name:"Monthly Consolidation Summary",period:"Jun 2025",size:"2.4 MB",status:"Ready"},
-  { id:"RPT-002",name:"Cargo Receipt Register",period:"Jul 2025",size:"1.1 MB",status:"Ready"},
-  { id:"RPT-003",name:"Load Plan Efficiency Report",period:"Jul 2025",size:"0.8 MB",status:"Generating"},
-  { id:"RPT-004",name:"De-consolidation Log",period:"Jun 2025",size:"1.6 MB",status:"Ready"},
-  { id:"RPT-005",name:"CBM Utilisation Report",period:"Q2 2025",size:"3.2 MB",status:"Ready"},
-]
+const initialReports: Report[] = LCL_REPORTS
 
 const REPORT_TYPES = [
   "Monthly Consolidation Summary",

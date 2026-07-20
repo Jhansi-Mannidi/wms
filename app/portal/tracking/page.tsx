@@ -30,6 +30,97 @@ const initialShipments: Shipment[] = [
       { time: "Jul 19, 04:00 PM", location: "CFS Zone A", event: "Order released to floor", done: true },
     ]
   },
+  { id: "SO-3824", awb: "-", dest: "Yashoda Hospitals, Somajiguda", carrier: "-", status: "Packing", updated: "Jul 20, 08:15 AM", eta: "Jul 22",
+    events: [
+      { time: "Jul 20, 08:15 AM", location: "CFS Zone B — Pack Station", event: "Packing in progress", done: true },
+      { time: "Jul 19, 07:30 PM", location: "CFS Zone B", event: "Picking complete", done: true },
+      { time: "Jul 19, 02:15 PM", location: "CFS Zone B", event: "Order released to floor", done: true },
+      { time: "Jul 16, 11:00 AM", location: "Portal", event: "Order received", done: true },
+    ]
+  },
+  { id: "SO-3806", awb: "AWB-7712240", dest: "Medicover Hospitals, Hitec City", carrier: "Blue Dart", status: "Out for Delivery", updated: "Jul 20, 09:20 AM", eta: "Today by 4 PM",
+    events: [
+      { time: "Jul 20, 09:20 AM", location: "Madhapur Delivery Centre", event: "Out for delivery", done: true },
+      { time: "Jul 20, 05:45 AM", location: "Hyderabad Hub", event: "Arrived at destination facility", done: true },
+      { time: "Jul 19, 09:10 PM", location: "CFS Zone A — Dispatch Bay", event: "Shipment dispatched", done: true },
+      { time: "Jul 19, 06:00 PM", location: "CFS Zone A", event: "Packed & labelled", done: true },
+    ]
+  },
+  { id: "SO-3819", awb: "AWB-7712310", dest: "AIG Hospitals, Gachibowli", carrier: "Blue Dart", status: "Dispatched", updated: "Jul 19, 08:40 PM", eta: "Jul 21",
+    events: [
+      { time: "Jul 19, 08:40 PM", location: "Hyderabad Hub", event: "In transit to destination facility", done: true },
+      { time: "Jul 19, 03:20 PM", location: "CFS Zone A — Dispatch Bay", event: "Shipment dispatched", done: true },
+      { time: "Jul 19, 12:10 PM", location: "CFS Zone A", event: "Packed & labelled", done: true },
+      { time: "Jul 18, 04:30 PM", location: "CFS Zone A", event: "Picking started", done: true },
+    ]
+  },
+  { id: "SO-3814", awb: "AWB-7712288", dest: "Star Hospitals, Banjara Hills", carrier: "Gati", status: "Dispatched", updated: "Jul 19, 06:15 PM", eta: "Jul 21",
+    events: [
+      { time: "Jul 19, 06:15 PM", location: "Uppal Transit Point", event: "In transit", done: true },
+      { time: "Jul 19, 01:05 PM", location: "CFS Zone A — Dispatch Bay", event: "Shipment dispatched", done: true },
+      { time: "Jul 18, 07:40 PM", location: "CFS Zone A", event: "Packed & labelled", done: true },
+    ]
+  },
+  { id: "SO-3793", awb: "AWB-7712166", dest: "PharmEasy Hub, Pune", carrier: "VRL Logistics", status: "Dispatched", updated: "Jul 19, 02:30 PM", eta: "Jul 21 (delayed)",
+    events: [
+      { time: "Jul 19, 02:30 PM", location: "Solapur Transit Hub", event: "Delayed — vehicle breakdown reported", done: true },
+      { time: "Jul 17, 09:00 PM", location: "Hyderabad Hub", event: "In transit to Pune", done: true },
+      { time: "Jul 16, 08:20 PM", location: "CFS Zone C — Dispatch Bay", event: "Shipment dispatched", done: true },
+      { time: "Jul 16, 03:50 PM", location: "CFS Zone C", event: "Packed & labelled", done: true },
+    ]
+  },
+  { id: "SO-3830", awb: "AWB-7712398", dest: "Rainbow Children's Hospital, Banjara Hills", carrier: "Blue Dart", status: "Delivered", updated: "Jul 18, 04:20 PM", eta: "Delivered Jul 18",
+    events: [
+      { time: "Jul 18, 04:20 PM", location: "Banjara Hills", event: "Delivered — signed by Pharmacy Head", done: true },
+      { time: "Jul 18, 09:10 AM", location: "Banjara Hills Delivery Centre", event: "Out for delivery", done: true },
+      { time: "Jul 17, 10:30 PM", location: "CFS Zone A — Dispatch Bay", event: "Shipment dispatched", done: true },
+      { time: "Jul 17, 06:00 PM", location: "CFS Zone A", event: "Packed & labelled", done: true },
+    ]
+  },
+  { id: "SO-3825", awb: "AWB-7712351", dest: "Wellness Forever, Jubilee Hills", carrier: "Delhivery", status: "Delivered", updated: "Jul 18, 12:05 PM", eta: "Delivered Jul 18",
+    events: [
+      { time: "Jul 18, 12:05 PM", location: "Jubilee Hills", event: "Delivered — signed by Front Desk", done: true },
+      { time: "Jul 18, 08:40 AM", location: "Jubilee Hills Delivery Centre", event: "Out for delivery", done: true },
+      { time: "Jul 17, 07:15 PM", location: "CFS Zone A — Dispatch Bay", event: "Shipment dispatched", done: true },
+    ]
+  },
+  { id: "SO-3812", awb: "AWB-7712271", dest: "Aster Prime Hospital, Ameerpet", carrier: "Blue Dart", status: "Delivered", updated: "Jul 15, 03:45 PM", eta: "Delivered Jul 15",
+    events: [
+      { time: "Jul 15, 03:45 PM", location: "Ameerpet", event: "Delivered — signed by Dr. Priya Sharma", done: true },
+      { time: "Jul 15, 08:55 AM", location: "Hyderabad Hub", event: "Out for delivery", done: true },
+      { time: "Jul 14, 08:30 PM", location: "CFS Zone A — Dispatch Bay", event: "Shipment dispatched", done: true },
+    ]
+  },
+  { id: "SO-3808", awb: "AWB-7712254", dest: "Omni Hospitals, Kothapet", carrier: "DTDC", status: "Delivered", updated: "Jul 16, 01:30 PM", eta: "Delivered Jul 16",
+    events: [
+      { time: "Jul 16, 01:30 PM", location: "Kothapet", event: "Delivered — signed by Suresh Yadav", done: true },
+      { time: "Jul 16, 09:15 AM", location: "Dilsukhnagar Delivery Centre", event: "Out for delivery", done: true },
+      { time: "Jul 15, 06:50 PM", location: "Hyderabad Hub", event: "Arrived at destination facility", done: true },
+      { time: "Jul 14, 09:00 PM", location: "CFS Zone B — Dispatch Bay", event: "Shipment dispatched", done: true },
+    ]
+  },
+  { id: "SO-3803", awb: "AWB-7712229", dest: "Basavatarakam Cancer Hospital, Banjara Hills", carrier: "TCI Express", status: "Delivered", updated: "Jul 14, 11:20 AM", eta: "Delivered Jul 14",
+    events: [
+      { time: "Jul 14, 11:20 AM", location: "Banjara Hills", event: "Delivered — signed by Dr. Arjun Nair", done: true },
+      { time: "Jul 14, 07:30 AM", location: "Banjara Hills Delivery Centre", event: "Out for delivery", done: true },
+      { time: "Jul 13, 09:40 PM", location: "CFS Zone A — Dispatch Bay", event: "Shipment dispatched", done: true },
+    ]
+  },
+  { id: "SO-3801", awb: "AWB-7712215", dest: "Netmeds Fulfilment Centre, Chennai", carrier: "Safexpress", status: "Delivered", updated: "Jul 15, 05:10 PM", eta: "Delivered Jul 15",
+    events: [
+      { time: "Jul 15, 05:10 PM", location: "Chennai", event: "Delivered — signed by Inward Desk", done: true },
+      { time: "Jul 15, 10:00 AM", location: "Chennai Hub", event: "Out for delivery", done: true },
+      { time: "Jul 14, 04:25 PM", location: "Nellore Transit Point", event: "In transit", done: true },
+      { time: "Jul 13, 08:15 PM", location: "CFS Zone C — Dispatch Bay", event: "Shipment dispatched", done: true },
+    ]
+  },
+  { id: "SO-3795", awb: "AWB-7712178", dest: "Kauvery Hospital, Chennai", carrier: "Safexpress", status: "Delivered", updated: "Jul 13, 02:55 PM", eta: "Delivered Jul 13",
+    events: [
+      { time: "Jul 13, 02:55 PM", location: "Chennai", event: "Delivered — signed by Rahul Mehta", done: true },
+      { time: "Jul 13, 08:30 AM", location: "Chennai Hub", event: "Out for delivery", done: true },
+      { time: "Jul 11, 09:05 PM", location: "CFS Zone C — Dispatch Bay", event: "Shipment dispatched", done: true },
+    ]
+  },
 ]
 
 const statusStyle: Record<string, string> = {

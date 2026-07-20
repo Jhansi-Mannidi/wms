@@ -21,6 +21,12 @@ const initialDocks: Dock[] = [
   { id: "Dock 4", type: "Outbound", status: "available", vehicle: null, since: null, activity: null },
   { id: "Dock 5", type: "Outbound", status: "occupied", vehicle: "MH-02-CX-7734", since: "10:30", activity: "Loading" },
   { id: "Dock 6", type: "Outbound", status: "maintenance", vehicle: null, since: null, activity: "Scheduled maintenance" },
+  { id: "Dock 7", type: "Mixed", status: "occupied", vehicle: "KL-07-MN-2233", since: "07:50", activity: "Staging" },
+  { id: "Dock 8", type: "Mixed", status: "available", vehicle: null, since: null, activity: null },
+  { id: "Dock 9", type: "Outbound", status: "occupied", vehicle: "GJ-18-OP-4455", since: "11:05", activity: "Loading" },
+  { id: "Dock 10", type: "Inbound", status: "occupied", vehicle: "RJ-14-QR-6677", since: "09:35", activity: "Inspection" },
+  { id: "Dock 11", type: "Mixed", status: "maintenance", vehicle: null, since: null, activity: "Dock leveller repair" },
+  { id: "Dock 12", type: "Inbound", status: "available", vehicle: null, since: null, activity: null },
 ]
 
 const DOCK_TYPES = ["Inbound", "Outbound", "Mixed"] as const

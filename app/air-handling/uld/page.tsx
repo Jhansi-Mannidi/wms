@@ -7,6 +7,7 @@ import { Modal } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { DEMO_ULD_LOADED } from "@/lib/fixtures/demo"
 
 const uldTypes = ["PMC – 88×125 in (max 1,588 kg)", "AKE – 60.4×61.5 in (max 1,497 kg)", "PAG – 88×125 in (max 4,626 kg)", "LD3 – 79.1×60.4 in (max 1,588 kg)"]
 const airlines = ["IndiGo – 6E", "Air India – AI", "SpiceJet – SG", "Emirates – EK", "Qatar Airways – QR"]
@@ -21,6 +22,14 @@ const initialPool: ExportPkg[] = [
   { id: "p4", ref: "AIR-EXP-004", consignee: "EuroFashion BV", weight: 12.6, dest: "AMS", initials: "EF", color: "bg-emerald-500" },
   { id: "p5", ref: "AIR-EXP-005", consignee: "SingTech Pte", weight: 8.9, dest: "SIN", initials: "ST", color: "bg-violet-500" },
   { id: "p6", ref: "AIR-EXP-006", consignee: "AusPharma Pty", weight: 22.1, dest: "SYD", initials: "AP", color: "bg-orange-500" },
+  { id: "p7", ref: "AIR-EXP-007", consignee: "Nordic Traders AS", weight: 14.8, dest: "OSL", initials: "NT", color: "bg-blue-500" },
+  { id: "p8", ref: "AIR-EXP-008", consignee: "Gulf Medical LLC", weight: 27.3, dest: "DXB", initials: "GM", color: "bg-rose-500" },
+  { id: "p9", ref: "AIR-EXP-009", consignee: "Kyoto Components KK", weight: 9.4, dest: "NRT", initials: "KC", color: "bg-amber-500" },
+  { id: "p10", ref: "AIR-EXP-010", consignee: "Doha Retail Group", weight: 41.6, dest: "DOH", initials: "DR", color: "bg-emerald-500" },
+  { id: "p11", ref: "AIR-EXP-011", consignee: "Colombo Spice Imports", weight: 33.2, dest: "CMB", initials: "CS", color: "bg-violet-500" },
+  { id: "p12", ref: "AIR-EXP-012", consignee: "Muscat Distributors", weight: 16.7, dest: "MCT", initials: "MD", color: "bg-orange-500" },
+  { id: "p13", ref: "AIR-EXP-013", consignee: "Bangkok Textiles Co", weight: 25.9, dest: "BKK", initials: "BT", color: "bg-blue-500" },
+  { id: "p14", ref: "AIR-EXP-014", consignee: "Riyadh Pharma Est", weight: 11.5, dest: "RUH", initials: "RP", color: "bg-rose-500" },
 ]
 
 const ULD_MAX = 1497
@@ -28,6 +37,12 @@ const ULD_MAX = 1497
 const hawbLines = [
   { hawb: "VF-HAWB-2024-0051", shipper: "Apex Pharma Ltd", pieces: 12, weight: 5.2, dest: "LHR" },
   { hawb: "VF-HAWB-2024-0052", shipper: "GlobalTex Fabrics", pieces: 4, weight: 18.4, dest: "FRA" },
+  { hawb: "VF-HAWB-2024-0053", shipper: "Apex Pharma Ltd", pieces: 8, weight: 39.5, dest: "RUH" },
+  { hawb: "VF-HAWB-2024-0054", shipper: "Orient Spices Co", pieces: 22, weight: 61.5, dest: "SIN" },
+  { hawb: "VF-HAWB-2024-0055", shipper: "GlobalTex Fabrics", pieces: 6, weight: 47.0, dest: "DOH" },
+  { hawb: "VF-HAWB-2024-0056", shipper: "MediSupply Corp", pieces: 15, weight: 29.6, dest: "MCT" },
+  { hawb: "VF-HAWB-2024-0057", shipper: "Sunrise Electronics", pieces: 9, weight: 16.9, dest: "BKK" },
+  { hawb: "VF-HAWB-2024-0058", shipper: "Nova Textiles Pvt", pieces: 18, weight: 25.9, dest: "CMB" },
 ]
 
 const COLORS = ["bg-blue-500", "bg-rose-500", "bg-amber-500", "bg-emerald-500", "bg-violet-500", "bg-orange-500"]
@@ -40,8 +55,8 @@ export default function ULDBuildPage() {
   const [flight, setFlight] = useState("")
   const [seal, setSeal] = useState("")
   const [uldId, setUldId] = useState("")
-  const [pool, setPool] = useState<ExportPkg[]>(initialPool)
-  const [loaded, setLoaded] = useState<ExportPkg[]>([])
+  const [pool, setPool] = useState<ExportPkg[]>(initialPool.filter(p => !DEMO_ULD_LOADED.some(l => l.id === p.id)))
+  const [loaded, setLoaded] = useState<ExportPkg[]>(DEMO_ULD_LOADED)
   const [confirmed, setConfirmed] = useState(false)
 
   const [createOpen, setCreateOpen] = useState(false)

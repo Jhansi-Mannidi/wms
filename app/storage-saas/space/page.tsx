@@ -26,6 +26,14 @@ type OwnZone = { id: string; label: string; total: number; used: number; rate: s
 const initialLeasedSpaces: LeasedSpace[] = [
   { id: "LS001", name: "ColdStar Warehousing", area: "500 sqft", slots: 50, cost: 18000, term: "Jul–Dec 2026", used: 38, free: 12 },
   { id: "LS002", name: "EcoStore Logistics", area: "800 sqft", slots: 80, cost: 24000, term: "Jun–Nov 2026", used: 71, free: 9 },
+  { id: "LS003", name: "FrostLine Cold Chain", area: "600 sqft", slots: 60, cost: 21000, term: "Aug 2026–Jan 2027", used: 44, free: 16 },
+  { id: "LS004", name: "Sundar Warehousing", area: "1000 sqft", slots: 100, cost: 26000, term: "Apr–Sep 2026", used: 82, free: 18 },
+  { id: "LS005", name: "Metro Storage Hub", area: "400 sqft", slots: 40, cost: 14000, term: "Jul–Dec 2026", used: 31, free: 9 },
+  { id: "LS006", name: "Nair Godown Services", area: "750 sqft", slots: 75, cost: 22500, term: "May–Oct 2026", used: 60, free: 15 },
+  { id: "LS007", name: "Deccan Space Partners", area: "900 sqft", slots: 90, cost: 25000, term: "Sep 2026–Feb 2027", used: 68, free: 22 },
+  { id: "LS008", name: "Harbour Line Depot", area: "550 sqft", slots: 55, cost: 17500, term: "Jun–Nov 2026", used: 40, free: 15 },
+  { id: "LS009", name: "Greenfield Storage", area: "650 sqft", slots: 65, cost: 19500, term: "Aug 2026–Mar 2027", used: 52, free: 13 },
+  { id: "LS010", name: "Anand Logistics Yard", area: "480 sqft", slots: 48, cost: 15000, term: "Jul 2026–Jan 2027", used: 35, free: 13 },
 ]
 
 const initialAllocations: Allocation[] = [
@@ -34,11 +42,40 @@ const initialAllocations: Allocation[] = [
   { id: "A003", customer: "Spice & Grain Co.", initials: "SG", color: "bg-amber-500", source: "Own", area: "200 sqft", slots: 20, sellRate: 420, costRate: 260, margin: 38 },
   { id: "A004", customer: "MedEquip Traders", initials: "ME", color: "bg-orange-500", source: "EcoStore", area: "100 sqft", slots: 10, sellRate: 360, costRate: 290, margin: 19 },
   { id: "A005", customer: "Rajesh Kumar", initials: "RK", color: "bg-blue-500", source: "Own", area: "60 sqft", slots: 6, sellRate: 400, costRate: 260, margin: 35 },
+  { id: "A006", customer: "Fresh Farms Produce", initials: "FF", color: "bg-rose-500", source: "FrostLine", area: "300 sqft", slots: 30, sellRate: 480, costRate: 320, margin: 33 },
+  { id: "A007", customer: "Acme Foods Pvt Ltd", initials: "AF", color: "bg-emerald-500", source: "Own", area: "250 sqft", slots: 25, sellRate: 460, costRate: 280, margin: 39 },
+  { id: "A008", customer: "Global Oils Trading", initials: "GO", color: "bg-violet-500", source: "Sundar", area: "400 sqft", slots: 40, sellRate: 420, costRate: 300, margin: 29 },
+  { id: "A009", customer: "Agro Corp India", initials: "AC", color: "bg-amber-500", source: "Own", area: "220 sqft", slots: 22, sellRate: 440, costRate: 265, margin: 40 },
+  { id: "A010", customer: "Sweet Mills Ltd", initials: "SM", color: "bg-orange-500", source: "Metro", area: "180 sqft", slots: 18, sellRate: 400, costRate: 360, margin: 10 },
+  { id: "A011", customer: "Salt Works Co.", initials: "SW", color: "bg-blue-500", source: "Own", area: "160 sqft", slots: 16, sellRate: 410, costRate: 255, margin: 38 },
+  { id: "A012", customer: "Tropical Co. Exports", initials: "TC", color: "bg-rose-500", source: "Nair", area: "350 sqft", slots: 35, sellRate: 450, costRate: 300, margin: 33 },
+  { id: "A013", customer: "Apex Pharma Ltd", initials: "AP", color: "bg-emerald-500", source: "Own", area: "280 sqft", slots: 28, sellRate: 520, costRate: 300, margin: 42 },
+  { id: "A014", customer: "Deepa Menon Traders", initials: "DM", color: "bg-violet-500", source: "Deccan", area: "240 sqft", slots: 24, sellRate: 390, costRate: 290, margin: 26 },
+  { id: "A015", customer: "Vikram Sharma & Sons", initials: "VS", color: "bg-amber-500", source: "Own", area: "200 sqft", slots: 20, sellRate: 430, costRate: 260, margin: 40 },
+  { id: "A016", customer: "Anita Desai Exports", initials: "AD", color: "bg-orange-500", source: "Harbour", area: "300 sqft", slots: 30, sellRate: 410, costRate: 305, margin: 26 },
+  { id: "A017", customer: "Rahul Mehta Enterprises", initials: "RM", color: "bg-blue-500", source: "Own", area: "150 sqft", slots: 15, sellRate: 420, costRate: 265, margin: 37 },
+  { id: "A018", customer: "Sanjay Gupta Traders", initials: "SG", color: "bg-rose-500", source: "Greenfield", area: "260 sqft", slots: 26, sellRate: 400, costRate: 300, margin: 25 },
+  { id: "A019", customer: "Kavitha Rao Foods", initials: "KR", color: "bg-emerald-500", source: "Own", area: "320 sqft", slots: 32, sellRate: 470, costRate: 275, margin: 41 },
+  { id: "A020", customer: "Meena Patel Textiles", initials: "MP", color: "bg-violet-500", source: "Anand", area: "190 sqft", slots: 19, sellRate: 380, costRate: 300, margin: 21 },
+  { id: "A021", customer: "Arjun Nair Logistics", initials: "AN", color: "bg-amber-500", source: "Own", area: "350 sqft", slots: 35, sellRate: 450, costRate: 270, margin: 40 },
+  { id: "A022", customer: "Suresh Yadav Agro", initials: "SY", color: "bg-orange-500", source: "ColdStar", area: "210 sqft", slots: 21, sellRate: 395, costRate: 310, margin: 22 },
+  { id: "A023", customer: "Coastal Spice Traders", initials: "CS", color: "bg-blue-500", source: "Own", area: "380 sqft", slots: 38, sellRate: 460, costRate: 280, margin: 39 },
+  { id: "A024", customer: "Northern Grain Co.", initials: "NG", color: "bg-rose-500", source: "EcoStore", area: "290 sqft", slots: 29, sellRate: 385, costRate: 300, margin: 22 },
+  { id: "A025", customer: "Bluewave Chemicals", initials: "BC", color: "bg-emerald-500", source: "Own", area: "260 sqft", slots: 26, sellRate: 440, costRate: 265, margin: 40 },
+  { id: "A026", customer: "Sunrise Dairy Foods", initials: "SD", color: "bg-violet-500", source: "FrostLine", area: "340 sqft", slots: 34, sellRate: 500, costRate: 330, margin: 34 },
 ]
 
 const initialOwnZones: OwnZone[] = [
   { id: "OZ001", label: "Zone A – Ground Floor", total: 2000, used: 1450, rate: "₹260/slot" },
   { id: "OZ002", label: "Zone B – Mezzanine", total: 1200, used: 780, rate: "₹240/slot" },
+  { id: "OZ003", label: "Zone C – Bulk Racking", total: 2500, used: 1980, rate: "₹250/slot" },
+  { id: "OZ004", label: "Zone D – Cold Room", total: 800, used: 720, rate: "₹320/slot" },
+  { id: "OZ005", label: "Zone E – Small Parcel Bays", total: 600, used: 310, rate: "₹280/slot" },
+  { id: "OZ006", label: "Zone F – Bonded Store", total: 1500, used: 1120, rate: "₹300/slot" },
+  { id: "OZ007", label: "Zone G – Open Yard", total: 3000, used: 1650, rate: "₹180/slot" },
+  { id: "OZ008", label: "Zone H – Mezzanine Extension", total: 1000, used: 890, rate: "₹245/slot" },
+  { id: "OZ009", label: "Zone J – Document Archive", total: 450, used: 260, rate: "₹220/slot" },
+  { id: "OZ010", label: "Zone K – Heavy Goods Floor", total: 1800, used: 1240, rate: "₹265/slot" },
 ]
 
 const PALETTE = ["bg-emerald-500", "bg-violet-500", "bg-amber-500", "bg-orange-500", "bg-blue-500", "bg-rose-500"]

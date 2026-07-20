@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { appendDemoEntry } from "@/lib/demo-store"
 
 // `type` (not `interface`) so the row stays a plain Record-compatible shape
 type SKUForm = {
@@ -145,6 +146,19 @@ export default function SKUAddPage() {
       return
     }
     const saved: SKUForm = { ...form, skuCode: form.skuCode.trim().toUpperCase(), name: form.name.trim() }
+    appendDemoEntry("skus", {
+      sku: saved.skuCode,
+      name: saved.name,
+      category: saved.category,
+      brand: saved.brand.trim() || "—",
+      uom: saved.uom,
+      weight: `${saved.weight} kg`,
+      dimensions: `${saved.length}×${saved.width}×${saved.height} cm`,
+      barcode: saved.barcode.trim(),
+      client: "Acme Foods",
+      hsn: saved.hsn.trim(),
+      status: "Active",
+    })
     setLastSaved(saved)
     setForm(emptyForm)
     setErrors({})

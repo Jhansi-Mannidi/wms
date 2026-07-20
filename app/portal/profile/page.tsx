@@ -20,6 +20,15 @@ const initialUsers: PortalUser[] = [
   { name: "Priya Nair", email: "priya.nair@apexpharma.in", role: "Ops Manager", status: "Active", last: "Yesterday" },
   { name: "Rahul Mehta", email: "rahul.mehta@apexpharma.in", role: "Viewer", status: "Active", last: "Jul 18" },
   { name: "Anita Desai", email: "anita.desai@apexpharma.in", role: "Finance", status: "Inactive", last: "Jul 10" },
+  { name: "Kavitha Rao", email: "kavitha.rao@apexpharma.in", role: "Ops Manager", status: "Active", last: "Today" },
+  { name: "Suresh Yadav", email: "suresh.yadav@apexpharma.in", role: "Viewer", status: "Active", last: "Today" },
+  { name: "Meena Patel", email: "meena.patel@apexpharma.in", role: "Finance", status: "Active", last: "Yesterday" },
+  { name: "Arjun Nair", email: "arjun.nair@apexpharma.in", role: "Viewer", status: "Active", last: "Yesterday" },
+  { name: "Deepa Menon", email: "deepa.menon@apexpharma.in", role: "Ops Manager", status: "Active", last: "Jul 18" },
+  { name: "Sanjay Gupta", email: "sanjay.gupta@apexpharma.in", role: "Admin", status: "Active", last: "Jul 17" },
+  { name: "Neha Joshi", email: "neha.joshi@apexpharma.in", role: "Finance", status: "Active", last: "Jul 16" },
+  { name: "Ravi Kumar", email: "ravi.kumar@apexpharma.in", role: "Viewer", status: "Inactive", last: "Jul 12" },
+  { name: "Karthik Iyer", email: "karthik.iyer@apexpharma.in", role: "Viewer", status: "Inactive", last: "Jun 30" },
 ]
 
 const initialCompany = [
@@ -42,12 +51,18 @@ const initialNotifications: NotificationPref[] = [
   { label: "VAS Job Completed", desc: "When a VAS work order is completed", enabled: false },
   { label: "Expiry Alert", desc: "When stock is within 60 days of expiry", enabled: false },
   { label: "Weekly Stock Summary", desc: "Weekly email with stock levels and activity", enabled: true },
+  { label: "ASN Exception Raised", desc: "When an inbound shipment is short, damaged, or mismatched", enabled: true },
+  { label: "Putaway Completed", desc: "When received stock has been putaway to its storage bin", enabled: false },
+  { label: "Monthly Billing Statement", desc: "Monthly summary of storage, handling and VAS charges", enabled: true },
 ]
 
 const initialWebhooks: Webhook[] = [
   { event: "asn.received", url: "https://api.apexpharma.in/webhook/asn", active: true },
   { event: "order.dispatched", url: "https://api.apexpharma.in/webhook/dispatch", active: true },
   { event: "invoice.issued", url: "-", active: false },
+  { event: "order.delivered", url: "https://api.apexpharma.in/webhook/delivery", active: true },
+  { event: "vas.completed", url: "https://api.apexpharma.in/webhook/vas", active: false },
+  { event: "stock.low", url: "https://api.apexpharma.in/webhook/stock-alerts", active: true },
 ]
 
 const roleStyle: Record<string, string> = {

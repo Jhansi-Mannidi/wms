@@ -14,6 +14,17 @@ const initialReports: Report[] = [
   { name: "Outstanding Receivables", desc: "Unpaid and overdue invoices with ageing analysis", lastRun: "Daily", format: "CSV / Email" },
   { name: "Client P&L Summary", desc: "Profitability per client after deducting operational costs", lastRun: "2024-07-15", format: "PDF" },
   { name: "Service Revenue Breakdown", desc: "Revenue split across storage, handling, VAS and others", lastRun: "2024-07-14", format: "CSV" },
+  { name: "Invoice Ageing Report", desc: "Outstanding invoices bucketed into 0-30, 31-60, 61-90 and 90+ days", lastRun: "2024-07-16", format: "PDF / CSV" },
+  { name: "Payment Collection Register", desc: "All receipts by method, reference and clearing status", lastRun: "Daily", format: "CSV" },
+  { name: "GST Output Tax Summary", desc: "Tax collected per client and HSN code for return filing", lastRun: "2024-07-10", format: "PDF / Excel" },
+  { name: "Rate Card Variance Report", desc: "Billed rates compared against contracted rate cards", lastRun: "2024-07-12", format: "CSV" },
+  { name: "Storage Occupancy Billing", desc: "Pallet-days consumed per client with minimum charge shortfalls", lastRun: "2024-07-15", format: "Excel" },
+  { name: "Credit Note Register", desc: "Credit notes issued with reason codes and adjusted invoices", lastRun: "2024-07-09", format: "PDF / CSV" },
+  { name: "Client Billing Trend", desc: "Twelve-month revenue trend and month-on-month movement per client", lastRun: "Weekly", format: "PDF" },
+  { name: "Unbilled Activity Report", desc: "Completed handling and storage activity not yet invoiced", lastRun: "Daily", format: "CSV / Email" },
+  { name: "Minimum Charge Shortfall", desc: "Clients billed below contracted monthly minimum commitment", lastRun: "2024-07-08", format: "Excel" },
+  { name: "Transport Cost Recovery", desc: "Freight billed versus carrier cost per trip and lane", lastRun: "2024-07-13", format: "CSV" },
+  { name: "Annual Revenue Statement", desc: "Full financial-year revenue consolidation across all clients", lastRun: "2024-04-05", format: "PDF" },
 ]
 
 function stamp() {

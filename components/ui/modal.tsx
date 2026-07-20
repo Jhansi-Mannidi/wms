@@ -39,15 +39,16 @@ export function Modal({
       <Dialog.Portal>
         <Dialog.Backdrop
           className={cn(
-            "fixed inset-0 z-[90] bg-black/50 backdrop-blur-[2px] transition-opacity duration-200",
-            "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
+            "fixed inset-0 z-[200] bg-black/50 backdrop-blur-[2px] transition-opacity duration-200",
+            "data-[closed]:hidden data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
           )}
         />
         <Dialog.Popup
           className={cn(
-            "fixed left-1/2 top-1/2 z-[95] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2",
+            "fixed left-1/2 top-1/2 z-[210] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2",
             "flex max-h-[calc(100vh-6rem)] flex-col rounded-2xl border border-border bg-card shadow-2xl",
             "transition-all duration-200 outline-none",
+            "data-[closed]:hidden data-[open]:opacity-100 data-[open]:scale-100",
             "data-[starting-style]:opacity-0 data-[starting-style]:scale-95",
             "data-[ending-style]:opacity-0 data-[ending-style]:scale-95",
             widths[size],
@@ -102,15 +103,16 @@ export function Drawer({
       <Dialog.Portal>
         <Dialog.Backdrop
           className={cn(
-            "fixed inset-0 z-[90] bg-black/50 backdrop-blur-[2px] transition-opacity duration-200",
-            "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
+            "fixed inset-0 z-[200] bg-black/50 backdrop-blur-[2px] transition-opacity duration-200",
+            "data-[closed]:hidden data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
           )}
         />
         <Dialog.Popup
           className={cn(
-            "fixed right-0 top-0 z-[95] flex h-full w-[32rem] max-w-[calc(100vw-2rem)] flex-col",
+            "fixed right-0 top-0 z-[210] flex h-full w-[32rem] max-w-[calc(100vw-2rem)] flex-col",
             "border-l border-border bg-card shadow-2xl outline-none",
             "transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+            "data-[closed]:hidden data-[open]:translate-x-0",
             "data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full",
           )}
         >

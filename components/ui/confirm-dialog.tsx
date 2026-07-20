@@ -27,15 +27,16 @@ export function ConfirmDialog({
       <AlertDialog.Portal>
         <AlertDialog.Backdrop
           className={cn(
-            "fixed inset-0 z-[90] bg-black/50 backdrop-blur-[2px] transition-opacity duration-200",
-            "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
+            "fixed inset-0 z-[200] bg-black/50 backdrop-blur-[2px] transition-opacity duration-200",
+            "data-[closed]:hidden data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
           )}
         />
         <AlertDialog.Popup
           className={cn(
-            "fixed left-1/2 top-1/2 z-[95] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2",
+            "fixed left-1/2 top-1/2 z-[210] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2",
             "rounded-2xl border border-border bg-card p-5 shadow-2xl outline-none",
             "transition-all duration-200",
+            "data-[closed]:hidden data-[open]:opacity-100 data-[open]:scale-100",
             "data-[starting-style]:opacity-0 data-[starting-style]:scale-95",
             "data-[ending-style]:opacity-0 data-[ending-style]:scale-95",
           )}
@@ -60,10 +61,14 @@ export function ConfirmDialog({
           </div>
 
           <div className="mt-5 flex items-center justify-end gap-2">
-            <AlertDialog.Close className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            <AlertDialog.Close
+              type="button"
+              className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            >
               {cancelLabel}
             </AlertDialog.Close>
             <button
+              type="button"
               onClick={() => { onConfirm(); onOpenChange(false) }}
               className={cn(
                 "rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors",

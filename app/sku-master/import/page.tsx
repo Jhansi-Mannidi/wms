@@ -17,6 +17,27 @@ type ImportRun = {
 
 const initialRuns: ImportRun[] = [
   { file: "sku_master_jul14.csv", rows: 495, imported: 480, skipped: 12, duplicates: 3, importedAt: "2025-07-14 10:20", status: "Completed with errors" },
+  { file: "sku_master_jul11.csv", rows: 320, imported: 320, skipped: 0, duplicates: 0, importedAt: "2025-07-11 09:15", status: "Completed" },
+  { file: "client_catalogue_acme.xlsx", rows: 148, imported: 142, skipped: 4, duplicates: 2, importedAt: "2025-07-10 14:30", status: "Completed with errors" },
+  { file: "seasonal_skus_monsoon.csv", rows: 64, imported: 64, skipped: 0, duplicates: 0, importedAt: "2025-07-09 11:05", status: "Completed" },
+  { file: "sku_master_jul08.csv", rows: 410, imported: 396, skipped: 9, duplicates: 5, importedAt: "2025-07-08 08:40", status: "Completed with errors" },
+  { file: "client_catalogue_globaloils.xlsx", rows: 96, imported: 96, skipped: 0, duplicates: 0, importedAt: "2025-07-07 16:20", status: "Completed" },
+  { file: "sku_master_jul04.csv", rows: 275, imported: 275, skipped: 0, duplicates: 0, importedAt: "2025-07-04 10:00", status: "Completed" },
+  { file: "beverages_range_2025.csv", rows: 58, imported: 54, skipped: 3, duplicates: 1, importedAt: "2025-07-03 13:45", status: "Completed with errors" },
+  { file: "client_catalogue_agrocorp.xlsx", rows: 132, imported: 132, skipped: 0, duplicates: 0, importedAt: "2025-07-02 09:50", status: "Completed" },
+  { file: "sku_master_jul01.csv", rows: 388, imported: 371, skipped: 11, duplicates: 6, importedAt: "2025-07-01 08:25", status: "Completed with errors" },
+  { file: "pulses_refresh_2025.csv", rows: 72, imported: 72, skipped: 0, duplicates: 0, importedAt: "2025-06-30 15:10", status: "Completed" },
+  { file: "sku_master_jun27.csv", rows: 245, imported: 245, skipped: 0, duplicates: 0, importedAt: "2025-06-27 09:30", status: "Completed" },
+  { file: "client_catalogue_saltworks.xlsx", rows: 87, imported: 82, skipped: 4, duplicates: 1, importedAt: "2025-06-26 12:15", status: "Completed with errors" },
+  { file: "edible_oils_range.csv", rows: 63, imported: 63, skipped: 0, duplicates: 0, importedAt: "2025-06-25 10:40", status: "Completed" },
+  { file: "sku_master_jun23.csv", rows: 356, imported: 356, skipped: 0, duplicates: 0, importedAt: "2025-06-23 08:55", status: "Completed" },
+  { file: "client_catalogue_freshfarms.xlsx", rows: 118, imported: 110, skipped: 5, duplicates: 3, importedAt: "2025-06-20 14:05", status: "Completed with errors" },
+  { file: "processed_foods_batch.csv", rows: 91, imported: 91, skipped: 0, duplicates: 0, importedAt: "2025-06-19 11:35", status: "Completed" },
+  { file: "sku_master_jun17.csv", rows: 302, imported: 302, skipped: 0, duplicates: 0, importedAt: "2025-06-17 09:20", status: "Completed" },
+  { file: "client_catalogue_sweetmills.xlsx", rows: 104, imported: 98, skipped: 4, duplicates: 2, importedAt: "2025-06-16 16:45", status: "Completed with errors" },
+  { file: "grains_range_2025.csv", rows: 79, imported: 79, skipped: 0, duplicates: 0, importedAt: "2025-06-13 10:10", status: "Completed" },
+  { file: "sku_master_jun11.csv", rows: 421, imported: 421, skipped: 0, duplicates: 0, importedAt: "2025-06-11 08:35", status: "Completed" },
+  { file: "client_catalogue_tropicalco.xlsx", rows: 68, imported: 61, skipped: 5, duplicates: 2, importedAt: "2025-06-10 13:20", status: "Completed with errors" },
 ]
 
 /** Files the simulated browser can select, with the counts a parse would find. */

@@ -4,6 +4,8 @@ import { Plus, Save, Trash2, CheckCircle2, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { notify } from "@/components/ui/toast"
+import { appendDemoEntry, loadDemoEntries } from "@/lib/demo-store"
+import { nextRecordId } from "@/lib/next-id"
 
 type LineItem = { sku: string; product: string; expectedQty: string; receivedQty: string; condition: string }
 
@@ -101,15 +103,31 @@ export default function GRNRegisterPage() {
 
   function saveGRN() {
     if (!validate()) return
-    const seq = 1051 + Math.floor(Math.random() * 9)
+    const knownIds = [
+      ...loadDemoEntries<{ id: string }>("grns").map(g => g.id),
+      "GRN-2024-1050",
+    ]
+    const id = nextRecordId(knownIds, /^GRN-2024-(\d+)$/, "GRN-2024-", 4)
     const next: SavedGRN = {
-      id: `GRN-2024-${seq}`,
+      id,
       ...shipment,
       ...receipt,
       items,
       totalExpected,
       totalReceived,
     }
+    appendDemoEntry("grns", {
+      id,
+      asn: shipment.asn.trim(),
+      supplier: shipment.supplier.trim(),
+      items: items.length,
+      qty: totalReceived,
+      received: `${receipt.receivedDate || new Date().toISOString().slice(0, 10)} ${receipt.receivedTime || new Date().toTimeString().slice(0, 5)}`,
+      dock: shipment.dock.trim() || "—",
+      receivedBy: receipt.receivedBy.trim(),
+      discrepancy: totalExpected > totalReceived,
+      status: totalExpected > totalReceived ? "With Discrepancy" : "Completed",
+    })
     setSaved(next)
     notify.success("GRN saved", `${next.id} — ${items.length} line item${items.length > 1 ? "s" : ""}, ${totalReceived} units received.`)
   }

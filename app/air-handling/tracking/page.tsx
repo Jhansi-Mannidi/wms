@@ -32,6 +32,16 @@ const initialShipments: AirShipment[] = [
   { ref: "AIR-EXP-001", consignee: "TechParts GmbH", initials: "TG", color: "bg-blue-500", branch: "export", dest: "FRA", weight: "18.4 kg", awb: "VF-HAWB-2024-0052", stage: 4, eta: "26 Jul 2026", flight: "6E 1234", uld: "PMC12345AI" },
   { ref: "AIR-LOC-006", consignee: "HealthPlus Clinic", initials: "HP", color: "bg-emerald-500", branch: "local", dest: "Gachibowli", weight: "0.9 kg", awb: "VF-D-00247", stage: 2, eta: "Today", carrier: "Own Fleet" },
   { ref: "AIR-EXP-002", consignee: "MedDevice UK", initials: "MD", color: "bg-violet-500", branch: "export", dest: "LHR", weight: "5.2 kg", awb: "VF-HAWB-2024-0051", stage: 5, eta: "28 Jul 2026", flight: "AI 112", uld: "PMC12345AI" },
+  { ref: "AIR-LOC-007", consignee: "PharmaDist Mumbai", initials: "PD", color: "bg-blue-500", branch: "local", dest: "Andheri East", weight: "12.4 kg", awb: "VF-D-00248", stage: 1, eta: "Today", carrier: "Own Fleet" },
+  { ref: "AIR-EXP-003", consignee: "Pharma Riyadh LLC", initials: "PR", color: "bg-rose-500", branch: "export", dest: "RUH", weight: "39.5 kg", awb: "VF-HAWB-2024-0053", stage: 2, eta: "29 Jul 2026", flight: "SV 758", uld: "AKE45821SV" },
+  { ref: "AIR-LOC-008", consignee: "TechStore Pune", initials: "TS", color: "bg-emerald-500", branch: "local", dest: "Kothrud", weight: "7.2 kg", awb: "DL884733015", stage: 3, eta: "Today", carrier: "Delhivery" },
+  { ref: "AIR-EXP-004", consignee: "Orient Importers SG", initials: "OI", color: "bg-orange-500", branch: "export", dest: "SIN", weight: "61.5 kg", awb: "VF-HAWB-2024-0054", stage: 3, eta: "30 Jul 2026", flight: "SQ 423", uld: "PMC88120SQ" },
+  { ref: "AIR-LOC-009", consignee: "Organic Mart Nashik", initials: "OM", color: "bg-orange-500", branch: "local", dest: "Panchavati", weight: "22.5 kg", awb: "VF-D-00249", stage: 2, eta: "Today", carrier: "Own Fleet" },
+  { ref: "AIR-LOC-010", consignee: "Workshop Nashik", initials: "WN", color: "bg-cyan-500", branch: "local", dest: "Satpur MIDC", weight: "18.3 kg", awb: "BD772910445", stage: 0, eta: "Tomorrow", carrier: "BlueDart" },
+  { ref: "AIR-EXP-005", consignee: "Retail Group Doha", initials: "RG", color: "bg-amber-500", branch: "export", dest: "DOH", weight: "47.0 kg", awb: "VF-HAWB-2024-0055", stage: 1, eta: "31 Jul 2026", flight: "QR 501", uld: "AKE45822QR" },
+  { ref: "AIR-LOC-011", consignee: "GadgetHub Indore", initials: "GH", color: "bg-violet-500", branch: "local", dest: "Vijay Nagar", weight: "16.9 kg", awb: "DL884733102", stage: 2, eta: "Today", carrier: "Delhivery" },
+  { ref: "AIR-EXP-006", consignee: "Muscat Distributors", initials: "MU", color: "bg-indigo-500", branch: "export", dest: "MCT", weight: "29.6 kg", awb: "VF-HAWB-2024-0056", stage: 5, eta: "24 Jul 2026", flight: "WY 202", uld: "PMC88121WY" },
+  { ref: "AIR-LOC-012", consignee: "MedPlus Pune", initials: "MP", color: "bg-rose-500", branch: "local", dest: "Baner", weight: "7.5 kg", awb: "VF-D-00250", stage: 3, eta: "Today", carrier: "Own Fleet" },
 ]
 
 const localStages = ["Received", "Routed (Local)", "Out-for-Delivery", "Delivered"]

@@ -7,34 +7,35 @@ import { Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { LCL_DECONSOL_LINES, type LclExpectedLine } from "@/lib/fixtures/lcl"
 
-// `type` (not `interface`) so rows stay assignable to Record<string, unknown> consumers
-type ExpectedLine = {
-  ref: string; consignee: string; initials: string; color: string
-  expectedPcs: number; expectedCbm: number; expectedWt: number; status: string
-}
+type ExpectedLine = LclExpectedLine
 
-const expectedLines: ExpectedLine[] = [
-  { ref: "CFS-2024-0451", consignee: "Apex Pharma Ltd", initials: "AP", color: "bg-blue-500", expectedPcs: 48, expectedCbm: 8.2, expectedWt: 1240, status: "Pending" },
-  { ref: "CFS-2024-0452", consignee: "GlobalTex Fabrics", initials: "GT", color: "bg-amber-500", expectedPcs: 120, expectedCbm: 22.4, expectedWt: 3800, status: "Pending" },
-  { ref: "CFS-2024-0453", consignee: "MediSupply Corp", initials: "MS", color: "bg-rose-500", expectedPcs: 36, expectedCbm: 4.6, expectedWt: 720, status: "Pending" },
-  { ref: "CFS-2024-0454", consignee: "Sunrise Electronics", initials: "SE", color: "bg-emerald-500", expectedPcs: 24, expectedCbm: 5.1, expectedWt: 960, status: "Pending" },
-  { ref: "CFS-2024-0455", consignee: "FreshFarm Organics", initials: "FF", color: "bg-orange-500", expectedPcs: 60, expectedCbm: 11.8, expectedWt: 2100, status: "Pending" },
-]
+const expectedLines: ExpectedLine[] = LCL_DECONSOL_LINES
 
 const modes = ["Local Delivery", "Courier", "Pickup"]
+const RELEASE_MODES = ["Local Delivery", "Courier", "Pickup", "Local Delivery"] as const
 
 export default function DeconsolidationPage() {
   const [actuals, setActuals] = useState<Record<string, number>>(
     Object.fromEntries(expectedLines.map(l => [l.ref, l.expectedPcs]))
   )
   const [statuses, setStatuses] = useState<Record<string, string>>(
-    Object.fromEntries(expectedLines.map(l => [l.ref, "Pending"]))
+    Object.fromEntries(expectedLines.map(l => [l.ref, l.status === "De-Stuffed" ? "De-Stuffed" : "Pending"]))
   )
   const [modes2, setModes2] = useState<Record<string, string>>(
-    Object.fromEntries(expectedLines.map(l => [l.ref, ""]))
+    Object.fromEntries(expectedLines.map((l, i) => [
+      l.ref,
+      l.status === "De-Stuffed" ? RELEASE_MODES[i % RELEASE_MODES.length] : "",
+    ]))
   )
-  const [released, setReleased] = useState<Record<string, string>>({})
+  const [released, setReleased] = useState<Record<string, string>>(
+    Object.fromEntries(
+      expectedLines
+        .filter(l => l.status === "De-Stuffed")
+        .map((l, i) => [l.ref, RELEASE_MODES[i % RELEASE_MODES.length]])
+    )
+  )
 
   const [detail, setDetail] = useState<ExpectedLine | null>(null)
   const [releaseTarget, setReleaseTarget] = useState<ExpectedLine | null>(null)

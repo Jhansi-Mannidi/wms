@@ -3,9 +3,9 @@
 import { useState } from "react"
 import { Wrench, Plus, Search, Clock, CheckCircle2, Tag, Package, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Drawer } from "@/components/ui/modal"
+import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { DetailRow } from "@/components/ui/form"
+import { Field, TextInput, TextArea, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 
 const tabs = ["All", "Pending", "In Progress", "Completed"]
@@ -22,6 +22,27 @@ const initialVasOrders: VASOrder[] = [
   { id: "VAS-1039", type: "Repacking", sku: "APX-4421", desc: "Syringes 5ml — repack from bulk to retail packs of 10", units: 500, status: "In Progress", raised: "Jul 19", completed: "-", notes: "Retail blister pack format", priority: "Urgent", requiredBy: "Jul 21" },
   { id: "VAS-1038", type: "Quality Check", sku: "APX-3301", desc: "Insulin Glargine — 3rd-party QC inspection", units: 240, status: "Pending", raised: "Jul 19", completed: "-", notes: "Requires cold-chain compliance check", priority: "Urgent", requiredBy: "Jul 20" },
   { id: "VAS-1035", type: "Relabelling", sku: "APX-2209", desc: "IV Drip Set — update expiry sticker", units: 100, status: "Completed", raised: "Jul 14", completed: "Jul 15", notes: "", priority: "Normal", requiredBy: "Jul 15" },
+  { id: "VAS-1034", type: "Co-packing", sku: "APX-7712", desc: "Paracetamol 500mg — co-pack with dosage leaflet, 300 units", units: 300, status: "Pending", raised: "Jul 14", completed: "-", notes: "Leaflet artwork v3 approved by QA", priority: "Urgent", requiredBy: "Jul 20" },
+  { id: "VAS-1032", type: "Palletisation", sku: "APX-6601", desc: "Saline 500ml — palletise 60 cases onto Euro pallets", units: 60, status: "In Progress", raised: "Jul 14", completed: "-", notes: "Shrink-wrap with corner boards", priority: "Normal", requiredBy: "Jul 21" },
+  { id: "VAS-1031", type: "Kitting", sku: "APX-KIT-02", desc: "Surgical Dressing Kit assembly — 80 kits", units: 80, status: "Pending", raised: "Jul 13", completed: "-", notes: "Gauze + tape + scissors as per BOM", priority: "Normal", requiredBy: "Jul 22" },
+  { id: "VAS-1029", type: "Quality Check", sku: "APX-9903", desc: "Amoxicillin 250mg — batch sampling QC", units: 360, status: "In Progress", raised: "Jul 13", completed: "-", notes: "Sample 3 units per carton", priority: "Urgent", requiredBy: "Jul 19" },
+  { id: "VAS-1027", type: "Relabelling", sku: "APX-5502", desc: "Cough Syrup 100ml — MRP sticker rework", units: 450, status: "Completed", raised: "Jul 12", completed: "Jul 14", notes: "Old MRP fully covered, verified by Kavitha Rao", priority: "Normal", requiredBy: "Jul 15" },
+  { id: "VAS-1026", type: "Repacking", sku: "APX-1102", desc: "Vitamin D3 — repack bulk into 30-count bottles", units: 900, status: "Completed", raised: "Jul 12", completed: "Jul 15", notes: "", priority: "Normal", requiredBy: "Jul 16" },
+  { id: "VAS-1024", type: "Co-packing", sku: "APX-8814", desc: "Glucometer — bundle with 25 test strips", units: 150, status: "In Progress", raised: "Jul 11", completed: "-", notes: "Bundle sleeves printed in-house", priority: "Normal", requiredBy: "Jul 18" },
+  { id: "VAS-1022", type: "Palletisation", sku: "APX-0091", desc: "Disposable Gloves — restack 40 pallets for export lane", units: 40, status: "Completed", raised: "Jul 11", completed: "Jul 13", notes: "Export-grade wrap applied", priority: "Urgent", requiredBy: "Jul 13" },
+  { id: "VAS-1021", type: "Kitting", sku: "APX-KIT-03", desc: "Diabetic Care Kit assembly — 120 kits", units: 120, status: "Completed", raised: "Jul 10", completed: "Jul 13", notes: "", priority: "Normal", requiredBy: "Jul 14" },
+  { id: "VAS-1019", type: "Quality Check", sku: "APX-2209", desc: "IV Drip Set — seal integrity inspection", units: 300, status: "Pending", raised: "Jul 10", completed: "-", notes: "Hold stock in Zone B until QC sign-off", priority: "Urgent", requiredBy: "Jul 17" },
+  { id: "VAS-1017", type: "Relabelling", sku: "APX-3301", desc: "Insulin Glargine — cold-chain handling label", units: 180, status: "Completed", raised: "Jul 9", completed: "Jul 11", notes: "Applied inside cold room by Suresh Yadav", priority: "Urgent", requiredBy: "Jul 11" },
+  { id: "VAS-1016", type: "Co-packing", sku: "APX-4421", desc: "Syringes 5ml — co-pack with alcohol swabs", units: 600, status: "Completed", raised: "Jul 9", completed: "Jul 12", notes: "", priority: "Normal", requiredBy: "Jul 12" },
+  { id: "VAS-1014", type: "Repacking", sku: "APX-6601", desc: "Saline 500ml — repack damaged outer cartons", units: 220, status: "Cancelled", raised: "Jul 8", completed: "-", notes: "Withdrawn — stock returned to vendor", priority: "Normal", requiredBy: "Jul 12" },
+  { id: "VAS-1012", type: "Palletisation", sku: "APX-5502", desc: "Cough Syrup 100ml — consolidate part pallets in Zone B", units: 75, status: "Completed", raised: "Jul 8", completed: "Jul 10", notes: "", priority: "Normal", requiredBy: "Jul 11" },
+  { id: "VAS-1010", type: "Kitting", sku: "APX-KIT-01", desc: "First Aid Kit assembly — 200 kits", units: 200, status: "Completed", raised: "Jul 7", completed: "Jul 10", notes: "Repeat of the monthly standing run", priority: "Normal", requiredBy: "Jul 11" },
+  { id: "VAS-1009", type: "Quality Check", sku: "APX-7712", desc: "Paracetamol 500mg — visual defect check", units: 800, status: "Completed", raised: "Jul 7", completed: "Jul 9", notes: "12 units rejected and quarantined", priority: "Normal", requiredBy: "Jul 10" },
+  { id: "VAS-1007", type: "Relabelling", sku: "APX-0091", desc: "Disposable Gloves — apply size chart sticker", units: 1000, status: "Completed", raised: "Jul 6", completed: "Jul 8", notes: "", priority: "Normal", requiredBy: "Jul 9" },
+  { id: "VAS-1005", type: "Co-packing", sku: "APX-1102", desc: "Vitamin D3 — festive combo pack of 3", units: 400, status: "Completed", raised: "Jul 5", completed: "Jul 8", notes: "Combo sleeves supplied by Apex Pharma", priority: "Normal", requiredBy: "Jul 9" },
+  { id: "VAS-1003", type: "Palletisation", sku: "APX-9903", desc: "Amoxicillin 250mg — pallet build for Chennai lane", units: 90, status: "Completed", raised: "Jul 4", completed: "Jul 6", notes: "", priority: "Normal", requiredBy: "Jul 7" },
+  { id: "VAS-1001", type: "Kitting", sku: "APX-KIT-02", desc: "Surgical Dressing Kit assembly — 60 kits", units: 60, status: "Cancelled", raised: "Jul 3", completed: "-", notes: "Duplicate of VAS-1031, withdrawn by requester", priority: "Normal", requiredBy: "Jul 8" },
+  { id: "VAS-1000", type: "Repacking", sku: "APX-8814", desc: "Glucometer — repack returns into sellable cartons", units: 130, status: "Completed", raised: "Jul 3", completed: "Jul 6", notes: "", priority: "Normal", requiredBy: "Jul 7" },
 ]
 
 const serviceTypes = ["All Types", "Relabelling", "Kitting", "Repacking", "Quality Check", "Co-packing", "Palletisation"]
@@ -49,7 +70,7 @@ export default function PortalVASPage() {
   const [tab, setTab] = useState("All")
   const [search, setSearch] = useState("")
   const [typeFilter, setTypeFilter] = useState("All Types")
-  const [showForm, setShowForm] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [detail, setDetail] = useState<VASOrder | null>(null)
@@ -103,7 +124,7 @@ export default function PortalVASPage() {
       requiredBy: isNaN(dueDate.getTime()) ? form.requiredBy.trim() : dueDate.toLocaleDateString("en-IN", { month: "short", day: "numeric" }),
     }
     setVasOrders(prev => [next, ...prev])
-    setShowForm(false)
+    setCreateOpen(false)
     setForm(emptyForm)
     setErrors({})
     setTab("Pending")
@@ -142,7 +163,7 @@ export default function PortalVASPage() {
           <h1 className="text-xl font-bold text-[#1E3A5F] dark:text-foreground">VAS Requests</h1>
           <p className="text-sm text-muted-foreground">Value-Added Services — relabelling, kitting, repacking, QC</p>
         </div>
-        <button onClick={() => setShowForm(v => !v)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
+        <button type="button" onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
           <Plus className="w-4 h-4" /> New VAS Request
         </button>
       </div>
@@ -164,47 +185,27 @@ export default function PortalVASPage() {
         ))}
       </div>
 
-      {/* New VAS Form */}
-      {showForm && (
-        <div className="rounded-2xl border border-[#1E3A5F]/30 dark:border-brand/30 bg-white dark:bg-card p-5">
-          <h2 className="text-sm font-bold text-[#1E3A5F] dark:text-foreground mb-4">New VAS Request</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {fields.map(f => (
-              <div key={f.key}>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
-                  {f.label}{f.required && <span className="ml-0.5 text-danger">*</span>}
-                </label>
-                <input
-                  value={form[f.key]}
-                  onChange={e => set(f.key, e.target.value)}
-                  placeholder={f.placeholder}
-                  className={cn(
-                    "w-full px-3 py-2 rounded-lg border bg-[#F7F9FC] dark:bg-muted/40 text-xs text-[#1E3A5F] dark:text-foreground outline-none transition-colors",
-                    errors[f.key]
-                      ? "border-danger focus:border-danger"
-                      : "border-[#E4E9F0] dark:border-border focus:border-[#1E3A5F] dark:focus:border-brand",
-                  )}
-                />
-                {errors[f.key] && <p className="mt-1 text-[10px] text-danger">{errors[f.key]}</p>}
-              </div>
-            ))}
-          </div>
-          <div className="mt-4">
-            <label className="block text-[11px] font-semibold text-muted-foreground mb-1">Instructions / Notes</label>
-            <textarea
-              rows={2}
-              value={form.notes}
-              onChange={e => set("notes", e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-[#E4E9F0] dark:border-border bg-[#F7F9FC] dark:bg-muted/40 text-xs text-[#1E3A5F] dark:text-foreground outline-none resize-none focus:border-[#1E3A5F] dark:focus:border-brand transition-colors"
-              placeholder="Detailed instructions for the warehouse team..."
-            />
-          </div>
-          <div className="mt-4 flex gap-2 justify-end">
-            <button onClick={() => { setShowForm(false); setForm(emptyForm); setErrors({}) }} className="px-4 py-2 rounded-xl border border-[#E4E9F0] dark:border-border text-xs font-medium text-muted-foreground hover:bg-[#F7F9FC] dark:hover:bg-muted transition-colors">Cancel</button>
-            <button onClick={createRequest} className="px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity">Submit Request</button>
-          </div>
+      <Modal
+        open={createOpen}
+        onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setErrors({}) } }}
+        title="New VAS Request"
+        description="Value-added service work order for the warehouse team"
+        size="lg"
+        footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createRequest} submitLabel="Submit Request" />}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {fields.map(f => (
+            <Field key={f.key} label={f.label} required={f.required} error={errors[f.key]}>
+              <TextInput value={form[f.key]} invalid={!!errors[f.key]} onChange={e => set(f.key, e.target.value)} placeholder={f.placeholder} />
+            </Field>
+          ))}
         </div>
-      )}
+        <div className="mt-4">
+          <Field label="Instructions / Notes">
+            <TextArea rows={2} value={form.notes} onChange={e => set("notes", e.target.value)} placeholder="Detailed instructions for the warehouse team..." />
+          </Field>
+        </div>
+      </Modal>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 items-center">

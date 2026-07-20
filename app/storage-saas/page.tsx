@@ -24,6 +24,14 @@ const initialActivity: Activity[] = [
   { id: "AC-103", type: "drop-off", customer: "Sharma & Co.", pieces: 12, time: "1.5h ago", space: "Own", customerInit: "SC", customerColor: "bg-amber-500" },
   { id: "AC-102", type: "drop-off", customer: "Buildmart Pvt.", pieces: 40, time: "3h ago", space: "Leased-In", customerInit: "BM", customerColor: "bg-violet-500" },
   { id: "AC-101", type: "release", customer: "Ravi Textiles", pieces: 8, time: "4h ago", space: "Own", customerInit: "RT", customerColor: "bg-blue-500" },
+  { id: "AC-100", type: "release", customer: "Sharma & Co.", pieces: 15, time: "5h ago", space: "Own", customerInit: "SC", customerColor: "bg-amber-500" },
+  { id: "AC-099", type: "drop-off", customer: "Meena Traders", pieces: 32, time: "6h ago", space: "Own", customerInit: "MT", customerColor: "bg-rose-500" },
+  { id: "AC-098", type: "drop-off", customer: "Nair Agro", pieces: 18, time: "7h ago", space: "Leased-In", customerInit: "NA", customerColor: "bg-orange-500" },
+  { id: "AC-097", type: "release", customer: "Buildmart Pvt.", pieces: 10, time: "8h ago", space: "Leased-In", customerInit: "BM", customerColor: "bg-violet-500" },
+  { id: "AC-096", type: "drop-off", customer: "Kavitha Enterprises", pieces: 26, time: "9h ago", space: "Own", customerInit: "KE", customerColor: "bg-blue-500" },
+  { id: "AC-095", type: "release", customer: "Ravi Textiles", pieces: 14, time: "10h ago", space: "Own", customerInit: "RT", customerColor: "bg-blue-500" },
+  { id: "AC-094", type: "drop-off", customer: "Priya Exports", pieces: 20, time: "11h ago", space: "Leased-In", customerInit: "PE", customerColor: "bg-emerald-500" },
+  { id: "AC-093", type: "release", customer: "Meena Traders", pieces: 9, time: "12h ago", space: "Own", customerInit: "MT", customerColor: "bg-rose-500" },
 ]
 
 const initialSpaces: SpaceState = {

@@ -13,6 +13,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { DEMO_ORDER_WAVES } from "@/lib/fixtures/demo"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Order = {
@@ -31,6 +32,28 @@ const initialOrders: Order[] = [
   { id: "ORD-2024-151", created: "2024-12-15 21:30", channel: "B2B", customer: "Star Foods", client: "Fresh Farms", items: 4, qty: 60, value: "₹18,400", priority: "Normal", status: "Ready to Pick" },
   { id: "ORD-2024-150", created: "2024-12-15 19:00", channel: "B2C", customer: "Shopper Hub", client: "Tropical Co", items: 1, qty: 5, value: "₹1,800", priority: "Normal", status: "SLA Breached" },
   { id: "ORD-2024-149", created: "2024-12-15 16:45", channel: "B2B", customer: "Prime Retail", client: "Acme Foods", items: 6, qty: 120, value: "₹38,000", priority: "Urgent", status: "SLA Breached" },
+  { id: "ORD-2024-148", created: "2024-12-15 15:20", channel: "B2B", customer: "Anand Traders", client: "Global Oils", items: 3, qty: 55, value: "₹15,300", priority: "Normal", status: "Shipped" },
+  { id: "ORD-2024-147", created: "2024-12-15 14:05", channel: "Marketplace", customer: "Shopline", client: "Tropical Co", items: 2, qty: 18, value: "₹4,900", priority: "Normal", status: "Shipped" },
+  { id: "ORD-2024-146", created: "2024-12-15 12:40", channel: "B2B", customer: "Bharat Stores", client: "Salt Works", items: 7, qty: 210, value: "₹47,800", priority: "High", status: "Shipped" },
+  { id: "ORD-2024-145", created: "2024-12-15 11:15", channel: "B2C", customer: "Cart Express", client: "Sweet Mills", items: 1, qty: 12, value: "₹3,400", priority: "Normal", status: "Shipped" },
+  { id: "ORD-2024-144", created: "2024-12-15 09:50", channel: "B2B", customer: "Unity Wholesale", client: "Agro Corp", items: 9, qty: 320, value: "₹71,200", priority: "Urgent", status: "Shipped" },
+  { id: "ORD-2024-143", created: "2024-12-15 08:25", channel: "Marketplace", customer: "BuyNow", client: "Fresh Farms", items: 3, qty: 34, value: "₹9,600", priority: "Normal", status: "Shipped" },
+  { id: "ORD-2024-142", created: "2024-12-14 21:40", channel: "B2B", customer: "Delta Distributors", client: "Global Oils", items: 5, qty: 140, value: "₹33,450", priority: "Normal", status: "Shipped" },
+  { id: "ORD-2024-141", created: "2024-12-14 19:15", channel: "B2C", customer: "Sunrise Mart", client: "Acme Foods", items: 2, qty: 24, value: "₹6,700", priority: "Normal", status: "Shipped" },
+  { id: "ORD-2024-140", created: "2024-12-14 17:30", channel: "B2B", customer: "Kaveri Traders", client: "Salt Works", items: 6, qty: 175, value: "₹40,100", priority: "High", status: "Shipped" },
+  { id: "ORD-2024-139", created: "2024-12-14 16:00", channel: "B2B", customer: "Nova Retail", client: "Acme Foods", items: 4, qty: 90, value: "₹24,300", priority: "High", status: "Ready to Ship" },
+  { id: "ORD-2024-138", created: "2024-12-14 14:20", channel: "Marketplace", customer: "Shopper Hub", client: "Tropical Co", items: 2, qty: 22, value: "₹6,150", priority: "Normal", status: "Ready to Ship" },
+  { id: "ORD-2024-137", created: "2024-12-14 12:45", channel: "B2C", customer: "Green Basket", client: "Fresh Farms", items: 3, qty: 36, value: "₹10,200", priority: "Normal", status: "Packed" },
+  { id: "ORD-2024-136", created: "2024-12-14 11:10", channel: "B2B", customer: "Metro Mart", client: "Agro Corp", items: 8, qty: 260, value: "₹58,900", priority: "High", status: "Packed" },
+  { id: "ORD-2024-135", created: "2024-12-14 09:35", channel: "B2B", customer: "Raj Traders", client: "Acme Foods", items: 5, qty: 110, value: "₹28,700", priority: "Normal", status: "In Picking" },
+  { id: "ORD-2024-134", created: "2024-12-13 22:00", channel: "B2C", customer: "Quick Kart", client: "Sweet Mills", items: 1, qty: 14, value: "₹3,950", priority: "Normal", status: "In Picking" },
+  { id: "ORD-2024-133", created: "2024-12-13 20:15", channel: "B2B", customer: "City Supplies", client: "Salt Works", items: 4, qty: 95, value: "₹21,600", priority: "High", status: "Ready to Pick" },
+  { id: "ORD-2024-132", created: "2024-12-13 18:40", channel: "Marketplace", customer: "Shopline", client: "Global Oils", items: 2, qty: 20, value: "₹5,400", priority: "Normal", status: "Ready to Pick" },
+  { id: "ORD-2024-131", created: "2024-12-13 16:05", channel: "B2B", customer: "Star Foods", client: "Fresh Farms", items: 6, qty: 160, value: "₹36,800", priority: "Urgent", status: "Pending Allocation" },
+  { id: "ORD-2024-130", created: "2024-12-13 14:30", channel: "B2C", customer: "Online Store", client: "Tropical Co", items: 1, qty: 8, value: "₹2,300", priority: "Normal", status: "Pending Allocation" },
+  { id: "ORD-2024-129", created: "2024-12-13 12:55", channel: "B2B", customer: "Prime Retail", client: "Agro Corp", items: 7, qty: 190, value: "₹44,500", priority: "High", status: "SLA Breached" },
+  { id: "ORD-2024-128", created: "2024-12-12 20:10", channel: "B2C", customer: "Shopper Hub", client: "Sweet Mills", items: 2, qty: 26, value: "₹7,100", priority: "Normal", status: "Cancelled" },
+  { id: "ORD-2024-127", created: "2024-12-12 18:35", channel: "B2B", customer: "Anand Traders", client: "Global Oils", items: 3, qty: 48, value: "₹13,900", priority: "Normal", status: "Cancelled" },
 ]
 
 const statusConfig: Record<string, { color: string; bg: string }> = {
@@ -93,7 +116,7 @@ function stamp() {
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>(initialOrders)
-  const [waves, setWaves] = useState<Wave[]>([])
+  const [waves, setWaves] = useState<Wave[]>(DEMO_ORDER_WAVES)
 
   const [statusFilter, setStatusFilter] = useState("All Status")
   const [channelFilter, setChannelFilter] = useState("All Channels")

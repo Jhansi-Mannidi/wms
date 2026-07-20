@@ -4,6 +4,7 @@ import { UserPlus } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { appendDemoEntry } from "@/lib/demo-store"
 
 // `type` (not `interface`) so the row stays a plain Record-compatible shape
 type WorkerForm = {
@@ -82,6 +83,21 @@ export default function AddWorkerPage() {
       employeeId: form.employeeId.trim().toUpperCase(),
       phone: form.phone.trim(),
     }
+    const shiftLabel = saved.shift.includes("Morning") ? "Morning"
+      : saved.shift.includes("Afternoon") ? "Afternoon"
+      : saved.shift.includes("Night") ? "Night"
+      : saved.shift
+    appendDemoEntry("workers", {
+      id: saved.employeeId,
+      name: `${saved.firstName} ${saved.lastName}`,
+      role: saved.role,
+      shift: shiftLabel,
+      zone: saved.zone,
+      tasksToday: 0,
+      tasksCompleted: 0,
+      status: "Active",
+      attendance: "Present",
+    })
     setLastAdded(saved)
     setForm(emptyForm)
     setErrors({})

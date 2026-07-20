@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { DEMO_AIR_ROUTING_EXPORT, DEMO_AIR_ROUTING_LOCAL } from "@/lib/fixtures/demo"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type AwaitingPkg = {
@@ -22,12 +23,21 @@ const awaitingRouting: AwaitingPkg[] = [
   { id: "PKG-0447", shipper: "Sunrise Electronics", shipperInit: "SE", shipperColor: "bg-emerald-500", consignee: "TechRetail Pune", consigneeCity: "Pune, IN", actualKg: 5.6, volKg: 7.2, service: "Express", dg: false },
   { id: "PKG-0448", shipper: "MediSupply Corp", shipperInit: "MS", shipperColor: "bg-rose-500", consignee: "Al-Shifa Hospital", consigneeCity: "Riyadh, SA", actualKg: 8.0, volKg: 6.5, service: "Priority", dg: true },
   { id: "PKG-0449", shipper: "FreshFarm Organics", shipperInit: "FF", shipperColor: "bg-orange-500", consignee: "Organic Mart", consigneeCity: "Nashik, IN", actualKg: 22.5, volKg: 20.0, service: "Standard", dg: false },
+  { id: "PKG-0450", shipper: "Nova Textiles Pvt", shipperInit: "NT", shipperColor: "bg-violet-500", consignee: "Fashion Hub Delhi", consigneeCity: "Delhi, IN", actualKg: 16.4, volKg: 18.9, service: "Standard", dg: false },
+  { id: "PKG-0451", shipper: "AutoParts India", shipperInit: "AI", shipperColor: "bg-cyan-500", consignee: "Workshop Nashik", consigneeCity: "Nashik, IN", actualKg: 25.1, volKg: 21.0, service: "Standard", dg: false },
+  { id: "PKG-0452", shipper: "Apex Pharma Ltd", shipperInit: "AP", shipperColor: "bg-blue-500", consignee: "ClinicChain Nagpur", consigneeCity: "Nagpur, IN", actualKg: 6.2, volKg: 8.4, service: "Priority", dg: true },
+  { id: "PKG-0453", shipper: "Orient Spices Co", shipperInit: "OS", shipperColor: "bg-orange-500", consignee: "Importer Singapore", consigneeCity: "Singapore, SG", actualKg: 61.5, volKg: 54.0, service: "Standard", dg: false },
+  { id: "PKG-0454", shipper: "Sunrise Electronics", shipperInit: "SE", shipperColor: "bg-emerald-500", consignee: "GadgetHub Indore", consigneeCity: "Indore, IN", actualKg: 14.7, volKg: 16.9, service: "Express", dg: false },
+  { id: "PKG-0455", shipper: "Vertex Tools Ltd", shipperInit: "VT", shipperColor: "bg-indigo-500", consignee: "Hardware Rajkot", consigneeCity: "Rajkot, IN", actualKg: 33.7, volKg: 29.5, service: "Standard", dg: false },
+  { id: "PKG-0456", shipper: "MediSupply Corp", shipperInit: "MS", shipperColor: "bg-rose-500", consignee: "Distributor Muscat", consigneeCity: "Muscat, OM", actualKg: 29.6, volKg: 26.2, service: "Priority", dg: true },
+  { id: "PKG-0457", shipper: "BlueLeaf Cosmetics", shipperInit: "BL", shipperColor: "bg-amber-500", consignee: "Salon Chain Delhi", consigneeCity: "Delhi, IN", actualKg: 4.4, volKg: 6.8, service: "Express", dg: false },
+  { id: "PKG-0458", shipper: "GlobalTex Fabrics", shipperInit: "GT", shipperColor: "bg-amber-500", consignee: "Retail Group Doha", consigneeCity: "Doha, QA", actualKg: 44.2, volKg: 47.0, service: "Standard", dg: false },
 ]
 
 export default function RoutingBoardPage() {
   const [pending, setPending] = useState<AwaitingPkg[]>(awaitingRouting)
-  const [local, setLocal] = useState<AwaitingPkg[]>([])
-  const [exportList, setExportList] = useState<AwaitingPkg[]>([])
+  const [local, setLocal] = useState<AwaitingPkg[]>(DEMO_AIR_ROUTING_LOCAL)
+  const [exportList, setExportList] = useState<AwaitingPkg[]>(DEMO_AIR_ROUTING_EXPORT)
   const [selected, setSelected] = useState<string[]>([])
 
   const [detail, setDetail] = useState<AwaitingPkg | null>(null)

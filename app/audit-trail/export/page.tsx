@@ -20,6 +20,14 @@ const initialPresets: Preset[] = [
   { id: 4, name: "Inventory Changes", period: "Jul 2025", rows: 4210, format: "Excel", downloads: 0 },
   { id: 5, name: "Billing Modifications", period: "Q2 2025", rows: 142, format: "CSV", downloads: 0 },
   { id: 6, name: "Compliance Report", period: "FY 2024-25", rows: 62440, format: "PDF", downloads: 0 },
+  { id: 7, name: "Login & Logout Events", period: "Jul 2025", rows: 1964, format: "CSV", downloads: 0 },
+  { id: 8, name: "Deleted Records Register", period: "Last 90 days", rows: 137, format: "Excel", downloads: 0 },
+  { id: 9, name: "GRN & Putaway Activity", period: "Jul 2025", rows: 3580, format: "CSV", downloads: 0 },
+  { id: 10, name: "Order Lifecycle Trail", period: "Jun 2025", rows: 11290, format: "Excel", downloads: 0 },
+  { id: 11, name: "Rate Card Change History", period: "FY 2024-25", rows: 214, format: "PDF", downloads: 0 },
+  { id: 12, name: "Workforce Shift Approvals", period: "Q2 2025", rows: 2470, format: "CSV", downloads: 0 },
+  { id: 13, name: "3PL Contract Amendments", period: "FY 2024-25", rows: 96, format: "PDF", downloads: 0 },
+  { id: 14, name: "Cycle Count Variance Log", period: "Q2 2025", rows: 1348, format: "Excel", downloads: 0 },
 ]
 
 const FORMATS = ["CSV", "Excel", "PDF"] as const

@@ -30,6 +30,14 @@ const initialZones: Zone[] = [
   { id: "ZN-D", name: "Zone D", type: "Cold Storage", pallets: 95, capacity: 120, utilization: 79, tenant: "Fresh Farms", temp: "Chilled 2–8°C", aisles: 3, racking: "Selective" },
   { id: "ZN-E", name: "Zone E", type: "Hazmat", pallets: 18, capacity: 40, utilization: 45, tenant: "Restricted", temp: "Controlled", aisles: 2, racking: "Cantilever" },
   { id: "ZN-F", name: "Zone F", type: "Staging", pallets: 44, capacity: 60, utilization: 73, tenant: "All Clients", temp: "Ambient", aisles: 2, racking: "Floor" },
+  { id: "ZN-G", name: "Zone G", type: "Cold Storage", pallets: 62, capacity: 80, utilization: 78, tenant: "Tropical Co", temp: "Frozen -18°C", aisles: 3, racking: "Selective" },
+  { id: "ZN-H", name: "Zone H", type: "Dry Storage", pallets: 210, capacity: 260, utilization: 81, tenant: "Sweet Mills", temp: "Ambient", aisles: 7, racking: "Drive-In" },
+  { id: "ZN-I", name: "Zone I", type: "Bulk Storage", pallets: 130, capacity: 180, utilization: 72, tenant: "Global Oils", temp: "Ambient", aisles: 5, racking: "Block Stack" },
+  { id: "ZN-J", name: "Zone J", type: "Staging", pallets: 28, capacity: 50, utilization: 56, tenant: "All Clients", temp: "Ambient", aisles: 2, racking: "Floor" },
+  { id: "ZN-K", name: "Zone K", type: "Dry Storage", pallets: 168, capacity: 180, utilization: 93, tenant: "Salt Works", temp: "Ambient", aisles: 6, racking: "Selective" },
+  { id: "ZN-L", name: "Zone L", type: "Cold Storage", pallets: 74, capacity: 100, utilization: 74, tenant: "Apex Pharma", temp: "Chilled 2–8°C", aisles: 3, racking: "Selective" },
+  { id: "ZN-M", name: "Zone M", type: "Hazmat", pallets: 22, capacity: 35, utilization: 63, tenant: "Restricted", temp: "Controlled", aisles: 2, racking: "Cantilever" },
+  { id: "ZN-N", name: "Zone N", type: "Bulk Storage", pallets: 96, capacity: 140, utilization: 69, tenant: "Nova Traders", temp: "Ambient", aisles: 4, racking: "Block Stack" },
 ]
 
 const initialTenants: Tenant[] = [
@@ -38,6 +46,26 @@ const initialTenants: Tenant[] = [
   { id: "TNT-003", name: "Agro Corp", contract: "Annual", zones: ["Zone C"], pallets: 112, space: "4,800 sqft", rent: "₹64,000/mo", status: "Active", since: "2023-03" },
   { id: "TNT-004", name: "Fresh Farms", contract: "Monthly", zones: ["Zone D"], pallets: 95, space: "3,600 sqft", rent: "₹90,000/mo", status: "Active", since: "2024-07" },
   { id: "TNT-005", name: "Salt Works", contract: "Annual", zones: ["Zone B partial"], pallets: 55, space: "1,800 sqft", rent: "₹22,000/mo", status: "Active", since: "2023-09" },
+  { id: "TNT-006", name: "Sweet Mills", contract: "Annual", zones: ["Zone A partial"], pallets: 40, space: "2,000 sqft", rent: "₹28,000/mo", status: "Active", since: "2024-02" },
+  { id: "TNT-007", name: "Tropical Co", contract: "Monthly", zones: ["Zone G"], pallets: 62, space: "2,400 sqft", rent: "₹58,000/mo", status: "Active", since: "2025-01" },
+  { id: "TNT-008", name: "Apex Pharma", contract: "Long-term (3yr)", zones: ["Zone L"], pallets: 74, space: "3,000 sqft", rent: "₹96,000/mo", status: "Active", since: "2023-11" },
+  { id: "TNT-009", name: "Nova Traders", contract: "Annual", zones: ["Zone N"], pallets: 96, space: "4,200 sqft", rent: "₹54,000/mo", status: "Active", since: "2024-04" },
+  { id: "TNT-010", name: "Spice Route Exports", contract: "Annual", zones: ["Zone H partial"], pallets: 68, space: "2,600 sqft", rent: "₹36,000/mo", status: "Active", since: "2024-08" },
+  { id: "TNT-011", name: "Kisan Agro Mills", contract: "Monthly", zones: ["Zone I partial"], pallets: 52, space: "2,100 sqft", rent: "₹26,000/mo", status: "Active", since: "2025-02" },
+  { id: "TNT-012", name: "Deccan Beverages", contract: "Annual", zones: ["Zone H partial"], pallets: 84, space: "3,400 sqft", rent: "₹44,000/mo", status: "Active", since: "2023-12" },
+  { id: "TNT-013", name: "Coastal Seafoods", contract: "Monthly", zones: ["Zone D partial"], pallets: 30, space: "1,200 sqft", rent: "₹38,000/mo", status: "Active", since: "2025-04" },
+  { id: "TNT-014", name: "Himalaya Dairy", contract: "Annual", zones: ["Zone L partial"], pallets: 46, space: "1,900 sqft", rent: "₹62,000/mo", status: "Active", since: "2024-10" },
+  { id: "TNT-015", name: "Konark Textiles", contract: "Long-term (3yr)", zones: ["Zone I partial"], pallets: 78, space: "3,300 sqft", rent: "₹41,000/mo", status: "Active", since: "2022-08" },
+  { id: "TNT-016", name: "Sunrise Bakers", contract: "Annual", zones: ["Zone K partial"], pallets: 58, space: "2,300 sqft", rent: "₹30,000/mo", status: "Active", since: "2024-05" },
+  { id: "TNT-017", name: "Ganga Grains", contract: "Annual", zones: ["Zone C partial"], pallets: 66, space: "2,900 sqft", rent: "₹34,000/mo", status: "Active", since: "2023-07" },
+  { id: "TNT-018", name: "Meridian Logistics", contract: "Monthly", zones: ["Zone J"], pallets: 28, space: "1,500 sqft", rent: "₹18,000/mo", status: "Active", since: "2025-05" },
+  { id: "TNT-019", name: "Sahyadri Farms", contract: "Monthly", zones: ["Zone D partial"], pallets: 24, space: "1,000 sqft", rent: "₹32,000/mo", status: "Active", since: "2025-06" },
+  { id: "TNT-020", name: "Vertex Chemicals", contract: "Annual", zones: ["Zone M"], pallets: 22, space: "900 sqft", rent: "₹46,000/mo", status: "Active", since: "2024-03" },
+  { id: "TNT-021", name: "Silverline Packaging", contract: "Annual", zones: ["Zone N partial"], pallets: 44, space: "1,800 sqft", rent: "₹23,000/mo", status: "Active", since: "2024-11" },
+  { id: "TNT-022", name: "Blue Ridge Foods", contract: "Annual", zones: ["Zone B partial"], pallets: 36, space: "1,500 sqft", rent: "₹19,000/mo", status: "Ended", since: "2022-05" },
+  { id: "TNT-023", name: "Orchid Cosmetics", contract: "Monthly", zones: ["Zone K partial"], pallets: 26, space: "1,100 sqft", rent: "₹14,000/mo", status: "Ended", since: "2023-02" },
+  { id: "TNT-024", name: "Vermillion Spices", contract: "Annual", zones: ["Zone C partial"], pallets: 34, space: "1,400 sqft", rent: "₹17,000/mo", status: "Ended", since: "2021-11" },
+  { id: "TNT-025", name: "Zenith Paper Mills", contract: "Annual", zones: ["Zone H partial"], pallets: 48, space: "2,000 sqft", rent: "₹25,000/mo", status: "Ended", since: "2022-09" },
 ]
 
 const ZONE_TYPES = ["Dry Storage", "Bulk Storage", "Cold Storage", "Hazmat", "Staging"] as const

@@ -12,6 +12,9 @@ const settings: SettingGroup[] = [
   { group:"Warehouse Dimensions", fields:[{label:"Total Floor Area (sq ft)",val:"42,000"},{label:"Usable Storage Area (sq ft)",val:"34,500"},{label:"Dock Area (sq ft)",val:"3,200"},{label:"Office / Common (sq ft)",val:"4,300"}]},
   { group:"Zone Defaults", fields:[{label:"Standard Zone Height (m)",val:"8.5"},{label:"Max Pallet Stack (levels)",val:"3"},{label:"Aisle Width (m)",val:"3.5"},{label:"Racking System",val:"Selective Pallet Racking"}]},
   { group:"Billing Defaults", fields:[{label:"Base Storage Rate (₹/pallet/day)",val:"150"},{label:"Overflow Rate Premium (%)",val:"25"},{label:"Cold Storage Premium (₹/pallet/day)",val:"80"},{label:"Min Billing (pallets/month)",val:"20"}]},
+  { group:"Dock & Staging", fields:[{label:"Dock Doors (count)",val:"12"},{label:"Staging Bays (count)",val:"8"},{label:"Dock Door Width (m)",val:"2.7"},{label:"Staging Dwell Limit (hours)",val:"6"}]},
+  { group:"Utilization Thresholds", fields:[{label:"Zone Warning Threshold (%)",val:"75"},{label:"Zone Critical Threshold (%)",val:"90"},{label:"Target Overall Utilization (%)",val:"82"},{label:"Reserve Buffer (pallets)",val:"120"}]},
+  { group:"Compliance & Safety", fields:[{label:"Fire Aisle Clearance (m)",val:"1.2"},{label:"Max Hazmat Pallets per Zone",val:"40"},{label:"Cold Chain Audit Interval (days)",val:"30"},{label:"Rack Inspection Interval (days)",val:"180"}]},
 ]
 
 // Every field except the free-text racking system must parse as a positive number.

@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils"
 import { ExportButton } from "@/components/wms/export-button"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Field, Select, ModalActions, DetailRow } from "@/components/ui/form"
+import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { nextRecordId } from "@/lib/next-id"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type GateEntry = {
@@ -26,6 +27,28 @@ const initialGateEntries: GateEntry[] = [
   { id: "GE-2024-086", vehicle: "KA-05-GH-3456", driver: "Mohan Das", client: "Sweet Mills", purpose: "Inbound", gate: "Gate 3", inTime: "—", outTime: "—", status: "Expected", type: "Mini Truck" },
   { id: "GE-2024-085", vehicle: "AP-29-IJ-7890", driver: "Venkat Rao", client: "Salt Works", purpose: "Outbound", gate: "Gate 2", inTime: "04:00 AM", outTime: "05:45 AM", status: "Exited", type: "Truck" },
   { id: "GE-2024-084", vehicle: "TS-09-KL-1122", driver: "Kiran Babu", client: "Fresh Farms", purpose: "Inbound", gate: "Gate 1", inTime: "09:00 AM", outTime: "—", status: "Loading", type: "Container" },
+  { id: "GE-2024-083", vehicle: "KL-07-MN-2233", driver: "Arjun Nair", client: "Fresh Farms", purpose: "Inbound", gate: "Gate 1", inTime: "05:20 AM", outTime: "07:10 AM", status: "Exited", type: "Truck" },
+  { id: "GE-2024-082", vehicle: "GJ-18-OP-4455", driver: "Vikram Sharma", client: "Global Oils", purpose: "Outbound", gate: "Gate 2", inTime: "06:05 AM", outTime: "08:20 AM", status: "Exited", type: "Trailer" },
+  { id: "GE-2024-081", vehicle: "RJ-14-QR-6677", driver: "Rahul Mehta", client: "Acme Foods", purpose: "Transfer", gate: "Gate 3", inTime: "07:30 AM", outTime: "—", status: "Inside", type: "Mini Truck" },
+  { id: "GE-2024-080", vehicle: "MP-09-ST-8899", driver: "Sanjay Gupta", client: "Agro Corp", purpose: "Inbound", gate: "Gate 1", inTime: "08:05 AM", outTime: "10:15 AM", status: "Exited", type: "Container" },
+  { id: "GE-2024-079", vehicle: "UP-32-UV-1010", driver: "Meena Patel", client: "Sweet Mills", purpose: "Vendor Visit", gate: "Gate 3", inTime: "09:40 AM", outTime: "—", status: "Inside", type: "Van" },
+  { id: "GE-2024-078", vehicle: "WB-06-WX-2020", driver: "Deepa Menon", client: "Salt Works", purpose: "Outbound", gate: "Gate 2", inTime: "04:45 AM", outTime: "06:30 AM", status: "Exited", type: "Truck" },
+  { id: "GE-2024-077", vehicle: "HR-26-YZ-3030", driver: "Kavitha Rao", client: "Fresh Farms", purpose: "Inbound", gate: "Gate 1", inTime: "10:10 AM", outTime: "—", status: "Loading", type: "Container" },
+  { id: "GE-2024-076", vehicle: "PB-11-AB-4040", driver: "Anita Desai", client: "Acme Foods", purpose: "Outbound", gate: "Gate 2", inTime: "—", outTime: "—", status: "Expected", type: "Truck" },
+  { id: "GE-2024-075", vehicle: "OD-02-CD-5050", driver: "Suresh Yadav", client: "Global Oils", purpose: "Inbound", gate: "Gate 1", inTime: "05:55 AM", outTime: "07:40 AM", status: "Exited", type: "Mini Truck" },
+  { id: "GE-2024-074", vehicle: "CG-04-EF-6060", driver: "Ravi Kumar", client: "Agro Corp", purpose: "Transfer", gate: "Gate 3", inTime: "11:00 AM", outTime: "—", status: "Inside", type: "Trailer" },
+  { id: "GE-2024-073", vehicle: "JH-05-GH-7070", driver: "Mohan Das", client: "Sweet Mills", purpose: "Outbound", gate: "Gate 2", inTime: "06:20 AM", outTime: "09:05 AM", status: "Exited", type: "Container" },
+  { id: "GE-2024-072", vehicle: "BR-01-IJ-8080", driver: "Amrit Singh", client: "Salt Works", purpose: "Inbound", gate: "Gate 1", inTime: "07:15 AM", outTime: "08:50 AM", status: "Exited", type: "Truck" },
+  { id: "GE-2024-071", vehicle: "TN-22-KL-9090", driver: "Venkat Rao", client: "Fresh Farms", purpose: "Vendor Visit", gate: "Gate 3", inTime: "—", outTime: "—", status: "Expected", type: "Van" },
+  { id: "GE-2024-070", vehicle: "MH-43-MN-1212", driver: "Kiran Babu", client: "Acme Foods", purpose: "Inbound", gate: "Gate 1", inTime: "09:25 AM", outTime: "—", status: "Loading", type: "Container" },
+  { id: "GE-2024-069", vehicle: "KA-19-OP-2323", driver: "Priya Sharma", client: "Global Oils", purpose: "Outbound", gate: "Gate 2", inTime: "03:50 AM", outTime: "05:35 AM", status: "Exited", type: "Trailer" },
+  { id: "GE-2024-068", vehicle: "AP-16-QR-3434", driver: "Naveen Reddy", client: "Agro Corp", purpose: "Inbound", gate: "Gate 1", inTime: "08:35 AM", outTime: "10:40 AM", status: "Exited", type: "Truck" },
+  { id: "GE-2024-067", vehicle: "TS-07-ST-4545", driver: "Lakshmi Iyer", client: "Sweet Mills", purpose: "Transfer", gate: "Gate 3", inTime: "10:45 AM", outTime: "—", status: "Inside", type: "Mini Truck" },
+  { id: "GE-2024-066", vehicle: "DL-08-UV-5656", driver: "Rohit Malhotra", client: "Salt Works", purpose: "Outbound", gate: "Gate 2", inTime: "05:10 AM", outTime: "07:25 AM", status: "Exited", type: "Container" },
+  { id: "GE-2024-065", vehicle: "KL-11-WX-6767", driver: "Girish Nair", client: "Fresh Farms", purpose: "Inbound", gate: "Gate 1", inTime: "11:15 AM", outTime: "—", status: "Loading", type: "Truck" },
+  { id: "GE-2024-064", vehicle: "GJ-27-YZ-7878", driver: "Manoj Bhat", client: "Acme Foods", purpose: "Outbound", gate: "Gate 2", inTime: "—", outTime: "—", status: "Expected", type: "Trailer" },
+  { id: "GE-2024-063", vehicle: "RJ-19-AB-8989", driver: "Sunita Joshi", client: "Global Oils", purpose: "Vendor Visit", gate: "Gate 3", inTime: "06:50 AM", outTime: "08:15 AM", status: "Exited", type: "Van" },
+  { id: "GE-2024-062", vehicle: "MH-31-CD-9191", driver: "Arun Prasad", client: "Agro Corp", purpose: "Inbound", gate: "Gate 1", inTime: "04:30 AM", outTime: "06:05 AM", status: "Exited", type: "Truck" },
 ]
 
 const statusConfig: Record<string, { color: string; bg: string; dot: string }> = {
@@ -62,7 +85,7 @@ export default function GateManagementPage() {
   const [entries, setEntries] = useState<GateEntry[]>(initialGateEntries)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("All Status")
-  const [showForm, setShowForm] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false)
 
   // "More Filters" expanding panel
   const [showMoreFilters, setShowMoreFilters] = useState(false)
@@ -117,9 +140,8 @@ export default function GateManagementPage() {
 
   function registerEntry() {
     if (!validate()) return
-    const seq = 90 + entries.filter((x) => x.id.startsWith("GE-2024-0")).length - initialGateEntries.length
     const next: GateEntry = {
-      id: `GE-2024-0${seq}`,
+      id: nextRecordId(entries.map(e => e.id), /^GE-2024-(\d+)$/, "GE-2024-", 3),
       vehicle: form.vehicle.trim().toUpperCase(),
       driver: form.driver.trim(),
       client: form.client,
@@ -131,7 +153,7 @@ export default function GateManagementPage() {
       type: form.type,
     }
     setEntries((prev) => [next, ...prev])
-    setShowForm(false)
+    setCreateOpen(false)
     setForm(emptyForm)
     setErrors({})
     notify.success("Gate entry registered", `${next.id} — ${next.vehicle} checked in at ${next.gate}.`)
@@ -174,7 +196,8 @@ export default function GateManagementPage() {
             <p className="text-sm text-muted-foreground mt-0.5">Vehicle entry & exit management</p>
           </div>
           <button
-            onClick={() => setShowForm(!showForm)}
+            type="button"
+            onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }}
             className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"
           >
             <Plus className="w-4 h-4" /> New Gate Entry
@@ -227,98 +250,39 @@ export default function GateManagementPage() {
           ))}
         </div>
 
-        {/* New Entry Form */}
-        {showForm && (
-          <div className="p-5 rounded-2xl border border-brand/30 bg-brand/5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-foreground">New Gate Entry</h2>
-              <button onClick={() => { setShowForm(false); setForm(emptyForm); setErrors({}) }} title="Close form" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
-                <XCircle className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-foreground mb-1.5">Vehicle Number *</label>
-                <input
-                  value={form.vehicle}
-                  onChange={(e) => setForm({ ...form, vehicle: e.target.value })}
-                  className={cn("w-full px-3 py-2 rounded-xl border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground", errors.vehicle ? "border-danger" : "border-border")}
-                  placeholder="e.g. TN-45-AB-1234"
-                />
-                {errors.vehicle && <p className="mt-1 text-xs text-danger">{errors.vehicle}</p>}
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-foreground mb-1.5">Driver Name *</label>
-                <input
-                  value={form.driver}
-                  onChange={(e) => setForm({ ...form, driver: e.target.value })}
-                  className={cn("w-full px-3 py-2 rounded-xl border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground", errors.driver ? "border-danger" : "border-border")}
-                  placeholder="Driver name"
-                />
-                {errors.driver && <p className="mt-1 text-xs text-danger">{errors.driver}</p>}
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-foreground mb-1.5">Driver Mobile</label>
-                <input
-                  type="tel"
-                  value={form.mobile}
-                  onChange={(e) => setForm({ ...form, mobile: e.target.value })}
-                  className={cn("w-full px-3 py-2 rounded-xl border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground", errors.mobile ? "border-danger" : "border-border")}
-                  placeholder="+91 XXXXXXXXXX"
-                />
-                {errors.mobile && <p className="mt-1 text-xs text-danger">{errors.mobile}</p>}
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-foreground mb-1.5">Purpose *</label>
-                <div className="relative">
-                  <select value={form.purpose} onChange={(e) => setForm({ ...form, purpose: e.target.value })} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand">
-                    {PURPOSES.map((p) => <option key={p}>{p}</option>)}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-foreground mb-1.5">Client *</label>
-                <div className="relative">
-                  <select
-                    value={form.client}
-                    onChange={(e) => setForm({ ...form, client: e.target.value })}
-                    className={cn("w-full appearance-none pl-3 pr-8 py-2 rounded-xl border bg-background text-sm text-foreground outline-none focus:border-brand", errors.client ? "border-danger" : "border-border")}
-                  >
-                    <option value="">Select client...</option>
-                    {CLIENTS.map((c) => <option key={c}>{c}</option>)}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-                {errors.client && <p className="mt-1 text-xs text-danger">{errors.client}</p>}
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-foreground mb-1.5">Gate</label>
-                <div className="relative">
-                  <select value={form.gate} onChange={(e) => setForm({ ...form, gate: e.target.value })} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand">
-                    {GATES.map((g) => <option key={g}>{g}</option>)}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-foreground mb-1.5">Vehicle Type</label>
-                <div className="relative">
-                  <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand">
-                    {VEHICLE_TYPES.map((t) => <option key={t}>{t}</option>)}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => { setShowForm(false); setForm(emptyForm); setErrors({}) }} className="px-4 py-2 rounded-lg border border-border text-sm text-foreground hover:bg-muted transition-colors">Cancel</button>
-              <button onClick={registerEntry} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
-                <CheckCircle className="w-4 h-4" /> Register Entry
-              </button>
-            </div>
+        {/* New gate entry modal */}
+        <Modal
+          open={createOpen}
+          onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setErrors({}) } }}
+          title="New Gate Entry"
+          description="Register a vehicle arriving at the gate"
+          size="lg"
+          footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={registerEntry} submitLabel="Register Entry" />}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Field label="Vehicle Number" required error={errors.vehicle}>
+              <TextInput value={form.vehicle} invalid={!!errors.vehicle} onChange={e => setForm({ ...form, vehicle: e.target.value })} placeholder="e.g. TN-45-AB-1234" />
+            </Field>
+            <Field label="Driver Name" required error={errors.driver}>
+              <TextInput value={form.driver} invalid={!!errors.driver} onChange={e => setForm({ ...form, driver: e.target.value })} placeholder="Driver name" />
+            </Field>
+            <Field label="Driver Mobile" error={errors.mobile} hint="Optional">
+              <TextInput type="tel" value={form.mobile} invalid={!!errors.mobile} onChange={e => setForm({ ...form, mobile: e.target.value })} placeholder="+91 XXXXXXXXXX" />
+            </Field>
+            <Field label="Purpose" required error={errors.purpose}>
+              <Select value={form.purpose} invalid={!!errors.purpose} onChange={e => setForm({ ...form, purpose: e.target.value })} options={PURPOSES} />
+            </Field>
+            <Field label="Client" required error={errors.client}>
+              <Select value={form.client} invalid={!!errors.client} onChange={e => setForm({ ...form, client: e.target.value })} options={CLIENTS} placeholder="Select client..." />
+            </Field>
+            <Field label="Gate">
+              <Select value={form.gate} onChange={e => setForm({ ...form, gate: e.target.value })} options={GATES} />
+            </Field>
+            <Field label="Vehicle Type">
+              <Select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} options={VEHICLE_TYPES} />
+            </Field>
           </div>
-        )}
+        </Modal>
 
         {/* Filters */}
         <div className="space-y-3">

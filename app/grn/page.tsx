@@ -9,6 +9,8 @@ import {
 import { cn } from "@/lib/utils"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { notify } from "@/components/ui/toast"
+import { appendDemoEntry, loadDemoEntries } from "@/lib/demo-store"
+import { nextRecordId } from "@/lib/next-id"
 
 const steps = [
   { id: 1, label: "Vehicle & Documents", icon: <Truck className="w-4 h-4" /> },
@@ -22,6 +24,13 @@ const gateEntries = [
   { id: "GE-2024-089", label: "GE-2024-089 — TN-45-AB-1234 (Acme Foods)" },
   { id: "GE-2024-088", label: "GE-2024-088 — MH-12-CD-5678 (Global Oils)" },
   { id: "GE-2024-087", label: "GE-2024-087 — DL-01-EF-9012 (Agro Corp)" },
+  { id: "GE-2024-086", label: "GE-2024-086 — KA-05-GH-3456 (Sweet Mills)" },
+  { id: "GE-2024-085", label: "GE-2024-085 — AP-28-IJ-7890 (Salt Works)" },
+  { id: "GE-2024-084", label: "GE-2024-084 — GJ-05-KL-2345 (Fresh Farms)" },
+  { id: "GE-2024-083", label: "GE-2024-083 — RJ-14-MN-6789 (Tropical Co)" },
+  { id: "GE-2024-082", label: "GE-2024-082 — UP-32-OP-1122 (Acme Foods)" },
+  { id: "GE-2024-081", label: "GE-2024-081 — HR-26-QR-3344 (Global Oils)" },
+  { id: "GE-2024-080", label: "GE-2024-080 — WB-06-ST-5566 (Agro Corp)" },
 ]
 
 // `type` (not `interface`) so rows stay assignable to Record<string, unknown> consumers
@@ -48,6 +57,16 @@ const qcStyle: Record<QcResult, string> = {
 const defaultItems: LineItem[] = [
   { id: "1", sku: "SKU-001234", name: "Premium Basmati Rice 5kg", expected: 500, received: 500, uom: "Bags", batch: "BAT-2024-1205", expiry: "2025-06-15", condition: "Good" },
   { id: "2", sku: "SKU-001235", name: "Organic Wheat Flour 10kg", expected: 200, received: 195, uom: "Bags", batch: "BAT-2024-1206", expiry: "2025-03-20", condition: "Good" },
+  { id: "3", sku: "SKU-001236", name: "Refined Sunflower Oil 5L", expected: 320, received: 320, uom: "Boxes", batch: "BAT-2024-1207", expiry: "2025-09-10", condition: "Good" },
+  { id: "4", sku: "SKU-001237", name: "Chickpea Lentils 25kg", expected: 100, received: 96, uom: "Bags", batch: "BAT-2024-1208", expiry: "2025-11-30", condition: "Damaged" },
+  { id: "5", sku: "SKU-001238", name: "Brown Sugar 10kg", expected: 150, received: 150, uom: "Bags", batch: "BAT-2024-1209", expiry: "2026-01-15", condition: "Good" },
+  { id: "6", sku: "SKU-001239", name: "Iodized Salt 1kg", expected: 2000, received: 2000, uom: "Boxes", batch: "BAT-2024-1210", expiry: "2027-04-01", condition: "Good" },
+  { id: "7", sku: "SKU-001240", name: "Tomato Puree 400g", expected: 1200, received: 1180, uom: "Boxes", batch: "BAT-2024-1211", expiry: "2025-08-22", condition: "Damaged" },
+  { id: "8", sku: "SKU-001241", name: "Coconut Milk 400ml", expected: 840, received: 840, uom: "Boxes", batch: "BAT-2024-1212", expiry: "2025-07-18", condition: "Good" },
+  { id: "9", sku: "SKU-001242", name: "Toor Dal 5kg", expected: 260, received: 260, uom: "Bags", batch: "BAT-2024-1213", expiry: "2025-12-05", condition: "Good" },
+  { id: "10", sku: "SKU-001243", name: "Mustard Oil 2L", expected: 480, received: 465, uom: "Boxes", batch: "BAT-2024-1214", expiry: "2025-10-14", condition: "Quarantine" },
+  { id: "11", sku: "SKU-001244", name: "Jaggery Blocks 1kg", expected: 900, received: 900, uom: "Pallets", batch: "BAT-2024-1215", expiry: "2025-05-28", condition: "Good" },
+  { id: "12", sku: "SKU-001245", name: "Black Pepper 500g", expected: 640, received: 632, uom: "Boxes", batch: "BAT-2024-1216", expiry: "2026-02-09", condition: "Expired" },
 ]
 
 export default function GRNPage() {
@@ -487,14 +506,32 @@ export default function GRNPage() {
             </button>
           ) : (
             <button
+              type="button"
               onClick={() => {
                 if (lineItems.length === 0) {
                   notify.error("Cannot confirm GRN", "Add at least one line item before confirming.")
                   return
                 }
-                notify.success("GRN confirmed", `${lineItems.length} line item${lineItems.length === 1 ? "" : "s"} · ${totalReceived} units received from ${supplier || "supplier"}.`)
+                const knownIds = [
+                  ...loadDemoEntries<{ id: string }>("grns").map(g => g.id),
+                  "GRN-2024-1050",
+                ]
+                const id = nextRecordId(knownIds, /^GRN-2024-(\d+)$/, "GRN-2024-", 4)
+                appendDemoEntry("grns", {
+                  id,
+                  asn: docNumber.trim() || gateEntry || "—",
+                  supplier: supplier.trim(),
+                  items: lineItems.length,
+                  qty: totalReceived,
+                  received: new Date().toISOString().slice(0, 16).replace("T", " "),
+                  dock: "Dock 1",
+                  receivedBy: driverName.trim() || "—",
+                  discrepancy: discrepancy > 0,
+                  status: discrepancy > 0 ? "With Discrepancy" : "Completed",
+                })
+                notify.success("GRN confirmed", `${id} — ${lineItems.length} line item${lineItems.length === 1 ? "" : "s"} · ${totalReceived} units received from ${supplier || "supplier"}.`)
                 setDraft(null)
-                router.push("/inventory")
+                router.push("/inventory/grn-history")
               }}
               className="px-5 py-2.5 rounded-xl bg-success text-white text-sm font-medium hover:bg-success/90 transition-colors"
             >

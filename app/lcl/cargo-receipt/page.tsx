@@ -7,8 +7,10 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { LCL_CAPTURE_CLIENTS, LCL_CAPTURED_RECEIPTS } from "@/lib/fixtures/lcl"
+import { nextRecordId } from "@/lib/next-id"
 
-const initialClients = ["Apex Pharma Ltd", "Sunrise Electronics", "GlobalTex Fabrics", "FreshFarm Organics", "MediSupply Corp"]
+const initialClients = [...LCL_CAPTURE_CLIENTS]
 const ports = ["INNSA – Nhava Sheva", "INMUN – Mundra", "INCKP – Chennai", "INBLR – Bangalore ICD", "INHYD – Hyderabad ICD"]
 const services = ["FCL", "LCL-Standard", "LCL-Express", "Break Bulk"]
 
@@ -48,7 +50,7 @@ export default function CargoReceiptPage() {
   const [awb, setAwb] = useState("")
   const [pieces, setPieces] = useState<CargoPiece[]>(emptyLines)
   const [attached, setAttached] = useState<Record<string, string>>({})
-  const [captured, setCaptured] = useState<CapturedReceipt[]>([])
+  const [captured, setCaptured] = useState<CapturedReceipt[]>(LCL_CAPTURED_RECEIPTS)
   const [formError, setFormError] = useState("")
 
   const [newShipperOpen, setNewShipperOpen] = useState(false)
@@ -103,7 +105,7 @@ export default function CargoReceiptPage() {
     if (totalCBM <= 0) { setFormError("Enter dimensions so a CBM can be calculated."); notify.error("Cannot receive cargo", "Enter L × W × H so a CBM can be calculated."); return }
 
     const next: CapturedReceipt = {
-      id: `CR-${String(2451 + captured.length)}`,
+      id: nextRecordId(captured.map(c => c.id), /^CR-(\d+)$/, "CR-", 4),
       shipper,
       pod,
       service,

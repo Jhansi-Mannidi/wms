@@ -23,6 +23,23 @@ const initialZones: Zone[] = [
   { id:"Z-005",name:"Cold Room B",type:"Cold",sqft:2400,racks:12,levels:2,temp:"2-8°C",active:true},
   { id:"Z-006",name:"Freezer",type:"Frozen",sqft:1200,racks:6,levels:2,temp:"-20°C",active:true},
   { id:"Z-007",name:"Hazmat Zone",type:"Restricted",sqft:800,racks:6,levels:1,temp:"Ambient",active:false},
+  { id:"Z-008",name:"Zone D",type:"Ambient",sqft:10400,racks:40,levels:3,temp:"18-25°C",active:true},
+  { id:"Z-009",name:"Zone E",type:"Ambient",sqft:7600,racks:28,levels:3,temp:"18-25°C",active:true},
+  { id:"Z-010",name:"Zone F",type:"Ambient",sqft:6400,racks:24,levels:3,temp:"18-25°C",active:true},
+  { id:"Z-011",name:"Cold Room C",type:"Cold",sqft:2600,racks:14,levels:2,temp:"2-6°C",active:true},
+  { id:"Z-012",name:"Freezer B",type:"Frozen",sqft:1400,racks:8,levels:2,temp:"-18°C",active:true},
+  { id:"Z-013",name:"Bulk Yard A",type:"Ambient",sqft:15000,racks:20,levels:1,temp:"Ambient",active:true},
+  { id:"Z-014",name:"Bulk Yard B",type:"Ambient",sqft:11500,racks:16,levels:1,temp:"Ambient",active:false},
+  { id:"Z-015",name:"Quarantine Bay",type:"Restricted",sqft:900,racks:6,levels:2,temp:"18-25°C",active:true},
+  { id:"Z-016",name:"Returns Zone",type:"Ambient",sqft:3200,racks:14,levels:2,temp:"18-25°C",active:true},
+  { id:"Z-017",name:"Staging Inbound",type:"Ambient",sqft:4400,racks:10,levels:1,temp:"Ambient",active:true},
+  { id:"Z-018",name:"Staging Outbound",type:"Ambient",sqft:4800,racks:10,levels:1,temp:"Ambient",active:true},
+  { id:"Z-019",name:"Cold Room D",type:"Cold",sqft:2200,racks:10,levels:2,temp:"2-8°C",active:true},
+  { id:"Z-020",name:"Freezer C",type:"Frozen",sqft:1000,racks:6,levels:2,temp:"-22°C",active:false},
+  { id:"Z-021",name:"Bonded Store",type:"Restricted",sqft:1600,racks:8,levels:2,temp:"18-25°C",active:true},
+  { id:"Z-022",name:"Zone G",type:"Ambient",sqft:8800,racks:32,levels:3,temp:"18-25°C",active:true},
+  { id:"Z-023",name:"Zone H",type:"Ambient",sqft:5200,racks:20,levels:3,temp:"18-25°C",active:false},
+  { id:"Z-024",name:"Chemical Store",type:"Restricted",sqft:1100,racks:6,levels:1,temp:"Ambient",active:true},
 ]
 
 const ZONE_TYPES = ["Ambient", "Cold", "Frozen", "Restricted"] as const

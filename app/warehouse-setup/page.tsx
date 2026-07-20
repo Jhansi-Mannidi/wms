@@ -34,6 +34,16 @@ type DockRow = {
 const initialWarehouses: WarehouseRow[] = [
   { id: "WH-01", name: "Main Warehouse", location: "Jhansi, UP", area: "45,000 sqft", zones: 6, docks: 4, gates: 3, status: "Active", hours: "06:00 – 22:00", putaway: "FEFO", timezone: "Asia/Kolkata (IST)" },
   { id: "WH-02", name: "Cold Storage Hub", location: "Jhansi, UP", area: "12,000 sqft", zones: 2, docks: 2, gates: 1, status: "Active", hours: "00:00 – 24:00", putaway: "FIFO", timezone: "Asia/Kolkata (IST)" },
+  { id: "WH-03", name: "South Distribution Centre", location: "Hyderabad, TS", area: "38,000 sqft", zones: 3, docks: 3, gates: 3, status: "Active", hours: "06:00 – 22:00", putaway: "FEFO", timezone: "Asia/Kolkata (IST)" },
+  { id: "WH-04", name: "Gwalior Transit Hub", location: "Gwalior, MP", area: "18,500 sqft", zones: 2, docks: 2, gates: 2, status: "Active", hours: "07:00 – 21:00", putaway: "FIFO", timezone: "Asia/Kolkata (IST)" },
+  { id: "WH-05", name: "Kanpur Regional Depot", location: "Kanpur, UP", area: "26,000 sqft", zones: 2, docks: 2, gates: 2, status: "Active", hours: "06:00 – 20:00", putaway: "FIFO", timezone: "Asia/Kolkata (IST)" },
+  { id: "WH-06", name: "Lucknow Fulfilment Centre", location: "Lucknow, UP", area: "52,000 sqft", zones: 3, docks: 3, gates: 4, status: "Active", hours: "00:00 – 24:00", putaway: "Nearest Empty Bin", timezone: "Asia/Kolkata (IST)" },
+  { id: "WH-07", name: "Nagpur Cross-Dock", location: "Nagpur, MH", area: "15,000 sqft", zones: 2, docks: 2, gates: 3, status: "Active", hours: "05:00 – 23:00", putaway: "FIFO", timezone: "Asia/Kolkata (IST)" },
+  { id: "WH-08", name: "Pune Bonded Store", location: "Pune, MH", area: "9,200 sqft", zones: 1, docks: 1, gates: 1, status: "Inactive", hours: "09:00 – 18:00", putaway: "LIFO", timezone: "Asia/Kolkata (IST)" },
+  { id: "WH-09", name: "Indore Agri Warehouse", location: "Indore, MP", area: "31,000 sqft", zones: 1, docks: 2, gates: 2, status: "Active", hours: "06:00 – 22:00", putaway: "FEFO", timezone: "Asia/Kolkata (IST)" },
+  { id: "WH-10", name: "Bhopal Cold Chain Unit", location: "Bhopal, MP", area: "14,000 sqft", zones: 0, docks: 0, gates: 2, status: "Under Construction", hours: "00:00 – 24:00", putaway: "FEFO", timezone: "Asia/Kolkata (IST)" },
+  { id: "WH-11", name: "Jaipur Overflow Yard", location: "Jaipur, RJ", area: "22,000 sqft", zones: 0, docks: 0, gates: 1, status: "Under Construction", hours: "07:00 – 19:00", putaway: "LIFO", timezone: "Asia/Kolkata (IST)" },
+  { id: "WH-12", name: "Chennai Port Warehouse", location: "Chennai, TN", area: "47,500 sqft", zones: 2, docks: 3, gates: 4, status: "Active", hours: "00:00 – 24:00", putaway: "FEFO", timezone: "Asia/Kolkata (IST)" },
 ]
 
 const initialZones: ZoneRow[] = [
@@ -43,6 +53,24 @@ const initialZones: ZoneRow[] = [
   { id: "ZN-D", warehouse: "Main Warehouse", name: "Zone D", type: "Cold Storage", aisles: 3, bays: 24, levels: 5, total: 120, racking: "Selective", temp: "Chilled 2–8°C" },
   { id: "ZN-E", warehouse: "Main Warehouse", name: "Zone E", type: "Hazmat", aisles: 2, bays: 16, levels: 2, total: 32, racking: "Cantilever", temp: "Controlled" },
   { id: "ZN-F", warehouse: "Main Warehouse", name: "Zone F", type: "Staging", aisles: 2, bays: 16, levels: 1, total: 16, racking: "Floor", temp: "Ambient" },
+  { id: "ZN-G", warehouse: "Cold Storage Hub", name: "Zone G", type: "Cold Storage", aisles: 3, bays: 24, levels: 4, total: 96, racking: "Selective", temp: "Chilled 2–8°C" },
+  { id: "ZN-H", warehouse: "Cold Storage Hub", name: "Zone H", type: "Cold Storage", aisles: 2, bays: 20, levels: 4, total: 80, racking: "Push Back", temp: "Frozen -20°C" },
+  { id: "ZN-I", warehouse: "South Distribution Centre", name: "Zone I", type: "Dry Storage", aisles: 8, bays: 64, levels: 4, total: 256, racking: "Selective", temp: "Ambient" },
+  { id: "ZN-J", warehouse: "South Distribution Centre", name: "Zone J", type: "Dry Storage", aisles: 6, bays: 48, levels: 4, total: 192, racking: "Push Back", temp: "Ambient" },
+  { id: "ZN-K", warehouse: "South Distribution Centre", name: "Zone K", type: "Staging", aisles: 2, bays: 14, levels: 1, total: 14, racking: "Floor", temp: "Ambient" },
+  { id: "ZN-L", warehouse: "Gwalior Transit Hub", name: "Zone L", type: "Bulk Storage", aisles: 4, bays: 28, levels: 3, total: 84, racking: "Block Stack", temp: "Ambient" },
+  { id: "ZN-M", warehouse: "Gwalior Transit Hub", name: "Zone M", type: "Staging", aisles: 2, bays: 12, levels: 1, total: 12, racking: "Floor", temp: "Ambient" },
+  { id: "ZN-N", warehouse: "Kanpur Regional Depot", name: "Zone N", type: "Dry Storage", aisles: 7, bays: 56, levels: 4, total: 224, racking: "Selective", temp: "Ambient" },
+  { id: "ZN-O", warehouse: "Kanpur Regional Depot", name: "Zone O", type: "Hazmat", aisles: 2, bays: 12, levels: 2, total: 24, racking: "Cantilever", temp: "Controlled" },
+  { id: "ZN-P", warehouse: "Lucknow Fulfilment Centre", name: "Zone P", type: "Dry Storage", aisles: 9, bays: 72, levels: 5, total: 360, racking: "Selective", temp: "Ambient" },
+  { id: "ZN-Q", warehouse: "Lucknow Fulfilment Centre", name: "Zone Q", type: "Cold Storage", aisles: 3, bays: 24, levels: 4, total: 96, racking: "Drive-In", temp: "Chilled 2–8°C" },
+  { id: "ZN-R", warehouse: "Lucknow Fulfilment Centre", name: "Zone R", type: "Staging", aisles: 2, bays: 18, levels: 1, total: 18, racking: "Floor", temp: "Ambient" },
+  { id: "ZN-S", warehouse: "Nagpur Cross-Dock", name: "Zone S", type: "Bulk Storage", aisles: 5, bays: 40, levels: 2, total: 80, racking: "Block Stack", temp: "Ambient" },
+  { id: "ZN-T", warehouse: "Nagpur Cross-Dock", name: "Zone T", type: "Staging", aisles: 3, bays: 20, levels: 1, total: 20, racking: "Floor", temp: "Ambient" },
+  { id: "ZN-U", warehouse: "Pune Bonded Store", name: "Zone U", type: "Dry Storage", aisles: 5, bays: 40, levels: 3, total: 120, racking: "Drive-In", temp: "Controlled" },
+  { id: "ZN-V", warehouse: "Indore Agri Warehouse", name: "Zone V", type: "Bulk Storage", aisles: 6, bays: 36, levels: 3, total: 108, racking: "Block Stack", temp: "Ambient" },
+  { id: "ZN-W", warehouse: "Chennai Port Warehouse", name: "Zone W", type: "Dry Storage", aisles: 8, bays: 60, levels: 4, total: 240, racking: "Selective", temp: "Ambient" },
+  { id: "ZN-X", warehouse: "Chennai Port Warehouse", name: "Zone X", type: "Hazmat", aisles: 2, bays: 16, levels: 2, total: 32, racking: "Cantilever", temp: "Controlled" },
 ]
 
 const initialDocks: DockRow[] = [
@@ -50,6 +78,26 @@ const initialDocks: DockRow[] = [
   { id: "DK-02", warehouse: "Main Warehouse", name: "Dock 2", type: "Inbound", gate: "Gate 1", status: "Active", equipment: "Dock Leveler" },
   { id: "DK-03", warehouse: "Main Warehouse", name: "Dock 3", type: "Outbound", gate: "Gate 2", status: "Active", equipment: "Dock Leveler" },
   { id: "DK-04", warehouse: "Main Warehouse", name: "Dock 4", type: "Mixed", gate: "Gate 3", status: "Active", equipment: "Dock Seal" },
+  { id: "DK-05", warehouse: "Cold Storage Hub", name: "Dock 5", type: "Inbound", gate: "Gate 1", status: "Active", equipment: "Dock Leveler" },
+  { id: "DK-06", warehouse: "Cold Storage Hub", name: "Dock 6", type: "Outbound", gate: "Gate 2", status: "Active", equipment: "Dock Shelter" },
+  { id: "DK-07", warehouse: "South Distribution Centre", name: "Dock 7", type: "Inbound", gate: "Gate 1", status: "Active", equipment: "Dock Leveler" },
+  { id: "DK-08", warehouse: "South Distribution Centre", name: "Dock 8", type: "Outbound", gate: "Gate 2", status: "Active", equipment: "Dock Leveler" },
+  { id: "DK-09", warehouse: "South Distribution Centre", name: "Dock 9", type: "Mixed", gate: "Gate 3", status: "Inactive", equipment: "Dock Seal" },
+  { id: "DK-10", warehouse: "Gwalior Transit Hub", name: "Dock 10", type: "Inbound", gate: "Gate 1", status: "Active", equipment: "Dock Seal" },
+  { id: "DK-11", warehouse: "Gwalior Transit Hub", name: "Dock 11", type: "Outbound", gate: "Gate 2", status: "Active", equipment: "None" },
+  { id: "DK-12", warehouse: "Kanpur Regional Depot", name: "Dock 12", type: "Inbound", gate: "Gate 1", status: "Active", equipment: "Dock Leveler" },
+  { id: "DK-13", warehouse: "Kanpur Regional Depot", name: "Dock 13", type: "Mixed", gate: "Gate 3", status: "Active", equipment: "Dock Shelter" },
+  { id: "DK-14", warehouse: "Lucknow Fulfilment Centre", name: "Dock 14", type: "Inbound", gate: "Gate 1", status: "Active", equipment: "Dock Leveler" },
+  { id: "DK-15", warehouse: "Lucknow Fulfilment Centre", name: "Dock 15", type: "Outbound", gate: "Gate 2", status: "Active", equipment: "Dock Leveler" },
+  { id: "DK-16", warehouse: "Lucknow Fulfilment Centre", name: "Dock 16", type: "Outbound", gate: "Gate 2", status: "Inactive", equipment: "Dock Seal" },
+  { id: "DK-17", warehouse: "Nagpur Cross-Dock", name: "Dock 17", type: "Mixed", gate: "Gate 3", status: "Active", equipment: "Dock Leveler" },
+  { id: "DK-18", warehouse: "Nagpur Cross-Dock", name: "Dock 18", type: "Mixed", gate: "Gate 3", status: "Active", equipment: "None" },
+  { id: "DK-19", warehouse: "Pune Bonded Store", name: "Dock 19", type: "Inbound", gate: "Gate 1", status: "Inactive", equipment: "Dock Shelter" },
+  { id: "DK-20", warehouse: "Indore Agri Warehouse", name: "Dock 20", type: "Inbound", gate: "Gate 1", status: "Active", equipment: "Dock Seal" },
+  { id: "DK-21", warehouse: "Indore Agri Warehouse", name: "Dock 21", type: "Outbound", gate: "Gate 2", status: "Active", equipment: "Dock Leveler" },
+  { id: "DK-22", warehouse: "Chennai Port Warehouse", name: "Dock 22", type: "Inbound", gate: "Gate 1", status: "Active", equipment: "Dock Leveler" },
+  { id: "DK-23", warehouse: "Chennai Port Warehouse", name: "Dock 23", type: "Outbound", gate: "Gate 2", status: "Active", equipment: "Dock Shelter" },
+  { id: "DK-24", warehouse: "Chennai Port Warehouse", name: "Dock 24", type: "Mixed", gate: "Gate 3", status: "Active", equipment: "None" },
 ]
 
 const ZONE_TYPES = ["Dry Storage", "Bulk Storage", "Cold Storage", "Hazmat", "Staging"] as const

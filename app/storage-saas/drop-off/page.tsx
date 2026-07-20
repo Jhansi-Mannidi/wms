@@ -42,14 +42,54 @@ const initialCustomers: StoredCustomer[] = [
   { id: "CUS-002", name: "Priya Exports", init: "PE", color: "bg-emerald-500" },
   { id: "CUS-003", name: "Sharma & Co.", init: "SC", color: "bg-amber-500" },
   { id: "CUS-004", name: "Buildmart Pvt. Ltd.", init: "BM", color: "bg-violet-500" },
+  { id: "CUS-005", name: "Meena Traders", init: "MT", color: "bg-rose-500" },
+  { id: "CUS-006", name: "Kavitha Enterprises", init: "KE", color: "bg-orange-500" },
+  { id: "CUS-007", name: "Acme Foods Pvt Ltd", init: "AF", color: "bg-blue-500" },
+  { id: "CUS-008", name: "Global Oils Ltd", init: "GO", color: "bg-emerald-500" },
+  { id: "CUS-009", name: "Suresh Hardware Stores", init: "SH", color: "bg-amber-500" },
+  { id: "CUS-010", name: "Fresh Farms Produce", init: "FF", color: "bg-violet-500" },
+  { id: "CUS-011", name: "Apex Pharma Ltd", init: "AP", color: "bg-rose-500" },
+  { id: "CUS-012", name: "Nair Home Appliances", init: "NA", color: "bg-orange-500" },
+  { id: "CUS-013", name: "Deepa Garments", init: "DG", color: "bg-blue-500" },
+  { id: "CUS-014", name: "Sweet Mills Pvt Ltd", init: "SM", color: "bg-emerald-500" },
 ]
 
 const locations = [
   { label: "Zone A — Rack 1 (Own · 12 slots free)", value: "ZA-R1", type: "Own" },
   { label: "Zone A — Rack 2 (Own · 8 slots free)", value: "ZA-R2", type: "Own" },
+  { label: "Zone A — Rack 3 (Own · 5 slots free)", value: "ZA-R3", type: "Own" },
   { label: "Zone B — Floor (Own · 45 sqft free)", value: "ZB-FL", type: "Own" },
+  { label: "Zone C — Cold Room (Own · 18 slots free)", value: "ZC-CR", type: "Own" },
   { label: "Leased — City Warehouse Rack 3 (Leased · 20 slots free)", value: "LW-R3", type: "Leased-In" },
   { label: "Leased — City Warehouse Floor (Leased · 80 sqft free)", value: "LW-FL", type: "Leased-In" },
+  { label: "Leased — Port Depot Rack 5 (Leased · 14 slots free)", value: "PD-R5", type: "Leased-In" },
+]
+
+const initialReceipts: Receipt[] = [
+  { id: "DO-1024", customer: "Sweet Mills Pvt Ltd", customerId: "CUS-014", location: "Zone B — Floor (Own · 45 sqft free)", locationType: "Own", packages: 2, pieces: 14, cbm: "1.260", weight: 210, declaredValue: 48000, time: "2026-07-20 18:05" },
+  { id: "DO-1023", customer: "Deepa Garments", customerId: "CUS-013", location: "Zone A — Rack 1 (Own · 12 slots free)", locationType: "Own", packages: 1, pieces: 6, cbm: "0.432", weight: 72, declaredValue: 21500, time: "2026-07-20 17:40" },
+  { id: "DO-1022", customer: "Nair Home Appliances", customerId: "CUS-012", location: "Leased — City Warehouse Rack 3 (Leased · 20 slots free)", locationType: "Leased-In", packages: 3, pieces: 22, cbm: "2.860", weight: 396, declaredValue: 132000, time: "2026-07-20 17:15" },
+  { id: "DO-1021", customer: "Apex Pharma Ltd", customerId: "CUS-011", location: "Zone C — Cold Room (Own · 18 slots free)", locationType: "Own", packages: 2, pieces: 18, cbm: "1.044", weight: 126, declaredValue: 264000, time: "2026-07-20 16:50" },
+  { id: "DO-1020", customer: "Fresh Farms Produce", customerId: "CUS-010", location: "Zone B — Floor (Own · 45 sqft free)", locationType: "Own", packages: 4, pieces: 36, cbm: "3.240", weight: 612, declaredValue: 54000, time: "2026-07-20 16:20" },
+  { id: "DO-1019", customer: "Suresh Hardware Stores", customerId: "CUS-009", location: "Zone A — Rack 2 (Own · 8 slots free)", locationType: "Own", packages: 1, pieces: 9, cbm: "0.729", weight: 198, declaredValue: 33000, time: "2026-07-20 15:55" },
+  { id: "DO-1018", customer: "Global Oils Ltd", customerId: "CUS-008", location: "Leased — City Warehouse Floor (Leased · 80 sqft free)", locationType: "Leased-In", packages: 5, pieces: 45, cbm: "5.400", weight: 990, declaredValue: 175000, time: "2026-07-20 15:30" },
+  { id: "DO-1017", customer: "Acme Foods Pvt Ltd", customerId: "CUS-007", location: "Zone B — Floor (Own · 45 sqft free)", locationType: "Own", packages: 3, pieces: 27, cbm: "2.106", weight: 405, declaredValue: 81000, time: "2026-07-20 15:05" },
+  { id: "DO-1016", customer: "Kavitha Enterprises", customerId: "CUS-006", location: "Zone A — Rack 1 (Own · 12 slots free)", locationType: "Own", packages: 1, pieces: 4, cbm: "0.288", weight: 46, declaredValue: 12800, time: "2026-07-20 14:40" },
+  { id: "DO-1015", customer: "Meena Traders", customerId: "CUS-005", location: "Zone A — Rack 3 (Own · 5 slots free)", locationType: "Own", packages: 2, pieces: 11, cbm: "0.792", weight: 143, declaredValue: 29500, time: "2026-07-20 14:10" },
+  { id: "DO-1014", customer: "Buildmart Pvt. Ltd.", customerId: "CUS-004", location: "Leased — Port Depot Rack 5 (Leased · 14 slots free)", locationType: "Leased-In", packages: 4, pieces: 32, cbm: "4.096", weight: 768, declaredValue: 96000, time: "2026-07-20 13:45" },
+  { id: "DO-1013", customer: "Sharma & Co.", customerId: "CUS-003", location: "Zone A — Rack 2 (Own · 8 slots free)", locationType: "Own", packages: 2, pieces: 15, cbm: "1.080", weight: 225, declaredValue: 45000, time: "2026-07-20 13:20" },
+  { id: "DO-1012", customer: "Priya Exports", customerId: "CUS-002", location: "Leased — City Warehouse Rack 3 (Leased · 20 slots free)", locationType: "Leased-In", packages: 3, pieces: 21, cbm: "1.638", weight: 294, declaredValue: 105000, time: "2026-07-20 12:55" },
+  { id: "DO-1011", customer: "Ravi Textiles Pvt Ltd", customerId: "CUS-001", location: "Zone A — Rack 1 (Own · 12 slots free)", locationType: "Own", packages: 2, pieces: 12, cbm: "0.864", weight: 156, declaredValue: 38400, time: "2026-07-20 12:30" },
+  { id: "DO-1010", customer: "Sweet Mills Pvt Ltd", customerId: "CUS-014", location: "Zone B — Floor (Own · 45 sqft free)", locationType: "Own", packages: 1, pieces: 8, cbm: "0.720", weight: 120, declaredValue: 27200, time: "2026-07-20 12:00" },
+  { id: "DO-1009", customer: "Apex Pharma Ltd", customerId: "CUS-011", location: "Zone C — Cold Room (Own · 18 slots free)", locationType: "Own", packages: 3, pieces: 24, cbm: "1.392", weight: 168, declaredValue: 352000, time: "2026-07-20 11:35" },
+  { id: "DO-1008", customer: "Nair Home Appliances", customerId: "CUS-012", location: "Leased — City Warehouse Floor (Leased · 80 sqft free)", locationType: "Leased-In", packages: 2, pieces: 16, cbm: "2.080", weight: 288, declaredValue: 96000, time: "2026-07-20 11:10" },
+  { id: "DO-1007", customer: "Acme Foods Pvt Ltd", customerId: "CUS-007", location: "Zone B — Floor (Own · 45 sqft free)", locationType: "Own", packages: 2, pieces: 18, cbm: "1.404", weight: 270, declaredValue: 54000, time: "2026-07-20 10:45" },
+  { id: "DO-1006", customer: "Global Oils Ltd", customerId: "CUS-008", location: "Leased — City Warehouse Rack 3 (Leased · 20 slots free)", locationType: "Leased-In", packages: 4, pieces: 30, cbm: "3.600", weight: 660, declaredValue: 116000, time: "2026-07-20 10:20" },
+  { id: "DO-1005", customer: "Deepa Garments", customerId: "CUS-013", location: "Zone A — Rack 2 (Own · 8 slots free)", locationType: "Own", packages: 1, pieces: 5, cbm: "0.360", weight: 60, declaredValue: 17800, time: "2026-07-20 09:55" },
+  { id: "DO-1004", customer: "Fresh Farms Produce", customerId: "CUS-010", location: "Zone B — Floor (Own · 45 sqft free)", locationType: "Own", packages: 3, pieces: 26, cbm: "2.340", weight: 442, declaredValue: 39000, time: "2026-07-20 09:30" },
+  { id: "DO-1003", customer: "Suresh Hardware Stores", customerId: "CUS-009", location: "Zone A — Rack 3 (Own · 5 slots free)", locationType: "Own", packages: 2, pieces: 13, cbm: "1.053", weight: 286, declaredValue: 47600, time: "2026-07-20 09:05" },
+  { id: "DO-1002", customer: "Priya Exports", customerId: "CUS-002", location: "Zone A — Rack 1 (Own · 12 slots free)", locationType: "Own", packages: 1, pieces: 7, cbm: "0.504", weight: 91, declaredValue: 35000, time: "2026-07-20 08:40" },
+  { id: "DO-1001", customer: "Ravi Textiles Pvt Ltd", customerId: "CUS-001", location: "Leased — City Warehouse Floor (Leased · 80 sqft free)", locationType: "Leased-In", packages: 3, pieces: 20, cbm: "2.400", weight: 440, declaredValue: 60000, time: "2026-07-20 08:15" },
 ]
 
 const PALETTE = ["bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-violet-500", "bg-rose-500", "bg-orange-500"]
@@ -78,7 +118,7 @@ export default function DropOffIntakePage() {
   ])
 
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [receipts, setReceipts] = useState<Receipt[]>([])
+  const [receipts, setReceipts] = useState<Receipt[]>(initialReceipts)
   const [detail, setDetail] = useState<Receipt | null>(null)
 
   const [newCustomerOpen, setNewCustomerOpen] = useState(false)

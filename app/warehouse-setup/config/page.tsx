@@ -13,6 +13,9 @@ const settings: SettingGroup[] = [
   { group:"Warehouse Details", fields:[{l:"Warehouse Name",v:"Main Warehouse — CFS Zone A"},{l:"Location",v:"Hyderabad, IN"},{l:"Total Area (sq ft)",v:"42,000"},{l:"Operating Hours",v:"06:00 – 22:00"}]},
   { group:"GRN Settings", fields:[{l:"Default Putaway Strategy",v:"FEFO"},{l:"Auto-create bin location",v:"Enabled"},{l:"GRN Approval Required",v:"Yes"},{l:"Photo Capture on GRN",v:"Mandatory"}]},
   { group:"System Preferences", fields:[{l:"Default Currency",v:"INR"},{l:"Date Format",v:"DD-MM-YYYY"},{l:"Time Zone",v:"Asia/Kolkata (IST)"},{l:"Low Stock Alert Threshold (%)",v:"15"}]},
+  { group:"Inventory Controls", fields:[{l:"Cycle Count Frequency (days)",v:"30"},{l:"Reorder Lead Time (days)",v:"7"},{l:"Max Stack Height (pallets)",v:"4"},{l:"Batch Expiry Warning (days)",v:"45"}]},
+  { group:"Dispatch Settings", fields:[{l:"Dispatch Cut-off Time",v:"18:00"},{l:"Pick List Batch Size",v:"25"},{l:"Loading Bay Buffer (mins)",v:"20"},{l:"Dispatch Approval Level",v:"Supervisor"}]},
+  { group:"Safety & Compliance", fields:[{l:"Fire Drill Interval (months)",v:"6"},{l:"Hazmat Handling Licence",v:"HZ-UP-2024-118"},{l:"Safety Officer",v:"Ravi Kumar"},{l:"Last Audit Date",v:"12-05-2026"}]},
 ]
 
 // Choice lists for the per-group Configure modal — free-text fields fall back to a TextInput.

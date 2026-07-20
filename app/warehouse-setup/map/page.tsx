@@ -17,6 +17,13 @@ const initialLayout: LayoutRow[] = [
   { row: 4, cells: ["AISLE","AISLE","AISLE","AISLE","AISLE","AISLE"] },
   { row: 5, cells: ["ZONE-C","ZONE-C","COLD-A","COLD-B","FREEZER","HAZMAT"] },
   { row: 6, cells: ["ZONE-C","ZONE-C","AISLE","AISLE","AISLE","DISPATCH"] },
+  { row: 7, cells: ["ZONE-B","ZONE-B","AISLE","GRN","PUTAWAY","DISPATCH"] },
+  { row: 8, cells: ["AISLE","AISLE","AISLE","AISLE","AISLE","AISLE"] },
+  { row: 9, cells: ["ZONE-A","ZONE-A","ZONE-B","ZONE-B","ZONE-C","ZONE-C"] },
+  { row: 10, cells: ["ZONE-A","AISLE","ZONE-B","AISLE","ZONE-C","OFFICE"] },
+  { row: 11, cells: ["COLD-A","COLD-B","FREEZER","AISLE","HAZMAT","HAZMAT"] },
+  { row: 12, cells: ["AISLE","AISLE","AISLE","AISLE","AISLE","AISLE"] },
+  { row: 13, cells: ["DOCK","DOCK","DISPATCH","DISPATCH","ENTRY","OFFICE"] },
 ]
 const cellStyle: Record<string, string> = {
   "DOCK":"bg-muted text-muted-foreground","AISLE":"bg-background text-muted-foreground border-dashed",

@@ -6,6 +6,7 @@ import { ExportButton } from "@/components/wms/export-button"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { nextRecordId } from "@/lib/next-id"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type LogRow = {
@@ -20,6 +21,28 @@ const initialLogs: LogRow[] = [
   { id:"GL-004",vehicle:"MH-02-CX-7734",type:"Entry",time:"10:30",dock:"Dock 5",driver:"Anil Verma",purpose:"Export Loading",status:"Loading"},
   { id:"GL-005",vehicle:"AP-10-BX-8823",type:"Exit",time:"09:30",dock:"Dock 4",driver:"Venkat Rao",purpose:"Pickup Done",status:"Cleared"},
   { id:"GL-006",vehicle:"MH-14-CX-3310",type:"Exit",time:"11:20",dock:"Dock 5",driver:"Santosh Kumar",purpose:"Export Loaded",status:"Pending Docs"},
+  { id:"GL-007",vehicle:"TS-07-ST-4545",type:"Entry",time:"07:20",dock:"Dock 4",driver:"Ravi Kumar",purpose:"GRN Delivery",status:"Checked In"},
+  { id:"GL-008",vehicle:"KL-11-WX-6767",type:"Entry",time:"07:55",dock:"Dock 6",driver:"Girish Nair",purpose:"Courier Pickup",status:"In Premises"},
+  { id:"GL-009",vehicle:"GJ-18-OP-4455",type:"Exit",time:"08:05",dock:"Dock 5",driver:"Vikram Sharma",purpose:"Export Loaded",status:"Pending Docs"},
+  { id:"GL-010",vehicle:"RJ-14-QR-6677",type:"Entry",time:"08:25",dock:"Dock 2",driver:"Rahul Mehta",purpose:"Transfer",status:"Checked In"},
+  { id:"GL-011",vehicle:"MP-09-ST-8899",type:"Entry",time:"08:50",dock:"Dock 3",driver:"Sanjay Gupta",purpose:"Export Loading",status:"Loading"},
+  { id:"GL-012",vehicle:"UP-32-UV-1010",type:"Exit",time:"09:05",dock:"Dock 1",driver:"Meena Patel",purpose:"Pickup Done",status:"Cleared"},
+  { id:"GL-013",vehicle:"WB-06-WX-2020",type:"Entry",time:"09:20",dock:"Dock 4",driver:"Deepa Menon",purpose:"GRN Delivery",status:"Checked In"},
+  { id:"GL-014",vehicle:"HR-26-YZ-3030",type:"Entry",time:"09:45",dock:"Dock 6",driver:"Kavitha Rao",purpose:"Transfer",status:"Loading"},
+  { id:"GL-015",vehicle:"PB-11-AB-4040",type:"Exit",time:"10:00",dock:"Dock 2",driver:"Anita Desai",purpose:"Delivery Complete",status:"Cleared"},
+  { id:"GL-016",vehicle:"OD-02-CD-5050",type:"Entry",time:"10:15",dock:"Dock 5",driver:"Suresh Yadav",purpose:"Export Loading",status:"In Premises"},
+  { id:"GL-017",vehicle:"CG-04-EF-6060",type:"Exit",time:"10:40",dock:"Dock 3",driver:"Arjun Nair",purpose:"GRN Complete",status:"Pending Docs"},
+  { id:"GL-018",vehicle:"JH-05-GH-7070",type:"Entry",time:"10:55",dock:"Dock 1",driver:"Mohan Das",purpose:"Vendor Visit",status:"Checked In"},
+  { id:"GL-019",vehicle:"BR-01-IJ-8080",type:"Entry",time:"11:10",dock:"Dock 6",driver:"Amrit Singh",purpose:"Export Loading",status:"Loading"},
+  { id:"GL-020",vehicle:"TN-22-KL-9090",type:"Exit",time:"11:25",dock:"Dock 2",driver:"Venkat Rao",purpose:"Pickup Done",status:"Cleared"},
+  { id:"GL-021",vehicle:"MH-43-MN-1212",type:"Entry",time:"11:40",dock:"Dock 4",driver:"Kiran Babu",purpose:"GRN Delivery",status:"In Premises"},
+  { id:"GL-022",vehicle:"KA-19-OP-2323",type:"Exit",time:"12:05",dock:"Dock 5",driver:"Priya Sharma",purpose:"Export Loaded",status:"Cleared"},
+  { id:"GL-023",vehicle:"AP-16-QR-3434",type:"Entry",time:"12:20",dock:"Dock 1",driver:"Naveen Reddy",purpose:"Courier Pickup",status:"Checked In"},
+  { id:"GL-024",vehicle:"DL-08-UV-5656",type:"Exit",time:"12:45",dock:"Dock 3",driver:"Rohit Malhotra",purpose:"Delivery Complete",status:"Pending Docs"},
+  { id:"GL-025",vehicle:"KL-07-MN-2233",type:"Entry",time:"13:00",dock:"Dock 6",driver:"Lakshmi Iyer",purpose:"GRN Delivery",status:"In Premises"},
+  { id:"GL-026",vehicle:"GJ-27-YZ-7878",type:"Exit",time:"13:15",dock:"Dock 2",driver:"Manoj Bhat",purpose:"Vendor Visit Complete",status:"Cleared"},
+  { id:"GL-027",vehicle:"RJ-19-AB-8989",type:"Entry",time:"13:40",dock:"Dock 5",driver:"Sunita Joshi",purpose:"Export Loading",status:"Loading"},
+  { id:"GL-028",vehicle:"MH-31-CD-9191",type:"Exit",time:"14:00",dock:"Dock 4",driver:"Arun Prasad",purpose:"GRN Complete",status:"Cleared"},
 ]
 
 const DOCKS = ["Dock 1", "Dock 2", "Dock 3", "Dock 4", "Dock 5", "Dock 6"] as const
@@ -86,7 +109,7 @@ export default function GateLogPage() {
   function createLog() {
     if (!validate()) return
     const next: LogRow = {
-      id: `GL-${String(logs.length + 1).padStart(3, "0")}`,
+      id: nextRecordId(logs.map(l => l.id), /^GL-(\d+)$/, "GL-", 3),
       vehicle: form.vehicle.trim().toUpperCase(),
       type: form.type,
       time: new Date().toTimeString().slice(0, 5),

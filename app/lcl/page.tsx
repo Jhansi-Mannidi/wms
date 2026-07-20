@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { LCL_DASHBOARD_CONSOLS, LCL_DASHBOARD_RECEIPTS } from "@/lib/fixtures/lcl"
 
 // `type` (not `interface`) so rows stay assignable to Record<string, unknown> consumers
 type Consolidation = {
@@ -16,19 +17,32 @@ type Consolidation = {
 
 type Receipt = { id: string; shipper: string; cbm: number; pieces: number; status: string; time: string }
 
-const initialConsolidations: Consolidation[] = [
-  { id: "CON-001", route: "INBOM → CNSHA", mode: "FCL 20'", cutoff: "8h", cbmUsed: 16.4, cbmMax: 25, kgUsed: 8200, kgMax: 18000, status: "Building" },
-  { id: "CON-002", route: "INBOM → SGSIN", mode: "LCL", cutoff: "23h", cbmUsed: 8.1, cbmMax: 15, kgUsed: 3400, kgMax: 10000, status: "Building" },
-  { id: "CON-003", route: "INMAA → AEDXB", mode: "LCL", cutoff: "2d", cbmUsed: 5.2, cbmMax: 15, kgUsed: 2100, kgMax: 10000, status: "Building" },
-  { id: "CON-004", route: "INBOM → USNYC", mode: "FCL 40'", cutoff: "5d", cbmUsed: 42, cbmMax: 67, kgUsed: 21000, kgMax: 27000, status: "Building" },
-]
+const RECEIPT_STATUS_MAP: Record<string, string> = {
+  Allocated: "In-CFS",
+  "In Pool": "Pending ASN",
+  Received: "Received",
+}
 
-const initialReceipts: Receipt[] = [
-  { id: "CR-0891", shipper: "Apex Pharma", cbm: 2.4, pieces: 18, status: "Received", time: "12m ago" },
-  { id: "CR-0892", shipper: "GlobalTex", cbm: 5.6, pieces: 40, status: "In-CFS", time: "45m ago" },
-  { id: "CR-0893", shipper: "MediSupply", cbm: 1.2, pieces: 8, status: "Received", time: "1h ago" },
-  { id: "CR-0894", shipper: "AutoParts India", cbm: 8.3, pieces: 62, status: "Pending ASN", time: "2h ago" },
-]
+const initialConsolidations: Consolidation[] = LCL_DASHBOARD_CONSOLS.map(c => ({
+  id: c.id,
+  route: c.route,
+  mode: c.cbmMax >= 50 ? "FCL 40'" : c.shippers >= 4 ? "FCL 20'" : "LCL",
+  cutoff: c.cutoff,
+  cbmUsed: c.cbm,
+  cbmMax: c.cbmMax,
+  kgUsed: Math.round(c.cbm * 520),
+  kgMax: Math.round(c.cbmMax * 520),
+  status: c.status === "Closed" ? "Building" : c.status,
+}))
+
+const initialReceipts: Receipt[] = LCL_DASHBOARD_RECEIPTS.map(r => ({
+  id: r.id,
+  shipper: r.shipper,
+  cbm: r.cbm,
+  pieces: r.pieces,
+  status: RECEIPT_STATUS_MAP[r.status] ?? r.status,
+  time: r.time,
+}))
 
 const ROUTES = ["INBOM → CNSHA", "INBOM → SGSIN", "INMAA → AEDXB", "INBOM → USNYC", "INNSA → NLRTM"] as const
 const MODES = ["LCL", "FCL 20'", "FCL 40'"] as const

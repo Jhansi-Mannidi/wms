@@ -22,6 +22,42 @@ const stockData: StockRow[] = [
   { id: "s1", lotRef: "PF-LOT-001", desc: "Cotton Sarees (Assorted)", pieces: 24, location: "Zone A / Rack 3", days: 42, condition: "Good", selected: false },
   { id: "s2", lotRef: "PF-LOT-002", desc: "Silk Dupattas", pieces: 36, location: "Zone A / Rack 4", days: 38, condition: "Good", selected: false },
   { id: "s3", lotRef: "PF-LOT-003", desc: "Embroidered Blouses", pieces: 28, location: "Zone B / Shelf 2", days: 15, condition: "Good", selected: false },
+  { id: "s4", lotRef: "PF-LOT-004", desc: "Printed Kurtis (Mixed Sizes)", pieces: 42, location: "Zone A / Rack 5", days: 26, condition: "Good", selected: false },
+  { id: "s5", lotRef: "PF-LOT-005", desc: "Bridal Lehenga Sets", pieces: 12, location: "Zone C / Vault 1", days: 74, condition: "Good", selected: false },
+  { id: "s6", lotRef: "PF-LOT-006", desc: "Chiffon Sarees", pieces: 30, location: "Zone A / Rack 6", days: 55, condition: "Good", selected: false },
+  { id: "s7", lotRef: "PF-LOT-007", desc: "Cotton Kurta Pyjama Sets", pieces: 48, location: "Zone B / Shelf 4", days: 9, condition: "Good", selected: false },
+  { id: "s8", lotRef: "PF-LOT-008", desc: "Woollen Shawls", pieces: 22, location: "Zone C / Rack 2", days: 96, condition: "Fair", selected: false },
+  { id: "s9", lotRef: "PF-LOT-009", desc: "Banarasi Silk Sarees", pieces: 16, location: "Zone C / Vault 2", days: 63, condition: "Good", selected: false },
+  { id: "s10", lotRef: "PF-LOT-010", desc: "Kids Ethnic Wear", pieces: 54, location: "Zone B / Shelf 6", days: 21, condition: "Good", selected: false },
+  { id: "s11", lotRef: "PF-LOT-011", desc: "Georgette Anarkali Suits", pieces: 26, location: "Zone A / Rack 7", days: 44, condition: "Good", selected: false },
+  { id: "s12", lotRef: "PF-LOT-012", desc: "Handloom Stoles", pieces: 38, location: "Zone B / Shelf 8", days: 12, condition: "Good", selected: false },
+  { id: "s13", lotRef: "PF-LOT-013", desc: "Designer Blouse Pieces", pieces: 60, location: "Zone A / Rack 9", days: 33, condition: "Good", selected: false },
+  { id: "s14", lotRef: "PF-LOT-014", desc: "Chikankari Kurtis", pieces: 34, location: "Zone B / Shelf 10", days: 68, condition: "Good", selected: false },
+  { id: "s15", lotRef: "PF-LOT-015", desc: "Festive Gift Packs", pieces: 18, location: "Zone C / Rack 4", days: 105, condition: "Fair", selected: false },
+  { id: "s16", lotRef: "PF-LOT-016", desc: "Linen Shirting Rolls", pieces: 44, location: "Zone A / Rack 11", days: 7, condition: "Good", selected: false },
+  { id: "s17", lotRef: "PF-LOT-017", desc: "Bandhani Dupattas", pieces: 29, location: "Zone B / Shelf 12", days: 48, condition: "Good", selected: false },
+  { id: "s18", lotRef: "PF-LOT-018", desc: "Velvet Sherwani Sets", pieces: 14, location: "Zone C / Vault 3", days: 82, condition: "Good", selected: false },
+  { id: "s19", lotRef: "PF-LOT-019", desc: "Cotton Nightwear Bundles", pieces: 56, location: "Zone A / Rack 13", days: 19, condition: "Good", selected: false },
+  { id: "s20", lotRef: "PF-LOT-020", desc: "Kanjivaram Silk Sarees", pieces: 20, location: "Zone C / Vault 4", days: 118, condition: "Fair", selected: false },
+  { id: "s21", lotRef: "PF-LOT-021", desc: "Readymade Palazzo Sets", pieces: 40, location: "Zone B / Shelf 14", days: 37, condition: "Good", selected: false },
+  { id: "s22", lotRef: "PF-LOT-022", desc: "Embroidered Sherwani Stoles", pieces: 25, location: "Zone A / Rack 15", days: 58, condition: "Good", selected: false },
+  { id: "s23", lotRef: "PF-LOT-023", desc: "Winter Jacket Cartons", pieces: 32, location: "Zone C / Rack 6", days: 91, condition: "Good", selected: false },
+  { id: "s24", lotRef: "PF-LOT-024", desc: "Cotton Bedsheet Sets", pieces: 46, location: "Zone B / Shelf 16", days: 4, condition: "Good", selected: false },
+]
+
+const initialDispatches: Dispatch[] = [
+  { id: "REL-2012", customer: "Priya Fashion Store", lots: "PF-LOT-041", pieces: 34, mode: "Local Delivery", destination: "Shop 14, Commercial Street, Bengaluru", pod: "POD-482913", charge: 850, time: "16:40" },
+  { id: "REL-2011", customer: "TechGadgets Ltd", lots: "TG-LOT-018, TG-LOT-019", pieces: 52, mode: "Courier", destination: "Plot 22, Electronic City Phase 2, Bengaluru", pod: "POD-471206", charge: 1300, time: "15:05" },
+  { id: "REL-2010", customer: "Spice & Grain Co.", lots: "SG-LOT-007", pieces: 28, mode: "Pickup", destination: "Counter pickup", pod: "POD-463887", charge: 700, time: "14:20" },
+  { id: "REL-2009", customer: "MedEquip Traders", lots: "ME-LOT-012, ME-LOT-013", pieces: 18, mode: "Local Delivery", destination: "Apollo Annexe, Bannerghatta Road, Bengaluru", pod: "POD-455140", charge: 450, time: "13:35" },
+  { id: "REL-2008", customer: "Rajesh Kumar", lots: "RK-LOT-004", pieces: 12, mode: "Pickup", destination: "Counter pickup", pod: "POD-448762", charge: 300, time: "12:10" },
+  { id: "REL-2007", customer: "Priya Fashion Store", lots: "PF-LOT-038, PF-LOT-039", pieces: 46, mode: "Courier", destination: "Warehouse 3, Hosur Road, Bengaluru", pod: "POD-437519", charge: 1150, time: "11:45" },
+  { id: "REL-2006", customer: "Spice & Grain Co.", lots: "SG-LOT-005, SG-LOT-006", pieces: 64, mode: "Local Delivery", destination: "Mandi Block C, Yeshwanthpur, Bengaluru", pod: "POD-429084", charge: 1600, time: "10:55" },
+  { id: "REL-2005", customer: "TechGadgets Ltd", lots: "TG-LOT-015", pieces: 24, mode: "Pickup", destination: "Counter pickup", pod: "POD-418337", charge: 600, time: "10:15" },
+  { id: "REL-2004", customer: "MedEquip Traders", lots: "ME-LOT-009", pieces: 30, mode: "Courier", destination: "Manipal Supply Depot, Old Airport Road, Bengaluru", pod: "POD-406215", charge: 750, time: "09:40" },
+  { id: "REL-2003", customer: "Rajesh Kumar", lots: "RK-LOT-002, RK-LOT-003", pieces: 16, mode: "Local Delivery", destination: "No. 8, Jayanagar 4th Block, Bengaluru", pod: "—", charge: 400, time: "09:05" },
+  { id: "REL-2002", customer: "Priya Fashion Store", lots: "PF-LOT-035", pieces: 22, mode: "Pickup", destination: "Counter pickup", pod: "POD-394471", charge: 550, time: "08:30" },
+  { id: "REL-2001", customer: "Spice & Grain Co.", lots: "SG-LOT-002", pieces: 40, mode: "Courier", destination: "Godown 7, Peenya Industrial Area, Bengaluru", pod: "POD-388006", charge: 1000, time: "08:00" },
 ]
 
 const modes = [
@@ -47,7 +83,7 @@ export default function StorageReleasesPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [lotDetail, setLotDetail] = useState<StockRow | null>(null)
 
-  const [dispatches, setDispatches] = useState<Dispatch[]>([])
+  const [dispatches, setDispatches] = useState<Dispatch[]>(initialDispatches)
   const [dispatchDetail, setDispatchDetail] = useState<Dispatch | null>(null)
 
   const [dispatchOpen, setDispatchOpen] = useState(false)

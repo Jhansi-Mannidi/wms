@@ -19,6 +19,12 @@ const zones: FloorZone[] = [
   { id:"FRZ", label:"Freezer", type:"Frozen", pallets:18, capacity:20, util:90, color:"bg-amber-100 border-amber-300 dark:bg-amber-900/30 dark:border-amber-700" },
   { id:"HZ", label:"Hazmat", type:"Restricted", pallets:5, capacity:12, util:42, color:"bg-danger/10 border-danger/30" },
   { id:"DOCK", label:"Dock Area", type:"Transit", pallets:12, capacity:20, util:60, color:"bg-muted border-border" },
+  { id:"D", label:"Zone D", type:"Ambient", pallets:118, capacity:160, util:74, color:"bg-success/20 border-success/40" },
+  { id:"E", label:"Zone E", type:"Ambient", pallets:96, capacity:110, util:87, color:"bg-brand/20 border-brand/40" },
+  { id:"CRC", label:"Cold Room C", type:"Cold", pallets:35, capacity:45, util:78, color:"bg-blue-100 border-blue-300 dark:bg-blue-900/30 dark:border-blue-700" },
+  { id:"MEZ", label:"Mezzanine", type:"Ambient", pallets:40, capacity:60, util:67, color:"bg-success/20 border-success/40" },
+  { id:"QC", label:"QC Hold", type:"Restricted", pallets:9, capacity:15, util:60, color:"bg-danger/10 border-danger/30" },
+  { id:"RTN", label:"Returns", type:"Transit", pallets:14, capacity:25, util:56, color:"bg-muted border-border" },
 ]
 
 /**

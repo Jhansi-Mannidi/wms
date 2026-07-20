@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { nextRecordId } from "@/lib/next-id"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Exit = {
@@ -20,6 +21,28 @@ const initialExits: Exit[] = [
   { id:"EXT-002", vehicle:"AP-10-BX-8823", driver:"Venkat Rao", purpose:"Pickup Done", exitTime:"09:30", dwell:"45m", clearance:"Cleared" },
   { id:"EXT-003", vehicle:"MH-14-CX-3310", driver:"Santosh Kumar", purpose:"Export Loaded", exitTime:"11:20", dwell:"2h 05m", clearance:"Pending Docs" },
   { id:"EXT-004", vehicle:"KA-51-DX-1198", driver:"Girish Nair", purpose:"GRN Complete", exitTime:"12:00", dwell:"55m", clearance:"Cleared" },
+  { id:"EXT-005", vehicle:"TS-07-ST-4545", driver:"Ravi Kumar", purpose:"GRN Complete", exitTime:"06:15", dwell:"38m", clearance:"Cleared" },
+  { id:"EXT-006", vehicle:"KL-11-WX-6767", driver:"Arjun Nair", purpose:"Pickup Done", exitTime:"06:50", dwell:"1h 25m", clearance:"Cleared" },
+  { id:"EXT-007", vehicle:"GJ-18-OP-4455", driver:"Vikram Sharma", purpose:"Export Loaded", exitTime:"07:10", dwell:"2h 40m", clearance:"Pending Docs" },
+  { id:"EXT-008", vehicle:"RJ-14-QR-6677", driver:"Rahul Mehta", purpose:"Vendor Visit Complete", exitTime:"07:35", dwell:"25m", clearance:"Cleared" },
+  { id:"EXT-009", vehicle:"MP-09-ST-8899", driver:"Sanjay Gupta", purpose:"Delivery Complete", exitTime:"08:05", dwell:"1h 50m", clearance:"Cleared" },
+  { id:"EXT-010", vehicle:"UP-32-UV-1010", driver:"Meena Patel", purpose:"Pickup Done", exitTime:"08:20", dwell:"40m", clearance:"Held" },
+  { id:"EXT-011", vehicle:"WB-06-WX-2020", driver:"Deepa Menon", purpose:"GRN Complete", exitTime:"08:55", dwell:"1h 05m", clearance:"Cleared" },
+  { id:"EXT-012", vehicle:"HR-26-YZ-3030", driver:"Kavitha Rao", purpose:"Export Loaded", exitTime:"09:40", dwell:"3h 10m", clearance:"Pending Docs" },
+  { id:"EXT-013", vehicle:"PB-11-AB-4040", driver:"Anita Desai", purpose:"Delivery Complete", exitTime:"10:05", dwell:"50m", clearance:"Cleared" },
+  { id:"EXT-014", vehicle:"OD-02-CD-5050", driver:"Suresh Yadav", purpose:"Vendor Visit Complete", exitTime:"10:25", dwell:"1h 35m", clearance:"Cleared" },
+  { id:"EXT-015", vehicle:"CG-04-EF-6060", driver:"Deepa Menon", purpose:"GRN Complete", exitTime:"10:50", dwell:"2h 15m", clearance:"Held" },
+  { id:"EXT-016", vehicle:"JH-05-GH-7070", driver:"Mohan Das", purpose:"Pickup Done", exitTime:"11:15", dwell:"35m", clearance:"Cleared" },
+  { id:"EXT-017", vehicle:"BR-01-IJ-8080", driver:"Amrit Singh", purpose:"Export Loaded", exitTime:"11:45", dwell:"2h 55m", clearance:"Cleared" },
+  { id:"EXT-018", vehicle:"TN-22-KL-9090", driver:"Venkat Rao", purpose:"Delivery Complete", exitTime:"12:10", dwell:"1h 20m", clearance:"Cleared" },
+  { id:"EXT-019", vehicle:"MH-43-MN-1212", driver:"Kiran Babu", purpose:"GRN Complete", exitTime:"12:35", dwell:"48m", clearance:"Pending Docs" },
+  { id:"EXT-020", vehicle:"KA-19-OP-2323", driver:"Priya Sharma", purpose:"Export Loaded", exitTime:"13:00", dwell:"2h 25m", clearance:"Cleared" },
+  { id:"EXT-021", vehicle:"AP-16-QR-3434", driver:"Naveen Reddy", purpose:"Vendor Visit Complete", exitTime:"13:20", dwell:"30m", clearance:"Cleared" },
+  { id:"EXT-022", vehicle:"DL-08-UV-5656", driver:"Rohit Malhotra", purpose:"Pickup Done", exitTime:"13:45", dwell:"1h 10m", clearance:"Cleared" },
+  { id:"EXT-023", vehicle:"KL-07-MN-2233", driver:"Lakshmi Iyer", purpose:"Delivery Complete", exitTime:"14:05", dwell:"55m", clearance:"Held" },
+  { id:"EXT-024", vehicle:"GJ-27-YZ-7878", driver:"Manoj Bhat", purpose:"GRN Complete", exitTime:"14:30", dwell:"1h 45m", clearance:"Cleared" },
+  { id:"EXT-025", vehicle:"RJ-19-AB-8989", driver:"Sunita Joshi", purpose:"Export Loaded", exitTime:"15:00", dwell:"3h 20m", clearance:"Pending Docs" },
+  { id:"EXT-026", vehicle:"MH-31-CD-9191", driver:"Arun Prasad", purpose:"Delivery Complete", exitTime:"15:25", dwell:"42m", clearance:"Cleared" },
 ]
 
 const PURPOSES = ["Delivery Complete", "Pickup Done", "Export Loaded", "GRN Complete", "Vendor Visit Complete"] as const
@@ -94,7 +117,7 @@ export default function GateExitPage() {
     const mins = Number(form.dwell)
     const dwell = mins >= 60 ? `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, "0")}m` : `${mins}m`
     const next: Exit = {
-      id: `EXT-${String(exits.length + 1).padStart(3, "0")}`,
+      id: nextRecordId(exits.map(e => e.id), /^EXT-(\d+)$/, "EXT-", 3),
       vehicle: form.vehicle.trim().toUpperCase(),
       driver: form.driver.trim(),
       purpose: form.purpose,
@@ -120,7 +143,7 @@ export default function GateExitPage() {
         <div><h1 className="text-2xl font-bold text-foreground">Gate Exit</h1><p className="text-sm text-muted-foreground mt-1">Outbound vehicle departures and clearance records</p></div>
         <div className="flex items-center gap-2">
           <ExportButton data={filtered} filename="gate-exits" />
-          <button onClick={() => setCreateOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"><Plus className="w-4 h-4" /> Record Exit</button>
+          <button type="button" onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"><Plus className="w-4 h-4" /> Record Exit</button>
         </div>
       </div>
 

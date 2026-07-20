@@ -55,6 +55,7 @@ export function RowActions({
   return (
     <Menu.Root>
       <Menu.Trigger
+        type="button"
         aria-label={label}
         title={label}
         className={cn(
@@ -65,7 +66,7 @@ export function RowActions({
         <MoreHorizontal className="h-4 w-4" />
       </Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner side="bottom" align={align} sideOffset={6} className="z-[80]">
+        <Menu.Positioner side="bottom" align={align} sideOffset={6} className="z-[220]">
           <Menu.Popup
             className={cn(
               "min-w-[11rem] rounded-xl border border-border bg-popover p-1 shadow-xl outline-none",

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Users, Clock, CheckCircle2, AlertTriangle, Plus, Search,
   ChevronDown, Eye, MoreHorizontal, Calendar, UserCheck, Briefcase
@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { loadDemoEntries } from "@/lib/demo-store"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Worker = {
@@ -35,6 +36,28 @@ const initialWorkers: Worker[] = [
   { id: "EMP-006", name: "Kavitha Rao", role: "Supervisor", shift: "Morning", zone: "All Zones", tasksToday: 8, tasksCompleted: 6, status: "Active", attendance: "Present" },
   { id: "EMP-007", name: "Mohammed Ismail", role: "Picker", shift: "Night", zone: "Zone A", tasksToday: 0, tasksCompleted: 0, status: "Off Shift", attendance: "Absent" },
   { id: "EMP-008", name: "Deepika Singh", role: "Packer", shift: "Morning", zone: "Zone B", tasksToday: 16, tasksCompleted: 14, status: "Active", attendance: "Present" },
+  { id: "EMP-009", name: "Rahul Mehta", role: "Picker", shift: "Morning", zone: "Zone A", tasksToday: 26, tasksCompleted: 24, status: "Active", attendance: "Present" },
+  { id: "EMP-010", name: "Anita Desai", role: "QC Inspector", shift: "Afternoon", zone: "QC Bay", tasksToday: 22, tasksCompleted: 19, status: "Active", attendance: "Present" },
+  { id: "EMP-011", name: "Vikram Sharma", role: "Forklift Operator", shift: "Morning", zone: "Dock", tasksToday: 14, tasksCompleted: 12, status: "Active", attendance: "Present" },
+  { id: "EMP-012", name: "Deepa Menon", role: "Packer", shift: "Afternoon", zone: "Zone B", tasksToday: 19, tasksCompleted: 15, status: "Active", attendance: "Present" },
+  { id: "EMP-013", name: "Sanjay Gupta", role: "Picker", shift: "Afternoon", zone: "Zone C", tasksToday: 21, tasksCompleted: 13, status: "On Break", attendance: "Present" },
+  { id: "EMP-014", name: "Rajan Pillai", role: "Supervisor", shift: "Afternoon", zone: "All Zones", tasksToday: 9, tasksCompleted: 7, status: "Active", attendance: "Present" },
+  { id: "EMP-015", name: "Sunita Devi", role: "Supervisor", shift: "Night", zone: "All Zones", tasksToday: 0, tasksCompleted: 0, status: "Off Shift", attendance: "Absent" },
+  { id: "EMP-016", name: "Lakshmi Iyer", role: "Packer", shift: "Morning", zone: "Zone B", tasksToday: 17, tasksCompleted: 16, status: "Active", attendance: "Present" },
+  { id: "EMP-017", name: "Manoj Verma", role: "Picker", shift: "Morning", zone: "Zone C", tasksToday: 23, tasksCompleted: 20, status: "Active", attendance: "Present" },
+  { id: "EMP-018", name: "Farhan Qureshi", role: "Forklift Operator", shift: "Afternoon", zone: "Dock", tasksToday: 13, tasksCompleted: 9, status: "On Break", attendance: "Present" },
+  { id: "EMP-019", name: "Nisha Reddy", role: "QC Inspector", shift: "Morning", zone: "QC Bay", tasksToday: 28, tasksCompleted: 26, status: "Active", attendance: "Present" },
+  { id: "EMP-020", name: "Ganesh Pawar", role: "Picker", shift: "Night", zone: "Zone A", tasksToday: 0, tasksCompleted: 0, status: "Off Shift", attendance: "Absent" },
+  { id: "EMP-021", name: "Shweta Joshi", role: "Packer", shift: "Morning", zone: "Zone B", tasksToday: 15, tasksCompleted: 12, status: "Active", attendance: "Present" },
+  { id: "EMP-022", name: "Karthik Subramanian", role: "Picker", shift: "Afternoon", zone: "Zone A", tasksToday: 20, tasksCompleted: 11, status: "Active", attendance: "Present" },
+  { id: "EMP-023", name: "Pooja Bhatt", role: "QC Inspector", shift: "Afternoon", zone: "QC Bay", tasksToday: 24, tasksCompleted: 21, status: "Active", attendance: "Present" },
+  { id: "EMP-024", name: "Imran Shaikh", role: "Forklift Operator", shift: "Night", zone: "Dock", tasksToday: 0, tasksCompleted: 0, status: "Off Shift", attendance: "Absent" },
+  { id: "EMP-025", name: "Neha Kulkarni", role: "Packer", shift: "Afternoon", zone: "Zone C", tasksToday: 18, tasksCompleted: 14, status: "Active", attendance: "Present" },
+  { id: "EMP-026", name: "Ajay Chauhan", role: "Picker", shift: "Morning", zone: "Zone A", tasksToday: 25, tasksCompleted: 23, status: "Active", attendance: "Present" },
+  { id: "EMP-027", name: "Rekha Nambiar", role: "Supervisor", shift: "Morning", zone: "All Zones", tasksToday: 10, tasksCompleted: 8, status: "On Break", attendance: "Present" },
+  { id: "EMP-028", name: "Vivek Ranganathan", role: "Picker", shift: "Night", zone: "Zone C", tasksToday: 16, tasksCompleted: 12, status: "Active", attendance: "Present" },
+  { id: "EMP-029", name: "Swati Deshmukh", role: "Packer", shift: "Night", zone: "Zone B", tasksToday: 12, tasksCompleted: 9, status: "Active", attendance: "Present" },
+  { id: "EMP-030", name: "Harish Bhandari", role: "Forklift Operator", shift: "Morning", zone: "Dock", tasksToday: 0, tasksCompleted: 0, status: "Off Shift", attendance: "Absent" },
 ]
 
 const initialShifts: Shift[] = [
@@ -49,6 +72,31 @@ const initialTasks: Task[] = [
   { id: "TASK-103", type: "Putaway", order: "GRN-2024-089", assignedTo: "Suresh Yadav", zone: "Dock", priority: "High", status: "Pending", eta: "30 min" },
   { id: "TASK-104", type: "QC Check", order: "GRN-2024-088", assignedTo: "Meena Patel", zone: "QC Bay", priority: "Urgent", status: "In Progress", eta: "15 min" },
   { id: "TASK-105", type: "Picking", order: "ORD-2024-154", assignedTo: "Arjun Nair", zone: "Zone C", priority: "Urgent", status: "In Progress", eta: "20 min" },
+  { id: "TASK-106", type: "Packing", order: "ORD-2024-153", assignedTo: "Deepa Menon", zone: "Zone B", priority: "Normal", status: "Completed", eta: "Done" },
+  { id: "TASK-107", type: "Picking", order: "ORD-2024-152", assignedTo: "Rahul Mehta", zone: "Zone A", priority: "High", status: "Completed", eta: "Done" },
+  { id: "TASK-108", type: "QC Check", order: "GRN-2024-087", assignedTo: "Nisha Reddy", zone: "QC Bay", priority: "High", status: "Completed", eta: "Done" },
+  { id: "TASK-109", type: "Putaway", order: "GRN-2024-086", assignedTo: "Vikram Sharma", zone: "Dock", priority: "Normal", status: "Completed", eta: "Done" },
+  { id: "TASK-110", type: "Cycle Count", order: "CC-2024-021", assignedTo: "Kavitha Rao", zone: "Zone A", priority: "Normal", status: "Completed", eta: "Done" },
+  { id: "TASK-111", type: "Picking", order: "ORD-2024-151", assignedTo: "Manoj Verma", zone: "Zone C", priority: "High", status: "Completed", eta: "Done" },
+  { id: "TASK-112", type: "Packing", order: "ORD-2024-150", assignedTo: "Lakshmi Iyer", zone: "Zone B", priority: "Normal", status: "Completed", eta: "Done" },
+  { id: "TASK-113", type: "Picking", order: "ORD-2024-149", assignedTo: "Ajay Chauhan", zone: "Zone A", priority: "Urgent", status: "Completed", eta: "Done" },
+  { id: "TASK-114", type: "QC Check", order: "GRN-2024-085", assignedTo: "Anita Desai", zone: "QC Bay", priority: "Normal", status: "Completed", eta: "Done" },
+  { id: "TASK-115", type: "Putaway", order: "GRN-2024-084", assignedTo: "Farhan Qureshi", zone: "Dock", priority: "High", status: "Completed", eta: "Done" },
+  { id: "TASK-116", type: "Packing", order: "ORD-2024-148", assignedTo: "Shweta Joshi", zone: "Zone B", priority: "Normal", status: "Completed", eta: "Done" },
+  { id: "TASK-117", type: "Picking", order: "ORD-2024-147", assignedTo: "Karthik Subramanian", zone: "Zone A", priority: "Normal", status: "Completed", eta: "Done" },
+  { id: "TASK-118", type: "Cycle Count", order: "CC-2024-020", assignedTo: "Rekha Nambiar", zone: "Zone C", priority: "Normal", status: "Completed", eta: "Done" },
+  { id: "TASK-119", type: "QC Check", order: "GRN-2024-083", assignedTo: "Pooja Bhatt", zone: "QC Bay", priority: "High", status: "In Progress", eta: "12 min" },
+  { id: "TASK-120", type: "Packing", order: "ORD-2024-158", assignedTo: "Neha Kulkarni", zone: "Zone C", priority: "Normal", status: "In Progress", eta: "18 min" },
+  { id: "TASK-121", type: "Picking", order: "ORD-2024-159", assignedTo: "Sanjay Gupta", zone: "Zone C", priority: "High", status: "In Progress", eta: "25 min" },
+  { id: "TASK-122", type: "Putaway", order: "GRN-2024-090", assignedTo: "Harish Bhandari", zone: "Dock", priority: "Normal", status: "In Progress", eta: "40 min" },
+  { id: "TASK-123", type: "Cycle Count", order: "CC-2024-022", assignedTo: "Rajan Pillai", zone: "All Zones", priority: "Normal", status: "In Progress", eta: "45 min" },
+  { id: "TASK-124", type: "Packing", order: "ORD-2024-160", assignedTo: "Swati Deshmukh", zone: "Zone B", priority: "Urgent", status: "In Progress", eta: "8 min" },
+  { id: "TASK-125", type: "Picking", order: "ORD-2024-161", assignedTo: "Vivek Ranganathan", zone: "Zone C", priority: "Urgent", status: "Pending", eta: "35 min" },
+  { id: "TASK-126", type: "QC Check", order: "GRN-2024-091", assignedTo: "Meena Patel", zone: "QC Bay", priority: "Normal", status: "Pending", eta: "50 min" },
+  { id: "TASK-127", type: "Putaway", order: "GRN-2024-092", assignedTo: "Suresh Yadav", zone: "Dock", priority: "High", status: "Pending", eta: "55 min" },
+  { id: "TASK-128", type: "Packing", order: "ORD-2024-162", assignedTo: "Priya Sharma", zone: "Zone B", priority: "Normal", status: "Pending", eta: "1 hr" },
+  { id: "TASK-129", type: "Cycle Count", order: "CC-2024-023", assignedTo: "Deepika Singh", zone: "Zone B", priority: "Normal", status: "Pending", eta: "2 hr" },
+  { id: "TASK-130", type: "Picking", order: "ORD-2024-163", assignedTo: "Ravi Kumar", zone: "Zone A", priority: "High", status: "Pending", eta: "1 hr 15 min" },
 ]
 
 const statusConfig: Record<string, { color: string; bg: string }> = {
@@ -89,6 +137,11 @@ export default function WorkforcePage() {
   const [workers, setWorkers] = useState<Worker[]>(initialWorkers)
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [shifts] = useState<Shift[]>(initialShifts)
+
+  useEffect(() => {
+    const stored = loadDemoEntries<Worker>("workers")
+    if (stored.length) setWorkers(prev => [...stored, ...prev])
+  }, [])
 
   // Assign-task modal
   const [assignOpen, setAssignOpen] = useState(false)

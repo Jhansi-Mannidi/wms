@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { LCL_LOAD_PLAN_CONTAINERS, LCL_LOAD_PLAN_TEMPLATES } from "@/lib/fixtures/lcl"
 
 const CBM_MAX = 28.3
 const KG_MAX = 21700
@@ -28,48 +29,11 @@ type ContainerPlan = {
   status: string
 }
 
-const initialContainers: ContainerPlan[] = [
-  {
-    id: "LCL-CON-0041",
-    route: "INBOM → CNSHA",
-    vessel: "EVER GIVEN",
-    voyage: "2025W31",
-    etd: "Jul 28, 2025",
-    eta: "Aug 14, 2025",
-    cbm: 22.4,
-    kg: 14800,
-    shippers: [
-      { id: "CR-0891", shipper: "Apex Pharma", cbm: 2.4, kg: 960, pieces: 18 },
-      { id: "CR-0892", shipper: "GlobalTex", cbm: 5.6, kg: 2800, pieces: 40 },
-      { id: "CR-0896", shipper: "FreshFarm", cbm: 3.2, kg: 1600, pieces: 24 },
-      { id: "CR-0897", shipper: "Sunrise Elec.", cbm: 4.1, kg: 2050, pieces: 30 },
-      { id: "CR-0899", shipper: "AutoParts India", cbm: 7.1, kg: 7390, pieces: 52 },
-    ],
-    status: "confirmed",
-  },
-  {
-    id: "LCL-CON-0042",
-    route: "INBOM → SGSIN",
-    vessel: "MSC DIANA",
-    voyage: "2025W32",
-    etd: "Aug 4, 2025",
-    eta: "Aug 11, 2025",
-    cbm: 8.3,
-    kg: 4150,
-    shippers: [
-      { id: "CR-0894", shipper: "AutoParts India", cbm: 8.3, kg: 4150, pieces: 62 },
-    ],
-    status: "building",
-  },
-]
+const initialContainers: ContainerPlan[] = LCL_LOAD_PLAN_CONTAINERS
 
 type Template = { name: string; route: string; vessel: string; voyage: string; description: string }
 
-const templates: Template[] = [
-  { name: "Bombay → Shanghai weekly", route: "INBOM → CNSHA", vessel: "EVER GIVEN", voyage: "2025W33", description: "Standard 40' HC, Thursday cutoff" },
-  { name: "Bombay → Singapore express", route: "INBOM → SGSIN", vessel: "MSC DIANA", voyage: "2025W33", description: "7-day transit, Monday cutoff" },
-  { name: "Chennai → Dubai", route: "INMAA → AEDXB", vessel: "MAERSK KOTKA", voyage: "2025W34", description: "Consol box, DG-friendly" },
-]
+const templates: Template[] = LCL_LOAD_PLAN_TEMPLATES
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
   confirmed: { bg: "bg-success/15", text: "text-success", label: "Confirmed" },
@@ -259,7 +223,7 @@ export default function LCLLoadPlanPage() {
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-0 px-5 pt-4 border-b border-border shrink-0">
         {TABS.map(t => (
-          <button key={t} onClick={() => setTab(t)} className={cn(
+          <button key={t} type="button" onClick={() => setTab(t)} className={cn(
             "px-4 py-2 text-[12px] font-medium border-b-2 -mb-px transition-colors whitespace-nowrap",
             tab === t ? "border-brand text-brand" : "border-transparent text-muted-foreground hover:text-foreground"
           )}>{t}</button>
@@ -277,7 +241,8 @@ export default function LCLLoadPlanPage() {
             </span>
           </div>
           <button
-            onClick={() => setCreateOpen(true)}
+            type="button"
+            onClick={() => { setForm(emptyContainerForm); setErrors({}); setCreateOpen(true) }}
             className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-brand text-white text-[12px] font-semibold hover:bg-brand/90 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> New Container
@@ -329,7 +294,14 @@ export default function LCLLoadPlanPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="font-bold text-foreground text-[13px]">{con.id}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setDetail(con) }}
+                      title="View container details"
+                      className="font-bold text-foreground text-[13px] hover:text-brand hover:underline"
+                    >
+                      {con.id}
+                    </button>
                     <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-full", s.bg, s.text)}>{s.label}</span>
                   </div>
                   <p className="text-[12px] text-muted-foreground">{con.route} · {con.vessel} · Voyage {con.voyage}</p>

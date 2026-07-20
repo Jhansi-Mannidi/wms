@@ -7,6 +7,15 @@ const suppliersData = [
   { supplier: "Agro Corp", grns: 8, onTime: 8, discrepancy: 0, avgTime: "22m" },
   { supplier: "Salt Works", grns: 5, onTime: 5, discrepancy: 0, avgTime: "18m" },
   { supplier: "Fresh Farms", grns: 5, onTime: 3, discrepancy: 2, avgTime: "45m" },
+  { supplier: "Sweet Mills Pvt Ltd", grns: 14, onTime: 13, discrepancy: 1, avgTime: "26m" },
+  { supplier: "Tropical Co", grns: 9, onTime: 8, discrepancy: 1, avgTime: "31m" },
+  { supplier: "Apex Pharma", grns: 11, onTime: 11, discrepancy: 0, avgTime: "19m" },
+  { supplier: "Sunrise Mills", grns: 7, onTime: 6, discrepancy: 1, avgTime: "38m" },
+  { supplier: "Farm Direct Agro", grns: 6, onTime: 5, discrepancy: 1, avgTime: "42m" },
+  { supplier: "Pure Salt Industries", grns: 10, onTime: 9, discrepancy: 2, avgTime: "24m" },
+  { supplier: "Mill Fresh Foods", grns: 13, onTime: 12, discrepancy: 1, avgTime: "27m" },
+  { supplier: "Sweet House Sugars", grns: 4, onTime: 4, discrepancy: 0, avgTime: "21m" },
+  { supplier: "Nature's Best Ltd", grns: 16, onTime: 14, discrepancy: 3, avgTime: "33m" },
 ]
 
 export default function GRNAnalyticsPage() {

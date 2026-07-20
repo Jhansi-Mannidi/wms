@@ -25,6 +25,22 @@ const reports: Report[] = [
   { id: "RPT-BIL-01", name: "Invoice Statement", category: "Billing", desc: "Consolidated billing statement with line-item breakdowns for storage, handling, and VAS charges", format: "PDF", generated: "Jul 16, 10:00 AM", icon: <DollarSign className="w-4 h-4" /> },
   { id: "RPT-BIL-02", name: "Transaction Ledger", category: "Billing", desc: "Every chargeable event — receipts, issues, VAS — with timestamps and rates applied", format: "XLSX", generated: "Jul 16, 10:00 AM", icon: <FileText className="w-4 h-4" /> },
   { id: "RPT-VAS-01", name: "VAS Work Order Summary", category: "VAS", desc: "All VAS jobs with completion status, unit counts, and turnaround time", format: "XLSX", generated: "Jul 18, 09:00 AM", icon: <FileText className="w-4 h-4" /> },
+  { id: "RPT-INV-04", name: "Batch & Expiry Register", category: "Inventory", desc: "Batch-wise stock with manufacturing and expiry dates, flagging lots inside the 90-day expiry window", format: "XLSX", generated: "Jul 20, 09:00 AM", icon: <Clock className="w-4 h-4" /> },
+  { id: "RPT-INV-05", name: "Cycle Count Variance Report", category: "Inventory", desc: "System vs counted quantity by bin location with variance value and adjustment references", format: "XLSX", generated: "Jul 19, 09:00 AM", icon: <Package className="w-4 h-4" /> },
+  { id: "RPT-INV-06", name: "Cold Chain Excursion Log", category: "Inventory", desc: "Temperature excursions recorded in cold rooms and reefer bays with duration and affected batches", format: "PDF", generated: "Jul 20, 07:00 AM", icon: <Clock className="w-4 h-4" /> },
+  { id: "RPT-INV-07", name: "Stock Reconciliation Statement", category: "Inventory", desc: "Period-end reconciliation of physical stock against book stock with signed-off adjustments", format: "CSV", generated: "Jul 16, 06:00 PM", icon: <FileText className="w-4 h-4" /> },
+  { id: "RPT-IB-03", name: "GRN Discrepancy Report", category: "Inbound", desc: "Short receipts, excess receipts, and damaged units logged against each GRN with vendor details", format: "XLSX", generated: "Jul 19, 09:00 AM", icon: <FileText className="w-4 h-4" /> },
+  { id: "RPT-IB-04", name: "Vendor Delivery Compliance", category: "Inbound", desc: "On-time and in-full performance by vendor with appointment adherence and dock waiting time", format: "PDF", generated: "Jul 18, 09:00 AM", icon: <BarChart2 className="w-4 h-4" /> },
+  { id: "RPT-IB-05", name: "Inbound Quarantine Register", category: "Inbound", desc: "Consignments held in quarantine pending QC release, with age and release decisions", format: "CSV", generated: "Jul 20, 08:00 AM", icon: <Package className="w-4 h-4" /> },
+  { id: "RPT-OB-03", name: "Carrier Performance Report", category: "Outbound", desc: "Transit time, delivery success, and delay reasons by carrier — Blue Dart, Delhivery, Gati, DTDC, Safexpress", format: "PDF", generated: "Jul 20, 09:00 AM", icon: <Truck className="w-4 h-4" /> },
+  { id: "RPT-OB-04", name: "SLA Breach Report", category: "Outbound", desc: "Orders that missed the committed delivery window, with breach hours and root-cause tagging", format: "XLSX", generated: "Jul 20, 09:00 AM", icon: <Clock className="w-4 h-4" /> },
+  { id: "RPT-OB-05", name: "Pick-Pack Productivity Report", category: "Outbound", desc: "Lines picked and cartons packed per operator per shift with accuracy percentages", format: "XLSX", generated: "Jul 19, 07:00 PM", icon: <BarChart2 className="w-4 h-4" /> },
+  { id: "RPT-OB-06", name: "Returns & RTO Summary", category: "Outbound", desc: "Customer returns and RTO consignments with reason codes and putaway disposition", format: "CSV", generated: "Jul 18, 09:00 AM", icon: <Package className="w-4 h-4" /> },
+  { id: "RPT-BIL-03", name: "Storage Charges Breakdown", category: "Billing", desc: "Daily occupied pallet positions by zone with applicable storage slab and accrued charges", format: "XLSX", generated: "Jul 16, 10:00 AM", icon: <DollarSign className="w-4 h-4" /> },
+  { id: "RPT-BIL-04", name: "Handling & Freight Recovery", category: "Billing", desc: "Inbound handling, outbound handling, and freight recovered per consignment with rate card applied", format: "PDF", generated: "Jul 16, 10:00 AM", icon: <Truck className="w-4 h-4" /> },
+  { id: "RPT-BIL-05", name: "GST Summary Statement", category: "Billing", desc: "Tax-wise summary of invoices raised with HSN/SAC codes for the selected reporting period", format: "PDF", generated: "Jul 15, 11:00 AM", icon: <DollarSign className="w-4 h-4" /> },
+  { id: "RPT-VAS-02", name: "VAS Turnaround Analysis", category: "VAS", desc: "Average and worst-case turnaround by service type — relabelling, kitting, repacking, QC", format: "PDF", generated: "Jul 18, 09:00 AM", icon: <BarChart2 className="w-4 h-4" /> },
+  { id: "RPT-VAS-03", name: "Kitting BOM Consumption", category: "VAS", desc: "Component consumption against kit bills of material with scrap and shortfall lines", format: "CSV", generated: "Jul 17, 09:00 AM", icon: <Package className="w-4 h-4" /> },
 ]
 
 const periodOptions = ["Last 7 Days", "Last 15 Days", "Last 30 Days", "This Month", "Last Month", "Custom Range"]
@@ -169,6 +185,15 @@ export default function PortalReportsPage() {
             { name: "Weekly Stock Ledger", freq: "Every Monday, 8:00 AM", format: "XLSX", dest: "apex.operations@pharma.in" },
             { name: "Monthly Invoice Statement", freq: "1st of every month, 9:00 AM", format: "PDF", dest: "accounts@apexpharma.in" },
             { name: "Daily Dispatch Summary", freq: "Every day, 7:00 PM", format: "XLSX", dest: "logistics@apexpharma.in" },
+            { name: "Daily Batch & Expiry Register", freq: "Every day, 6:30 AM", format: "XLSX", dest: "quality@apexpharma.in" },
+            { name: "Weekly SLA Breach Report", freq: "Every Friday, 5:00 PM", format: "XLSX", dest: "logistics@apexpharma.in" },
+            { name: "Weekly Cold Chain Excursion Log", freq: "Every Monday, 7:00 AM", format: "PDF", dest: "compliance@apexpharma.in" },
+            { name: "Fortnightly Ageing Report", freq: "1st & 16th, 8:00 AM", format: "XLSX", dest: "planning@apexpharma.in" },
+            { name: "Monthly Carrier Performance", freq: "1st of every month, 10:00 AM", format: "PDF", dest: "logistics@apexpharma.in" },
+            { name: "Monthly Storage Charges Breakdown", freq: "1st of every month, 9:30 AM", format: "XLSX", dest: "finance@apexpharma.in" },
+            { name: "Monthly GST Summary Statement", freq: "5th of every month, 11:00 AM", format: "PDF", dest: "accounts@apexpharma.in" },
+            { name: "Weekly VAS Work Order Summary", freq: "Every Saturday, 6:00 PM", format: "XLSX", dest: "warehouse@apexpharma.in" },
+            { name: "Weekly Cycle Count Variance", freq: "Every Wednesday, 8:00 AM", format: "CSV", dest: "supplychain@apexpharma.in" },
           ].map((s, i) => (
             <div key={i} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-[#F7F9FC] dark:bg-muted/30 border border-[#E4E9F0] dark:border-border">
               <div className="flex items-center gap-3">

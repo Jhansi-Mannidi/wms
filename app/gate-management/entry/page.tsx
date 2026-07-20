@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { nextRecordId } from "@/lib/next-id"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Entry = {
@@ -20,6 +21,28 @@ const initialEntries: Entry[] = [
   { id:"ENT-002", vehicle:"AP-28-BX-1190", driver:"Rajan Pillai", type:"Delivery Van", purpose:"Courier Pickup", dock:"Dock 1", time:"09:15", status:"In Premises" },
   { id:"ENT-003", vehicle:"MH-02-CX-7734", driver:"Anil Verma", type:"Container", purpose:"Export Loading", dock:"Dock 5", time:"10:30", status:"Loading" },
   { id:"ENT-004", vehicle:"KA-51-DX-2200", driver:"Pradeep Nair", type:"Inbound Truck", purpose:"GRN Delivery", dock:"Dock 2", time:"11:00", status:"Pending" },
+  { id:"ENT-005", vehicle:"TS-07-ST-4545", driver:"Ravi Kumar", type:"Inbound Truck", purpose:"GRN Delivery", dock:"Dock 4", time:"07:20", status:"Checked In" },
+  { id:"ENT-006", vehicle:"KL-11-WX-6767", driver:"Girish Nair", type:"Delivery Van", purpose:"Courier Pickup", dock:"Dock 6", time:"07:55", status:"In Premises" },
+  { id:"ENT-007", vehicle:"GJ-18-OP-4455", driver:"Vikram Sharma", type:"Trailer", purpose:"Export Loading", dock:"Dock 5", time:"08:10", status:"Loading" },
+  { id:"ENT-008", vehicle:"RJ-14-QR-6677", driver:"Rahul Mehta", type:"Mini Truck", purpose:"Transfer", dock:"Dock 2", time:"08:25", status:"Checked In" },
+  { id:"ENT-009", vehicle:"MP-09-ST-8899", driver:"Sanjay Gupta", type:"Container", purpose:"Export Loading", dock:"Dock 3", time:"08:50", status:"In Premises" },
+  { id:"ENT-010", vehicle:"UP-32-UV-1010", driver:"Meena Patel", type:"Delivery Van", purpose:"Vendor Visit", dock:"Dock 1", time:"09:05", status:"Pending" },
+  { id:"ENT-011", vehicle:"WB-06-WX-2020", driver:"Deepa Menon", type:"Inbound Truck", purpose:"GRN Delivery", dock:"Dock 4", time:"09:20", status:"Checked In" },
+  { id:"ENT-012", vehicle:"HR-26-YZ-3030", driver:"Kavitha Rao", type:"Container", purpose:"Transfer", dock:"Dock 6", time:"09:45", status:"Loading" },
+  { id:"ENT-013", vehicle:"PB-11-AB-4040", driver:"Anita Desai", type:"Mini Truck", purpose:"Courier Pickup", dock:"Dock 2", time:"10:00", status:"Cancelled" },
+  { id:"ENT-014", vehicle:"OD-02-CD-5050", driver:"Suresh Yadav", type:"Trailer", purpose:"Export Loading", dock:"Dock 5", time:"10:15", status:"In Premises" },
+  { id:"ENT-015", vehicle:"CG-04-EF-6060", driver:"Arjun Nair", type:"Inbound Truck", purpose:"GRN Delivery", dock:"Dock 3", time:"10:40", status:"Checked In" },
+  { id:"ENT-016", vehicle:"JH-05-GH-7070", driver:"Mohan Das", type:"Delivery Van", purpose:"Vendor Visit", dock:"Dock 1", time:"10:55", status:"Pending" },
+  { id:"ENT-017", vehicle:"BR-01-IJ-8080", driver:"Amrit Singh", type:"Container", purpose:"Export Loading", dock:"Dock 6", time:"11:10", status:"Loading" },
+  { id:"ENT-018", vehicle:"TN-22-KL-9090", driver:"Venkat Rao", type:"Mini Truck", purpose:"Transfer", dock:"Dock 2", time:"11:25", status:"Checked In" },
+  { id:"ENT-019", vehicle:"MH-43-MN-1212", driver:"Kiran Babu", type:"Inbound Truck", purpose:"GRN Delivery", dock:"Dock 4", time:"11:40", status:"In Premises" },
+  { id:"ENT-020", vehicle:"KA-19-OP-2323", driver:"Priya Sharma", type:"Trailer", purpose:"Export Loading", dock:"Dock 5", time:"12:05", status:"Loading" },
+  { id:"ENT-021", vehicle:"AP-16-QR-3434", driver:"Naveen Reddy", type:"Delivery Van", purpose:"Courier Pickup", dock:"Dock 1", time:"12:20", status:"Pending" },
+  { id:"ENT-022", vehicle:"DL-08-UV-5656", driver:"Rohit Malhotra", type:"Container", purpose:"Transfer", dock:"Dock 3", time:"12:45", status:"Checked In" },
+  { id:"ENT-023", vehicle:"KL-07-MN-2233", driver:"Lakshmi Iyer", type:"Inbound Truck", purpose:"GRN Delivery", dock:"Dock 6", time:"13:00", status:"In Premises" },
+  { id:"ENT-024", vehicle:"GJ-27-YZ-7878", driver:"Manoj Bhat", type:"Mini Truck", purpose:"Vendor Visit", dock:"Dock 2", time:"13:15", status:"Cancelled" },
+  { id:"ENT-025", vehicle:"RJ-19-AB-8989", driver:"Sunita Joshi", type:"Trailer", purpose:"Export Loading", dock:"Dock 5", time:"13:40", status:"Loading" },
+  { id:"ENT-026", vehicle:"MH-31-CD-9191", driver:"Arun Prasad", type:"Inbound Truck", purpose:"GRN Delivery", dock:"Dock 4", time:"14:00", status:"Pending" },
 ]
 
 const VEHICLE_TYPES = ["Inbound Truck", "Delivery Van", "Container", "Mini Truck", "Trailer"] as const
@@ -86,9 +109,8 @@ export default function GateEntryPage() {
 
   function createEntry() {
     if (!validate()) return
-    const seq = String(entries.length + 1).padStart(3, "0")
     const next: Entry = {
-      id: `ENT-${seq}`,
+      id: nextRecordId(entries.map(e => e.id), /^ENT-(\d+)$/, "ENT-", 3),
       vehicle: form.vehicle.trim().toUpperCase(),
       driver: form.driver.trim(),
       type: form.type,
@@ -123,7 +145,7 @@ export default function GateEntryPage() {
         <div><h1 className="text-2xl font-bold text-foreground">Gate Entry</h1><p className="text-sm text-muted-foreground mt-1">Record and manage inbound vehicle entries</p></div>
         <div className="flex items-center gap-2">
           <ExportButton data={filtered} filename="gate-entries" />
-          <button onClick={() => setCreateOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"><Plus className="w-4 h-4" /> New Entry</button>
+          <button type="button" onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"><Plus className="w-4 h-4" /> New Entry</button>
         </div>
       </div>
 

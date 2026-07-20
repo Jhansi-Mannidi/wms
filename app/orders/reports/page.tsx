@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { DEMO_ORDER_REPORT_RUNS } from "@/lib/fixtures/demo"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Report = { name: string; desc: string; lastRun: string; format: string; schedule: string }
@@ -18,6 +19,14 @@ const initialReports: Report[] = [
   { name: "SLA Breach Report", desc: "All orders that breached SLA with root cause", lastRun: "Daily", format: "CSV / Email", schedule: "Daily 07:00" },
   { name: "Throughput by Hour", desc: "Orders processed per hour over selected period", lastRun: "2024-07-19", format: "CSV", schedule: "Manual" },
   { name: "Ageing Orders Report", desc: "Open orders by age bucket", lastRun: "2024-07-18", format: "CSV / PDF", schedule: "Weekly Mon 08:00" },
+  { name: "Picker Productivity", desc: "Units picked per picker per shift", lastRun: "Today 07:30", format: "CSV / Excel", schedule: "Daily 07:00" },
+  { name: "Courier Performance", desc: "On-time pickup and delivery by courier partner", lastRun: "2024-07-15", format: "CSV / PDF", schedule: "Weekly Mon 08:00" },
+  { name: "Order Cancellation Analysis", desc: "Cancelled orders grouped by reason and client", lastRun: "2024-07-01", format: "CSV / Email", schedule: "Monthly 1st 09:00" },
+  { name: "Dispatch Punctuality", desc: "Dispatch slot adherence against planned pickup", lastRun: "Today 06:00", format: "CSV", schedule: "Daily 06:00" },
+  { name: "Channel Mix Summary", desc: "Order split across B2B, B2C and Marketplace", lastRun: "2024-07-01", format: "CSV / PDF", schedule: "Monthly 1st 09:00" },
+  { name: "Pending Allocation Ageing", desc: "Unallocated orders by hours waiting", lastRun: "2024-07-19", format: "CSV", schedule: "Manual" },
+  { name: "Pick-to-Pack Cycle Time", desc: "Average minutes from pick start to pack complete", lastRun: "2024-07-15", format: "CSV / Excel", schedule: "Weekly Mon 08:00" },
+  { name: "Client Order Volume", desc: "Order and unit volume per client account", lastRun: "2024-07-17", format: "CSV / PDF", schedule: "Manual" },
 ]
 
 /** Icon per report, kept out of the row type so rows stay export-safe. */
@@ -26,6 +35,14 @@ const reportIcon: Record<string, React.ReactNode> = {
   "SLA Breach Report": <AlertTriangle className="w-5 h-5 text-danger" />,
   "Throughput by Hour": <BarChart2 className="w-5 h-5 text-brand" />,
   "Ageing Orders Report": <Clock className="w-5 h-5 text-amber-500" />,
+  "Picker Productivity": <BarChart2 className="w-5 h-5 text-brand" />,
+  "Courier Performance": <TrendingUp className="w-5 h-5 text-success" />,
+  "Order Cancellation Analysis": <AlertTriangle className="w-5 h-5 text-danger" />,
+  "Dispatch Punctuality": <Clock className="w-5 h-5 text-amber-500" />,
+  "Channel Mix Summary": <BarChart2 className="w-5 h-5 text-brand" />,
+  "Pending Allocation Ageing": <CalendarClock className="w-5 h-5 text-amber-500" />,
+  "Pick-to-Pack Cycle Time": <Clock className="w-5 h-5 text-amber-500" />,
+  "Client Order Volume": <TrendingUp className="w-5 h-5 text-success" />,
 }
 
 const FORMATS = ["CSV", "PDF", "Excel", "Email"] as const
@@ -34,7 +51,7 @@ const SCHEDULES = ["Manual", "Daily 06:00", "Daily 07:00", "Weekly Mon 08:00", "
 
 export default function OrderReportsPage() {
   const [reports, setReports] = useState<Report[]>(initialReports)
-  const [runs, setRuns] = useState<Run[]>([])
+  const [runs, setRuns] = useState<Run[]>(DEMO_ORDER_REPORT_RUNS)
 
   const [runTarget, setRunTarget] = useState<Report | null>(null)
   const [runForm, setRunForm] = useState({ format: "", period: "" })

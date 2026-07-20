@@ -7,6 +7,7 @@ import { Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { LCL_SHIPMENTS } from "@/lib/fixtures/lcl"
 
 // `type` (not `interface`) so rows stay assignable to Record<string, unknown> consumers
 type Shipment = {
@@ -14,12 +15,7 @@ type Shipment = {
   pieces: number; cbm: number; eta: string; stage: number; mode: string; consol: string
 }
 
-const initialShipments: Shipment[] = [
-  { ref: "CFS-2024-0451", shipper: "Apex Pharma Ltd", initials: "AP", color: "bg-blue-500", pod: "INMUN", pieces: 48, cbm: 8.2, eta: "28 Jul 2026", stage: 4, mode: "LCL", consol: "CONSOL-2024-087" },
-  { ref: "CFS-2024-0452", shipper: "GlobalTex Fabrics", initials: "GT", color: "bg-amber-500", pod: "INCKP", pieces: 120, cbm: 22.4, eta: "2 Aug 2026", stage: 2, mode: "LCL", consol: "CONSOL-2024-088" },
-  { ref: "CFS-2024-0453", shipper: "MediSupply Corp", initials: "MS", color: "bg-rose-500", pod: "INHYD", pieces: 36, cbm: 4.6, eta: "31 Jul 2026", stage: 3, mode: "LCL", consol: "CONSOL-2024-087" },
-  { ref: "CFS-2024-0454", shipper: "Sunrise Electronics", initials: "SE", color: "bg-emerald-500", pod: "INMUN", pieces: 24, cbm: 5.1, eta: "28 Jul 2026", stage: 5, mode: "LCL", consol: "CONSOL-2024-087" },
-]
+const initialShipments: Shipment[] = LCL_SHIPMENTS
 
 const stages = ["Received", "Consolidated", "Loaded", "Shipped", "In-Transit", "Arrived"]
 
