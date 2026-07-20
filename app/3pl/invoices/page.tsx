@@ -1,14 +1,24 @@
 "use client"
 
 import { useState } from "react"
-import { FileCheck, Send, ChevronDown, ChevronRight, CheckCircle2, Clock, AlertCircle, Package, Truck, Wrench, DollarSign, Plus } from "lucide-react"
+import { FileCheck, Send, ChevronDown, ChevronRight, CheckCircle2, Package, Truck, Wrench, DollarSign, Plus, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Modal } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Field, TextInput, Select, ModalActions } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const draftInvoices = [
-  { id: "INV-2025-089", client: "Apex Pharma Ltd", clientInit: "AP", clientColor: "bg-blue-500", total: 24680, gst: 4442, grandTotal: 29122, status: "Draft", period: "Jul 2025" },
-  { id: "INV-2025-090", client: "GlobalTex Fabrics", clientInit: "GT", clientColor: "bg-amber-500", total: 18450, gst: 3321, grandTotal: 21771, status: "Draft", period: "Jul 2025" },
-  { id: "INV-2025-091", client: "AutoParts India", clientInit: "AI", clientColor: "bg-cyan-500", total: 11200, gst: 2016, grandTotal: 13216, status: "Under Review", period: "Jul 2025" },
-  { id: "INV-2025-092", client: "MediSupply Corp", clientInit: "MS", clientColor: "bg-rose-500", total: 32000, gst: 5760, grandTotal: 37760, status: "Draft", period: "Jul 2025" },
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type Invoice = {
+  id: string; client: string; clientInit: string; clientColor: string
+  total: number; gst: number; grandTotal: number; status: string; period: string; sent: boolean
+}
+
+const initialInvoices: Invoice[] = [
+  { id: "INV-2025-089", client: "Apex Pharma Ltd", clientInit: "AP", clientColor: "bg-blue-500", total: 24680, gst: 4442, grandTotal: 29122, status: "Draft", period: "Jul 2025", sent: false },
+  { id: "INV-2025-090", client: "GlobalTex Fabrics", clientInit: "GT", clientColor: "bg-amber-500", total: 18450, gst: 3321, grandTotal: 21771, status: "Draft", period: "Jul 2025", sent: false },
+  { id: "INV-2025-091", client: "AutoParts India", clientInit: "AI", clientColor: "bg-cyan-500", total: 11200, gst: 2016, grandTotal: 13216, status: "Under Review", period: "Jul 2025", sent: false },
+  { id: "INV-2025-092", client: "MediSupply Corp", clientInit: "MS", clientColor: "bg-rose-500", total: 32000, gst: 5760, grandTotal: 37760, status: "Draft", period: "Jul 2025", sent: false },
 ]
 
 const lineItems = {
@@ -43,10 +53,33 @@ const statusColors: Record<string, string> = {
   Issued: "bg-success/15 text-success",
 }
 
+const CLIENTS = ["Apex Pharma Ltd", "GlobalTex Fabrics", "AutoParts India", "MediSupply Corp", "Sunrise Electronics", "FreshFarm Organics"] as const
+const CLIENT_META: Record<string, { init: string; color: string }> = {
+  "Apex Pharma Ltd": { init: "AP", color: "bg-blue-500" },
+  "GlobalTex Fabrics": { init: "GT", color: "bg-amber-500" },
+  "AutoParts India": { init: "AI", color: "bg-cyan-500" },
+  "MediSupply Corp": { init: "MS", color: "bg-rose-500" },
+  "Sunrise Electronics": { init: "SE", color: "bg-emerald-500" },
+  "FreshFarm Organics": { init: "FF", color: "bg-orange-500" },
+}
+const STATUSES = ["Draft", "Under Review"] as const
+
+const emptyForm = { client: "", period: "Jul 2025", total: "", status: "" }
+
 export default function InvoiceRunPage() {
-  const [selectedInv, setSelectedInv] = useState(draftInvoices[0])
+  const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices)
+  const [selectedId, setSelectedId] = useState(initialInvoices[0].id)
   const [expanded, setExpanded] = useState<string[]>(["Storage", "Handling"])
   const [discount, setDiscount] = useState(0)
+
+  const [createOpen, setCreateOpen] = useState(false)
+  const [form, setForm] = useState(emptyForm)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const [issueOpen, setIssueOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<Invoice | null>(null)
+
+  const selectedInv = invoices.find(i => i.id === selectedId) ?? invoices[0]
 
   const subtotal = Object.values(lineItems).flat().reduce((s, l) => s + l.amount, 0)
   const gst = Math.round((subtotal - discount) * 0.18)
@@ -55,6 +88,103 @@ export default function InvoiceRunPage() {
   const toggleSection = (s: string) =>
     setExpanded(e => e.includes(s) ? e.filter(x => x !== s) : [...e, s])
 
+  function validate() {
+    const e: Record<string, string> = {}
+    if (!form.client) e.client = "Select a client"
+    else if (invoices.some(i => i.client === form.client && i.period === form.period.trim())) e.client = "A draft already exists for this client and period"
+    if (!form.period.trim()) e.period = "Billing period is required"
+    if (!form.total.trim()) e.total = "Invoice subtotal is required"
+    else if (!/^\d+(\.\d+)?$/.test(form.total) || Number(form.total) <= 0) e.total = "Enter a positive amount"
+    if (!form.status) e.status = "Select a status"
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  function createInvoice() {
+    if (!validate()) return
+    const meta = CLIENT_META[form.client]
+    const total = Number(form.total)
+    const invGst = Math.round(total * 0.18)
+    const nextSeq = Math.max(0, ...invoices.map(i => Number(i.id.slice(-3)) || 0)) + 1
+    const next: Invoice = {
+      id: `INV-2025-${String(nextSeq).padStart(3, "0")}`,
+      client: form.client,
+      clientInit: meta.init,
+      clientColor: meta.color,
+      total,
+      gst: invGst,
+      grandTotal: total + invGst,
+      status: form.status,
+      period: form.period.trim(),
+      sent: false,
+    }
+    setInvoices(prev => [next, ...prev])
+    setSelectedId(next.id)
+    setCreateOpen(false)
+    setForm(emptyForm)
+    setErrors({})
+    notify.success("Draft invoice created", `${next.id} — ₹${next.grandTotal.toLocaleString()} for ${next.client}`)
+  }
+
+  function issueInvoice() {
+    setInvoices(prev => prev.map(i => i.id === selectedInv.id
+      ? { ...i, status: "Issued", total: subtotal - discount, gst, grandTotal }
+      : i))
+    notify.success("Invoice issued", `${selectedInv.id} approved and issued for ₹${grandTotal.toLocaleString()}.`)
+  }
+
+  function sendToPortal() {
+    if (selectedInv.status !== "Issued") {
+      notify.warning("Not issued yet", `Approve & issue ${selectedInv.id} before sending it to the client portal.`)
+      return
+    }
+    setInvoices(prev => prev.map(i => i.id === selectedInv.id ? { ...i, sent: true } : i))
+    notify.success("Sent to client portal", `${selectedInv.client} can now view ${selectedInv.id}.`)
+  }
+
+  function deleteInvoice(inv: Invoice) {
+    const remaining = invoices.filter(i => i.id !== inv.id)
+    setInvoices(remaining)
+    if (selectedId === inv.id && remaining.length) setSelectedId(remaining[0].id)
+    notify.warning("Draft deleted", `${inv.id} removed from the invoice run.`)
+  }
+
+  if (!invoices.length) {
+    return (
+      <div className="p-6 h-full overflow-y-auto">
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <p className="text-sm text-muted-foreground">No draft invoices in this run.</p>
+          <button onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+            <Plus className="w-4 h-4" /> New Draft Invoice
+          </button>
+        </div>
+        <Modal
+          open={createOpen}
+          onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setErrors({}) } }}
+          title="New Draft Invoice"
+          description="Start a client invoice for the current billing period"
+          footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createInvoice} submitLabel="Create Draft" />}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Client" required error={errors.client}>
+              <Select value={form.client} invalid={!!errors.client} onChange={e => setForm({ ...form, client: e.target.value })} options={CLIENTS} placeholder="Select Client" />
+            </Field>
+            <Field label="Billing Period" required error={errors.period}>
+              <TextInput value={form.period} invalid={!!errors.period} onChange={e => setForm({ ...form, period: e.target.value })} placeholder="e.g. Jul 2025" />
+            </Field>
+            <Field label="Subtotal (₹)" required error={errors.total}>
+              <TextInput value={form.total} invalid={!!errors.total} onChange={e => setForm({ ...form, total: e.target.value })} placeholder="e.g. 24680" inputMode="decimal" />
+            </Field>
+            <Field label="Status" required error={errors.status}>
+              <Select value={form.status} invalid={!!errors.status} onChange={e => setForm({ ...form, status: e.target.value })} options={STATUSES} placeholder="Select Status" />
+            </Field>
+          </div>
+        </Modal>
+      </div>
+    )
+  }
+
   return (
     <div className="p-6 h-full overflow-y-auto">
       <div className="flex gap-5 h-full">
@@ -62,23 +192,35 @@ export default function InvoiceRunPage() {
         <div className="w-72 shrink-0 flex flex-col gap-3">
           <div className="flex items-center justify-between mb-1">
             <p className="text-sm font-bold text-foreground">Draft Invoices</p>
-            <span className="text-xs text-muted-foreground">Jul 2025</span>
-          </div>
-          {draftInvoices.map(inv => (
-            <button key={inv.id} onClick={() => setSelectedInv(inv)}
-              className={cn("w-full text-left p-4 rounded-xl border transition-all", selectedInv.id === inv.id ? "border-brand bg-brand/10" : "border-border bg-card hover:border-brand/40")}>
-              <div className="flex items-center gap-2 mb-2">
-                <div className={cn("w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0", inv.clientColor)}>{inv.clientInit}</div>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold text-foreground truncate">{inv.client}</p>
-                  <p className="text-[10px] text-muted-foreground font-mono">{inv.id}</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-foreground">₹{inv.grandTotal.toLocaleString()}</span>
-                <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full", statusColors[inv.status])}>{inv.status}</span>
-              </div>
+            <button onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }}
+              title="New draft invoice"
+              className="flex items-center gap-1 text-xs font-semibold text-brand hover:underline">
+              <Plus className="w-3.5 h-3.5" /> New
             </button>
+          </div>
+          {invoices.map(inv => (
+            <div key={inv.id} className={cn("rounded-xl border transition-all", selectedInv.id === inv.id ? "border-brand bg-brand/10" : "border-border bg-card hover:border-brand/40")}>
+              <button onClick={() => setSelectedId(inv.id)} className="w-full text-left p-4 pb-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={cn("w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0", inv.clientColor)}>{inv.clientInit}</div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-foreground truncate">{inv.client}</p>
+                    <p className="text-[10px] text-muted-foreground font-mono">{inv.id}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-foreground">₹{inv.grandTotal.toLocaleString()}</span>
+                  <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full", statusColors[inv.status])}>{inv.status}</span>
+                </div>
+              </button>
+              <div className="flex items-center justify-between px-4 pb-2.5">
+                <span className="text-[10px] text-muted-foreground">{inv.sent ? "Sent to portal" : inv.period}</span>
+                <button onClick={() => setDeleteTarget(inv)} title={`Delete ${inv.id}`}
+                  className="p-1 rounded-md text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           ))}
         </div>
 
@@ -92,6 +234,7 @@ export default function InvoiceRunPage() {
                   <FileCheck className="w-5 h-5 text-brand" />
                   <span className="font-bold text-foreground">{selectedInv.id}</span>
                   <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-full", statusColors[selectedInv.status])}>{selectedInv.status}</span>
+                  {selectedInv.sent && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-brand/15 text-brand">Sent</span>}
                 </div>
                 <p className="text-xs text-muted-foreground">Period: {selectedInv.period} · GSTIN: 29AAPCA1234A1Z5 · Place of Supply: Maharashtra</p>
               </div>
@@ -104,7 +247,7 @@ export default function InvoiceRunPage() {
           <div className="flex-1 space-y-3">
             {(Object.keys(lineItems) as Array<keyof typeof lineItems>).map(section => (
               <div key={section} className="rounded-xl border border-border bg-card overflow-hidden">
-                <button onClick={() => toggleSection(section)} className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/20 transition-colors">
+                <button onClick={() => toggleSection(section)} title={`${expanded.includes(section) ? "Collapse" : "Expand"} ${section}`} className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/20 transition-colors">
                   <div className="flex items-center gap-2">
                     {sectionIcons[section]}
                     <span className="text-sm font-semibold text-foreground">{section}</span>
@@ -163,18 +306,71 @@ export default function InvoiceRunPage() {
 
           {/* Actions */}
           <div className="flex gap-2 flex-wrap">
-            <button className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+            <button
+              onClick={() => selectedInv.status === "Issued"
+                ? notify.info("Already issued", `${selectedInv.id} was already approved and issued.`)
+                : setIssueOpen(true)}
+              className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
               <CheckCircle2 className="w-4 h-4" /> Approve & Issue
             </button>
-            <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
+            <button onClick={sendToPortal} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
               <Send className="w-4 h-4" /> Send to Client Portal
             </button>
-            <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
+            <button
+              onClick={() => notify.info("Posted to accounting", `${selectedInv.id} queued for the Tally / ERP ledger sync (₹${grandTotal.toLocaleString()}).`)}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
               <Plus className="w-4 h-4" /> Post to Accounting
             </button>
           </div>
         </div>
       </div>
+
+      {/* Create draft invoice */}
+      <Modal
+        open={createOpen}
+        onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setErrors({}) } }}
+        title="New Draft Invoice"
+        description="Start a client invoice for the current billing period"
+        footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createInvoice} submitLabel="Create Draft" />}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Client" required error={errors.client}>
+            <Select value={form.client} invalid={!!errors.client} onChange={e => setForm({ ...form, client: e.target.value })} options={CLIENTS} placeholder="Select Client" />
+          </Field>
+          <Field label="Billing Period" required error={errors.period}>
+            <TextInput value={form.period} invalid={!!errors.period} onChange={e => setForm({ ...form, period: e.target.value })} placeholder="e.g. Jul 2025" />
+          </Field>
+          <Field label="Subtotal (₹)" required error={errors.total} hint={/^\d+(\.\d+)?$/.test(form.total) && Number(form.total) > 0 ? `Grand total with 18% GST: ₹${(Number(form.total) + Math.round(Number(form.total) * 0.18)).toLocaleString()}` : undefined}>
+            <TextInput value={form.total} invalid={!!errors.total} onChange={e => setForm({ ...form, total: e.target.value })} placeholder="e.g. 24680" inputMode="decimal" />
+          </Field>
+          <Field label="Status" required error={errors.status}>
+            <Select value={form.status} invalid={!!errors.status} onChange={e => setForm({ ...form, status: e.target.value })} options={STATUSES} placeholder="Select Status" />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* Approve & issue confirmation */}
+      <ConfirmDialog
+        open={issueOpen}
+        onOpenChange={setIssueOpen}
+        title="Approve and issue this invoice?"
+        message={`${selectedInv.id} for ${selectedInv.client} will be issued at ₹${grandTotal.toLocaleString()} and locked from edits.`}
+        confirmLabel="Approve & Issue"
+        cancelLabel="Keep as Draft"
+        tone="brand"
+        onConfirm={issueInvoice}
+      />
+
+      {/* Delete draft confirmation */}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Delete this draft invoice?"
+        message={`${deleteTarget?.id} for ${deleteTarget?.client} will be removed from this invoice run. This cannot be undone.`}
+        confirmLabel="Delete Draft"
+        cancelLabel="Keep It"
+        onConfirm={() => deleteTarget && deleteInvoice(deleteTarget)}
+      />
     </div>
   )
 }

@@ -1,10 +1,21 @@
 "use client"
 
 import { useState } from "react"
-import { Package, Truck, Plane, AlertTriangle, CheckCircle2, Weight } from "lucide-react"
+import { Truck, Plane, AlertTriangle, CheckCircle2, Weight, Eye, Undo2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const awaitingRouting = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type AwaitingPkg = {
+  id: string; shipper: string; shipperInit: string; shipperColor: string
+  consignee: string; consigneeCity: string; actualKg: number; volKg: number
+  service: string; dg: boolean
+}
+
+const awaitingRouting: AwaitingPkg[] = [
   { id: "PKG-0441", shipper: "Apex Pharma Ltd", shipperInit: "AP", shipperColor: "bg-blue-500", consignee: "PharmaDist Mumbai", consigneeCity: "Mumbai, IN", actualKg: 12.4, volKg: 14.2, service: "Express", dg: false },
   { id: "PKG-0446", shipper: "GlobalTex Fabrics", shipperInit: "GT", shipperColor: "bg-amber-500", consignee: "Buyer Co. Dubai", consigneeCity: "Dubai, AE", actualKg: 28.0, volKg: 22.0, service: "Standard", dg: false },
   { id: "PKG-0447", shipper: "Sunrise Electronics", shipperInit: "SE", shipperColor: "bg-emerald-500", consignee: "TechRetail Pune", consigneeCity: "Pune, IN", actualKg: 5.6, volKg: 7.2, service: "Express", dg: false },
@@ -12,28 +23,58 @@ const awaitingRouting = [
   { id: "PKG-0449", shipper: "FreshFarm Organics", shipperInit: "FF", shipperColor: "bg-orange-500", consignee: "Organic Mart", consigneeCity: "Nashik, IN", actualKg: 22.5, volKg: 20.0, service: "Standard", dg: false },
 ]
 
-const routedLocal: string[] = []
-const routedExport: string[] = []
-
 export default function RoutingBoardPage() {
-  const [pending, setPending] = useState(awaitingRouting)
-  const [local, setLocal] = useState<typeof awaitingRouting>([])
-  const [exportList, setExportList] = useState<typeof awaitingRouting>([])
+  const [pending, setPending] = useState<AwaitingPkg[]>(awaitingRouting)
+  const [local, setLocal] = useState<AwaitingPkg[]>([])
+  const [exportList, setExportList] = useState<AwaitingPkg[]>([])
   const [selected, setSelected] = useState<string[]>([])
 
-  const route = (pkg: typeof awaitingRouting[0], dest: "local" | "export") => {
+  const [detail, setDetail] = useState<AwaitingPkg | null>(null)
+  const [clearTarget, setClearTarget] = useState<AwaitingPkg | null>(null)
+
+  const route = (pkg: AwaitingPkg, dest: "local" | "export") => {
     setPending(p => p.filter(x => x.id !== pkg.id))
     if (dest === "local") setLocal(l => [...l, pkg])
     else setExportList(e => [...e, pkg])
     setSelected(s => s.filter(x => x !== pkg.id))
+    notify.success(
+      dest === "local" ? "Routed to local delivery" : "Routed to export",
+      `${pkg.id} — ${pkg.consignee} (${pkg.consigneeCity}).`,
+    )
   }
 
   const routeSelected = (dest: "local" | "export") => {
     const pkgs = pending.filter(p => selected.includes(p.id))
-    setPending(p => p.filter(x => !selected.includes(x.id)))
-    if (dest === "local") setLocal(l => [...l, ...pkgs])
-    else setExportList(e => [...e, ...pkgs])
-    setSelected([])
+    if (pkgs.length === 0) return
+    const blocked = pkgs.filter(p => p.dg)
+    const routable = pkgs.filter(p => !p.dg)
+    if (routable.length === 0) {
+      notify.error("Nothing routed", "Every selected package is DG-flagged. Clear the flags first.")
+      return
+    }
+    const routableIds = routable.map(p => p.id)
+    setPending(p => p.filter(x => !routableIds.includes(x.id)))
+    if (dest === "local") setLocal(l => [...l, ...routable])
+    else setExportList(e => [...e, ...routable])
+    setSelected(blocked.map(p => p.id))
+    notify.success(
+      dest === "local" ? "Routed to local delivery" : "Routed to export",
+      blocked.length > 0
+        ? `${routable.length} package(s) routed · ${blocked.length} held for DG screening.`
+        : `${routable.length} package(s) routed.`,
+    )
+  }
+
+  const clearDgFlag = (pkg: AwaitingPkg) => {
+    setPending(p => p.map(x => x.id === pkg.id ? { ...x, dg: false } : x))
+    notify.success("DG flag cleared", `${pkg.id} passed screening and can now be routed.`)
+  }
+
+  const unroute = (pkg: AwaitingPkg, from: "local" | "export") => {
+    if (from === "local") setLocal(l => l.filter(x => x.id !== pkg.id))
+    else setExportList(e => e.filter(x => x.id !== pkg.id))
+    setPending(p => [pkg, ...p])
+    notify.info("Routing undone", `${pkg.id} is back in the pending queue.`)
   }
 
   const toggleSelect = (id: string) =>
@@ -77,10 +118,15 @@ export default function RoutingBoardPage() {
                 </div>
                 {/* Chargeable weight chip */}
                 <div className="ml-auto shrink-0 flex flex-col items-end gap-1">
-                  <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border", isVol ? "bg-warning/10 border-warning/30 text-warning" : "bg-brand/10 border-brand/30 text-brand")}>
-                    <Weight className="w-3.5 h-3.5" />
-                    Chargeable: {chargeable} kg
-                    {isVol && <span className="text-[10px]">(vol)</span>}
+                  <div className="flex items-center gap-2">
+                    <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border", isVol ? "bg-warning/10 border-warning/30 text-warning" : "bg-brand/10 border-brand/30 text-brand")}>
+                      <Weight className="w-3.5 h-3.5" />
+                      Chargeable: {chargeable} kg
+                      {isVol && <span className="text-[10px]">(vol)</span>}
+                    </div>
+                    <button onClick={() => setDetail(pkg)} title="View package details" className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                   <p className="text-[10px] text-muted-foreground">Actual: {pkg.actualKg} kg · Vol: {pkg.volKg} kg · {pkg.service}</p>
                 </div>
@@ -90,7 +136,7 @@ export default function RoutingBoardPage() {
                 <div className="mt-3 flex items-center gap-2 p-2 rounded-lg bg-danger/10 border border-danger/30">
                   <AlertTriangle className="w-3.5 h-3.5 text-danger shrink-0" />
                   <span className="text-xs text-danger font-medium">DG / Dangerous Goods — screening required before routing</span>
-                  <button className="ml-auto text-xs font-semibold text-danger border border-danger/40 px-2 py-0.5 rounded-md hover:bg-danger/10 transition-colors">Clear Flag</button>
+                  <button onClick={() => setClearTarget(pkg)} title="Clear the DG screening flag" className="ml-auto text-xs font-semibold text-danger border border-danger/40 px-2 py-0.5 rounded-md hover:bg-danger/10 transition-colors">Clear Flag</button>
                 </div>
               )}
 
@@ -140,7 +186,17 @@ export default function RoutingBoardPage() {
             <h3 className="text-sm font-bold text-blue-400 mb-2 flex items-center gap-1.5"><Truck className="w-4 h-4" /> Routed — Local ({local.length})</h3>
             <div className="space-y-1">
               {local.map(p => (
-                <p key={p.id} className="text-xs text-muted-foreground">{p.id} · {p.consigneeCity}</p>
+                <div key={p.id} className="flex items-center justify-between gap-2">
+                  <p className="text-xs text-muted-foreground">{p.id} · {p.consigneeCity}</p>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setDetail(p)} title="View package details" className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                      <Eye className="w-3 h-3" />
+                    </button>
+                    <button onClick={() => unroute(p, "local")} title="Undo routing" className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                      <Undo2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -148,12 +204,63 @@ export default function RoutingBoardPage() {
             <h3 className="text-sm font-bold text-amber-400 mb-2 flex items-center gap-1.5"><Plane className="w-4 h-4" /> Routed — Export ({exportList.length})</h3>
             <div className="space-y-1">
               {exportList.map(p => (
-                <p key={p.id} className="text-xs text-muted-foreground">{p.id} · {p.consigneeCity}</p>
+                <div key={p.id} className="flex items-center justify-between gap-2">
+                  <p className="text-xs text-muted-foreground">{p.id} · {p.consigneeCity}</p>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setDetail(p)} title="View package details" className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                      <Eye className="w-3 h-3" />
+                    </button>
+                    <button onClick={() => unroute(p, "export")} title="Undo routing" className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                      <Undo2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         </div>
       )}
+
+      {/* Package detail */}
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.id ?? ""}
+        description="Package routing detail"
+        footer={
+          <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="Package" value={<span className="font-mono text-brand">{detail.id}</span>} />
+            <DetailRow label="Shipper" value={detail.shipper} />
+            <DetailRow label="Consignee" value={detail.consignee} />
+            <DetailRow label="Destination" value={detail.consigneeCity} />
+            <DetailRow label="Actual Weight" value={`${detail.actualKg} kg`} />
+            <DetailRow label="Volumetric Weight" value={`${detail.volKg} kg`} />
+            <DetailRow label="Chargeable Weight" value={`${Math.max(detail.actualKg, detail.volKg)} kg${detail.volKg > detail.actualKg ? " (volumetric)" : ""}`} />
+            <DetailRow label="Service" value={detail.service} />
+            <DetailRow label="DG Flag" value={detail.dg
+              ? <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-danger/10 text-danger">Screening required</span>
+              : <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-success/10 text-success">Cleared</span>} />
+          </div>
+        )}
+      </Drawer>
+
+      {/* Clear DG flag confirmation */}
+      <ConfirmDialog
+        open={!!clearTarget}
+        onOpenChange={(o) => !o && setClearTarget(null)}
+        title="Clear the DG flag?"
+        message={`Confirm that ${clearTarget?.id} has passed dangerous-goods screening. It will become routable immediately.`}
+        confirmLabel="Clear Flag"
+        cancelLabel="Keep Flagged"
+        tone="brand"
+        onConfirm={() => clearTarget && clearDgFlag(clearTarget)}
+      />
     </div>
   )
 }

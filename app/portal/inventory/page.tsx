@@ -1,14 +1,23 @@
 "use client"
 
 import { useState } from "react"
-import { Package, Search, Filter, ChevronDown, RefreshCw, AlertTriangle } from "lucide-react"
+import { Package, Search, Filter, ChevronDown, RefreshCw, AlertTriangle, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ExportButton } from "@/components/wms/export-button"
+import { Drawer } from "@/components/ui/modal"
+import { DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
 const categories = ["All", "Pharma", "OTC", "Cold Chain", "Bulk"]
 const zones = ["All Zones", "Zone A", "Zone B", "Zone C", "Zone D"]
 
-const inventory = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type StockItem = {
+  sku: string; desc: string; category: string; zone: string; batch: string
+  qty: number; uom: string; reorder: number; expiry: string; status: string
+}
+
+const initialInventory: StockItem[] = [
   { sku: "APX-7712", desc: "Paracetamol 500mg Tablets", category: "Pharma", zone: "Zone A", batch: "BT-2024-441", qty: 4800, uom: "Units", reorder: 1000, expiry: "2026-03-31", status: "OK" },
   { sku: "APX-4421", desc: "Syringes 5ml Disposable", category: "Pharma", zone: "Zone A", batch: "BT-2024-328", qty: 2200, uom: "Units", reorder: 500, expiry: "2027-01-15", status: "OK" },
   { sku: "APX-2209", desc: "IV Drip Set Standard", category: "Pharma", zone: "Zone B", batch: "BT-2024-291", qty: 850, uom: "Sets", reorder: 200, expiry: "2026-06-30", status: "OK" },
@@ -28,9 +37,11 @@ const statusStyle: Record<string, string> = {
 }
 
 export default function PortalInventoryPage() {
+  const [inventory, setInventory] = useState<StockItem[]>(initialInventory)
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("All")
   const [zone, setZone] = useState("All Zones")
+  const [detail, setDetail] = useState<StockItem | null>(null)
 
   const filtered = inventory.filter(item => {
     const matchSearch = !search || item.sku.toLowerCase().includes(search.toLowerCase()) || item.desc.toLowerCase().includes(search.toLowerCase())
@@ -43,6 +54,24 @@ export default function PortalInventoryPage() {
   const totalUnits = filtered.reduce((a, b) => a + b.qty, 0)
   const lowStock = filtered.filter(i => i.status === "Low" || i.status === "Near Expiry").length
 
+  // Recomputes each SKU's status from live qty / reorder level / expiry window.
+  function refresh() {
+    const soon = new Date()
+    soon.setDate(soon.getDate() + 60)
+    let changed = 0
+    setInventory(prev => prev.map(item => {
+      const next =
+        item.qty <= item.reorder ? "Low"
+        : new Date(item.expiry) <= soon ? "Near Expiry"
+        : "OK"
+      if (next !== item.status) changed++
+      return next === item.status ? item : { ...item, status: next }
+    }))
+    notify.info("Inventory refreshed", changed > 0
+      ? `${changed} SKU status${changed === 1 ? "" : "es"} updated from live stock levels.`
+      : "All SKU statuses are already up to date.")
+  }
+
   return (
     <div className="p-4 sm:p-6 space-y-5 w-full">
       {/* Header */}
@@ -52,7 +81,11 @@ export default function PortalInventoryPage() {
           <p className="text-sm text-muted-foreground">Real-time view of your stored stock</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E4E9F0] dark:border-border bg-white dark:bg-card text-xs font-medium text-[#1E3A5F] dark:text-foreground hover:bg-[#E4E9F0] dark:hover:bg-muted transition-colors">
+          <button
+            onClick={refresh}
+            title="Refresh stock statuses"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E4E9F0] dark:border-border bg-white dark:bg-card text-xs font-medium text-[#1E3A5F] dark:text-foreground hover:bg-[#E4E9F0] dark:hover:bg-muted transition-colors"
+          >
             <RefreshCw className="w-3.5 h-3.5" /> Refresh
           </button>
           <ExportButton data={filtered} filename="portal-inventory" label="Export CSV" className="!bg-[#1E3A5F] dark:!bg-brand !text-white !border-transparent hover:!bg-[#1E3A5F]/90" />
@@ -119,11 +152,12 @@ export default function PortalInventoryPage() {
                 <th className="px-4 py-3 text-right font-semibold text-muted-foreground">Qty</th>
                 <th className="px-4 py-3 text-left font-semibold text-muted-foreground hidden lg:table-cell">Expiry</th>
                 <th className="px-4 py-3 text-center font-semibold text-muted-foreground">Status</th>
+                <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E4E9F0] dark:divide-border">
               {filtered.map((item) => (
-                <tr key={item.sku} className="hover:bg-[#F7F9FC] dark:hover:bg-muted/20 transition-colors">
+                <tr key={item.sku} onClick={() => setDetail(item)} className="hover:bg-[#F7F9FC] dark:hover:bg-muted/20 transition-colors cursor-pointer">
                   <td className="px-4 py-3 font-mono font-bold text-[#1E3A5F] dark:text-brand">{item.sku}</td>
                   <td className="px-4 py-3 text-[#1E3A5F] dark:text-foreground max-w-[180px] truncate">{item.desc}</td>
                   <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{item.zone}</td>
@@ -138,8 +172,20 @@ export default function PortalInventoryPage() {
                       {item.status}
                     </span>
                   </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setDetail(item) }}
+                      title="View SKU details"
+                      className="w-7 h-7 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:bg-[#E4E9F0] dark:hover:bg-muted hover:text-[#1E3A5F] dark:hover:text-foreground transition-colors"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
+                  </td>
                 </tr>
               ))}
+              {filtered.length === 0 && (
+                <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">No SKUs match your filters.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -147,6 +193,36 @@ export default function PortalInventoryPage() {
           Showing {filtered.length} of {inventory.length} SKUs
         </div>
       </div>
+
+      {/* SKU detail drawer */}
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.sku ?? ""}
+        description="Stock item detail"
+        footer={
+          <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="SKU" value={<span className="font-mono text-brand">{detail.sku}</span>} />
+            <DetailRow label="Description" value={detail.desc} />
+            <DetailRow label="Category" value={detail.category} />
+            <DetailRow label="Zone" value={detail.zone} />
+            <DetailRow label="Batch" value={<span className="font-mono">{detail.batch}</span>} />
+            <DetailRow label="Quantity on Hand" value={`${detail.qty.toLocaleString()} ${detail.uom}`} />
+            <DetailRow label="Reorder Level" value={`${detail.reorder.toLocaleString()} ${detail.uom}`} />
+            <DetailRow label="Cover vs Reorder" value={detail.qty <= detail.reorder
+              ? <span className="text-warning">{(detail.reorder - detail.qty).toLocaleString()} below reorder level</span>
+              : <span className="text-success">{(detail.qty - detail.reorder).toLocaleString()} above reorder level</span>} />
+            <DetailRow label="Expiry" value={detail.expiry} />
+            <DetailRow label="Status" value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusStyle[detail.status])}>{detail.status}</span>} />
+          </div>
+        )}
+      </Drawer>
     </div>
   )
 }

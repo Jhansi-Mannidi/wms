@@ -6,8 +6,23 @@ import {
   Plus, RefreshCw, ChevronDown, Eye, MoreHorizontal, Zap, Calendar
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Modal, Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const jobs = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type Job = {
+  id: string; name: string; type: string; schedule: string
+  lastRun: string; nextRun: string; duration: string; status: string; enabled: boolean
+}
+
+type SlaRule = {
+  id: string; name: string; module: string; target: string
+  breachAction: string; priority: string; active: boolean
+}
+
+const initialJobs: Job[] = [
   { id: "JOB-001", name: "Daily Stock Reconciliation", type: "Inventory", schedule: "Every day 02:00 AM", lastRun: "Today 02:00 AM", nextRun: "Tomorrow 02:00 AM", duration: "12 min", status: "Success", enabled: true },
   { id: "JOB-002", name: "SLA Breach Check", type: "Orders", schedule: "Every 30 minutes", lastRun: "15 min ago", nextRun: "15 min from now", duration: "45 sec", status: "Running", enabled: true },
   { id: "JOB-003", name: "Low Stock Alert", type: "Inventory", schedule: "Every hour", lastRun: "1 hour ago", nextRun: "In 5 min", duration: "2 min", status: "Success", enabled: true },
@@ -18,7 +33,7 @@ const jobs = [
   { id: "JOB-008", name: "MHE Battery Alert", type: "MHE", schedule: "Every 2 hours", lastRun: "2 hours ago", nextRun: "In 30 min", duration: "1 min", status: "Success", enabled: true },
 ]
 
-const slaRules = [
+const initialSlaRules: SlaRule[] = [
   { id: "SLA-001", name: "B2B Order Dispatch", module: "Orders", target: "Within 24 hours of order", breachAction: "Alert + Escalate", priority: "High", active: true },
   { id: "SLA-002", name: "B2C Order Dispatch", module: "Orders", target: "Within 12 hours of order", breachAction: "Alert + Escalate", priority: "Urgent", active: true },
   { id: "SLA-003", name: "GRN Completion", module: "Inbound", target: "Within 4 hours of gate entry", breachAction: "Alert Supervisor", priority: "Normal", active: true },
@@ -39,13 +54,191 @@ const priorityColors: Record<string, string> = {
   Normal: "text-muted-foreground",
 }
 
+const JOB_TYPES = ["Inventory", "Orders", "Billing", "Workforce", "Cold Chain", "MHE"] as const
+const SCHEDULES = ["Every 30 minutes", "Every hour", "Every 2 hours", "Every day 02:00 AM", "Every day 08:00 AM", "Every Sunday 06:00 AM", "1st of every month 06:00"] as const
+const MODULES = ["Orders", "Inbound", "Inventory", "Cold Chain", "Workforce", "Billing"] as const
+const BREACH_ACTIONS = ["Alert Supervisor", "Alert Manager", "Alert + Escalate", "Escalate to GM"] as const
+const PRIORITIES = ["Normal", "High", "Urgent"] as const
+
+const emptyJobForm = { name: "", type: "", schedule: "", duration: "" }
+const emptySlaForm = { name: "", module: "", target: "", breachAction: "", priority: "" }
+
+function stamp() {
+  return `Today ${new Date().toTimeString().slice(0, 5)}`
+}
+
 export default function SchedulerPage() {
   const [tab, setTab] = useState<"jobs" | "sla">("jobs")
   const [typeFilter, setTypeFilter] = useState("All Types")
 
+  const [jobs, setJobs] = useState<Job[]>(initialJobs)
+  const [slaRules, setSlaRules] = useState<SlaRule[]>(initialSlaRules)
+
+  const [jobModalOpen, setJobModalOpen] = useState(false)
+  const [editJob, setEditJob] = useState<Job | null>(null)
+  const [jobForm, setJobForm] = useState(emptyJobForm)
+  const [jobErrors, setJobErrors] = useState<Record<string, string>>({})
+
+  const [slaModalOpen, setSlaModalOpen] = useState(false)
+  const [editSla, setEditSla] = useState<SlaRule | null>(null)
+  const [slaForm, setSlaForm] = useState(emptySlaForm)
+  const [slaErrors, setSlaErrors] = useState<Record<string, string>>({})
+
+  const [jobDetail, setJobDetail] = useState<Job | null>(null)
+  const [logsOpen, setLogsOpen] = useState(false)
+  const [deleteJob, setDeleteJob] = useState<Job | null>(null)
+  const [deleteSla, setDeleteSla] = useState<SlaRule | null>(null)
+
   const filteredJobs = jobs.filter((j) => typeFilter === "All Types" || j.type === typeFilter)
   const failedCount = jobs.filter((j) => j.status === "Failed").length
   const runningCount = jobs.filter((j) => j.status === "Running").length
+  const failedJobs = jobs.filter((j) => j.status === "Failed")
+
+  /* ---------------- jobs ---------------- */
+
+  function runJob(job: Job) {
+    const at = stamp()
+    setJobs((prev) => prev.map((j) => (j.id === job.id ? { ...j, status: "Success", lastRun: at } : j)))
+    notify.success("Job executed", `${job.name} finished successfully at ${at.replace("Today ", "")}.`)
+  }
+
+  function runAllEnabled() {
+    const targets = jobs.filter((j) => j.enabled)
+    if (targets.length === 0) {
+      notify.warning("Nothing to run", "All jobs are currently disabled.")
+      return
+    }
+    const at = stamp()
+    setJobs((prev) => prev.map((j) => (j.enabled ? { ...j, status: "Success", lastRun: at } : j)))
+    notify.success("Run triggered", `${targets.length} enabled job${targets.length > 1 ? "s" : ""} executed at ${at.replace("Today ", "")}.`)
+  }
+
+  function toggleJob(job: Job) {
+    setJobs((prev) => prev.map((j) => (j.id === job.id ? { ...j, enabled: !j.enabled } : j)))
+    notify.info(job.enabled ? "Job disabled" : "Job enabled", `${job.name} is now ${job.enabled ? "paused" : "active"}.`)
+  }
+
+  function openNewJob() {
+    setEditJob(null)
+    setJobForm(emptyJobForm)
+    setJobErrors({})
+    setJobModalOpen(true)
+  }
+
+  function openEditJob(job: Job) {
+    setEditJob(job)
+    setJobForm({ name: job.name, type: job.type, schedule: job.schedule, duration: job.duration })
+    setJobErrors({})
+    setJobModalOpen(true)
+  }
+
+  function validateJob() {
+    const e: Record<string, string> = {}
+    if (!jobForm.name.trim()) e.name = "Job name is required"
+    if (!jobForm.type) e.type = "Select a module"
+    if (!jobForm.schedule) e.schedule = "Select a schedule"
+    if (!jobForm.duration.trim()) e.duration = "Expected duration is required"
+    setJobErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  function submitJob() {
+    if (!validateJob()) return
+    if (editJob) {
+      setJobs((prev) => prev.map((j) => (j.id === editJob.id ? {
+        ...j, name: jobForm.name.trim(), type: jobForm.type, schedule: jobForm.schedule, duration: jobForm.duration.trim(),
+      } : j)))
+      notify.success("Job updated", `${jobForm.name.trim()} has been saved.`)
+    } else {
+      const next: Job = {
+        id: `JOB-${String(jobs.length + 1).padStart(3, "0")}`,
+        name: jobForm.name.trim(),
+        type: jobForm.type,
+        schedule: jobForm.schedule,
+        lastRun: "Never",
+        nextRun: "Pending first run",
+        duration: jobForm.duration.trim(),
+        status: "Success",
+        enabled: true,
+      }
+      setJobs((prev) => [next, ...prev])
+      notify.success("Job created", `${next.name} scheduled — ${next.schedule}.`)
+    }
+    setJobModalOpen(false)
+    setEditJob(null)
+    setJobForm(emptyJobForm)
+    setJobErrors({})
+  }
+
+  function removeJob(job: Job) {
+    setJobs((prev) => prev.filter((j) => j.id !== job.id))
+    setJobDetail(null)
+    notify.warning("Job deleted", `${job.name} has been removed from the scheduler.`)
+  }
+
+  /* ---------------- sla ---------------- */
+
+  function openNewSla() {
+    setEditSla(null)
+    setSlaForm(emptySlaForm)
+    setSlaErrors({})
+    setSlaModalOpen(true)
+  }
+
+  function openEditSla(rule: SlaRule) {
+    setEditSla(rule)
+    setSlaForm({ name: rule.name, module: rule.module, target: rule.target, breachAction: rule.breachAction, priority: rule.priority })
+    setSlaErrors({})
+    setSlaModalOpen(true)
+  }
+
+  function validateSla() {
+    const e: Record<string, string> = {}
+    if (!slaForm.name.trim()) e.name = "Rule name is required"
+    if (!slaForm.module) e.module = "Select a module"
+    if (!slaForm.target.trim()) e.target = "Target is required"
+    if (!slaForm.breachAction) e.breachAction = "Select a breach action"
+    if (!slaForm.priority) e.priority = "Select a priority"
+    setSlaErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  function submitSla() {
+    if (!validateSla()) return
+    if (editSla) {
+      setSlaRules((prev) => prev.map((r) => (r.id === editSla.id ? {
+        ...r, name: slaForm.name.trim(), module: slaForm.module, target: slaForm.target.trim(),
+        breachAction: slaForm.breachAction, priority: slaForm.priority,
+      } : r)))
+      notify.success("SLA rule updated", `${slaForm.name.trim()} has been saved.`)
+    } else {
+      const next: SlaRule = {
+        id: `SLA-${String(slaRules.length + 1).padStart(3, "0")}`,
+        name: slaForm.name.trim(),
+        module: slaForm.module,
+        target: slaForm.target.trim(),
+        breachAction: slaForm.breachAction,
+        priority: slaForm.priority,
+        active: true,
+      }
+      setSlaRules((prev) => [next, ...prev])
+      notify.success("SLA rule created", `${next.name} is now tracking ${next.module}.`)
+    }
+    setSlaModalOpen(false)
+    setEditSla(null)
+    setSlaForm(emptySlaForm)
+    setSlaErrors({})
+  }
+
+  function toggleSla(rule: SlaRule) {
+    setSlaRules((prev) => prev.map((r) => (r.id === rule.id ? { ...r, active: !r.active } : r)))
+    notify.info(rule.active ? "Rule deactivated" : "Rule activated", `${rule.name} is now ${rule.active ? "inactive" : "active"}.`)
+  }
+
+  function removeSla(rule: SlaRule) {
+    setSlaRules((prev) => prev.filter((r) => r.id !== rule.id))
+    notify.warning("SLA rule deleted", `${rule.name} has been removed.`)
+  }
 
   return (
     <div className="h-full overflow-y-auto">
@@ -57,10 +250,10 @@ export default function SchedulerPage() {
             <p className="text-sm text-muted-foreground mt-0.5">Manage scheduled jobs, SLA rules and automated workflows</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
+            <button onClick={runAllEnabled} title="Run all enabled jobs now" className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
               <RefreshCw className="w-4 h-4" /> Run Now
             </button>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
+            <button onClick={openNewJob} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
               <Plus className="w-4 h-4" /> New Job
             </button>
           </div>
@@ -72,7 +265,7 @@ export default function SchedulerPage() {
             { label: "Total Jobs", value: jobs.length.toString(), sub: "Configured", icon: <Zap className="w-5 h-5" /> },
             { label: "Running Now", value: runningCount.toString(), sub: "Active executions", icon: <Play className="w-5 h-5" /> },
             { label: "Failed (Today)", value: failedCount.toString(), sub: "Needs attention", icon: <AlertTriangle className="w-5 h-5" /> },
-            { label: "SLA Rules", value: slaRules.length.toString(), sub: "Active rules", icon: <Clock className="w-5 h-5" /> },
+            { label: "SLA Rules", value: slaRules.filter((r) => r.active).length.toString(), sub: "Active rules", icon: <Clock className="w-5 h-5" /> },
           ].map((stat, i) => (
             <div key={i} className="p-5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
@@ -90,9 +283,9 @@ export default function SchedulerPage() {
             <AlertTriangle className="w-5 h-5 text-danger shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-danger">{failedCount} job{failedCount > 1 ? "s" : ""} failed</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Workforce Attendance Sync failed at 11:59 PM. Check error logs.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{failedJobs[0]?.name} failed on its last run. Check error logs.</p>
             </div>
-            <button className="px-3 py-1.5 rounded-lg border border-danger/30 text-danger text-xs font-medium hover:bg-danger/10 transition-colors">
+            <button onClick={() => setLogsOpen(true)} title="View failure logs" className="px-3 py-1.5 rounded-lg border border-danger/30 text-danger text-xs font-medium hover:bg-danger/10 transition-colors">
               View Logs
             </button>
           </div>
@@ -148,18 +341,23 @@ export default function SchedulerPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-brand" title="Run now">
+                      <button onClick={() => runJob(job)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-brand" title="Run now">
                         <Play className="w-3.5 h-3.5" />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title={job.enabled ? "Disable" : "Enable"}>
+                      <button onClick={() => toggleJob(job)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title={job.enabled ? "Disable" : "Enable"}>
                         {job.enabled ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                      <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => setJobDetail(job)} title="View job details" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => openEditJob(job)} title="Edit job" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
                     </div>
                   </div>
                 </div>
               ))}
+              {filteredJobs.length === 0 && (
+                <div className="p-10 rounded-2xl border border-border bg-card text-center text-sm text-muted-foreground">
+                  No jobs match this type filter.
+                </div>
+              )}
             </div>
           </>
         )}
@@ -167,7 +365,7 @@ export default function SchedulerPage() {
         {tab === "sla" && (
           <>
             <div className="flex justify-end">
-              <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
+              <button onClick={openNewSla} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
                 <Plus className="w-4 h-4" /> Add SLA Rule
               </button>
             </div>
@@ -193,15 +391,22 @@ export default function SchedulerPage() {
                         <td className="px-4 py-3 text-muted-foreground text-xs whitespace-nowrap">{rule.breachAction}</td>
                         <td className={cn("px-4 py-3 whitespace-nowrap text-xs font-semibold", priorityColors[rule.priority])}>{rule.priority}</td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={cn("px-2 py-1 rounded-full text-xs font-medium", rule.active ? "bg-success/15 text-success" : "bg-muted text-muted-foreground")}>
+                          <button
+                            onClick={() => toggleSla(rule)}
+                            title={rule.active ? "Deactivate rule" : "Activate rule"}
+                            className={cn("px-2 py-1 rounded-full text-xs font-medium", rule.active ? "bg-success/15 text-success" : "bg-muted text-muted-foreground")}
+                          >
                             {rule.active ? "Active" : "Inactive"}
-                          </span>
+                          </button>
                         </td>
                         <td className="px-4 py-3">
-                          <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => openEditSla(rule)} title="Edit SLA rule" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
                         </td>
                       </tr>
                     ))}
+                    {slaRules.length === 0 && (
+                      <tr><td colSpan={8} className="px-4 py-10 text-center text-sm text-muted-foreground">No SLA rules configured.</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -209,6 +414,169 @@ export default function SchedulerPage() {
           </>
         )}
       </div>
+
+      {/* Job create / edit */}
+      <Modal
+        open={jobModalOpen}
+        onOpenChange={(o) => { setJobModalOpen(o); if (!o) { setEditJob(null); setJobForm(emptyJobForm); setJobErrors({}) } }}
+        title={editJob ? "Edit Scheduled Job" : "New Scheduled Job"}
+        description={editJob ? `Update ${editJob.id}` : "Create a recurring background job"}
+        footer={
+          <ModalActions
+            onCancel={() => setJobModalOpen(false)}
+            onSubmit={submitJob}
+            submitLabel={editJob ? "Save Job" : "Create Job"}
+          />
+        }
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Job Name" required error={jobErrors.name}>
+            <TextInput value={jobForm.name} invalid={!!jobErrors.name} onChange={(e) => setJobForm({ ...jobForm, name: e.target.value })} placeholder="e.g. Daily Stock Reconciliation" />
+          </Field>
+          <Field label="Module" required error={jobErrors.type}>
+            <Select value={jobForm.type} invalid={!!jobErrors.type} onChange={(e) => setJobForm({ ...jobForm, type: e.target.value })} options={JOB_TYPES} placeholder="Select Module" />
+          </Field>
+          <Field label="Schedule" required error={jobErrors.schedule}>
+            <Select value={jobForm.schedule} invalid={!!jobErrors.schedule} onChange={(e) => setJobForm({ ...jobForm, schedule: e.target.value })} options={SCHEDULES} placeholder="Select Schedule" />
+          </Field>
+          <Field label="Expected Duration" required error={jobErrors.duration}>
+            <TextInput value={jobForm.duration} invalid={!!jobErrors.duration} onChange={(e) => setJobForm({ ...jobForm, duration: e.target.value })} placeholder="e.g. 5 min" />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* SLA create / edit */}
+      <Modal
+        open={slaModalOpen}
+        onOpenChange={(o) => { setSlaModalOpen(o); if (!o) { setEditSla(null); setSlaForm(emptySlaForm); setSlaErrors({}) } }}
+        title={editSla ? "Edit SLA Rule" : "New SLA Rule"}
+        description={editSla ? `Update ${editSla.id}` : "Define a service level target and breach action"}
+        footer={
+          <>
+            {editSla && (
+              <button
+                onClick={() => { const r = editSla; setSlaModalOpen(false); setDeleteSla(r) }}
+                className="mr-auto rounded-lg border border-danger/30 px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger/10"
+              >
+                Delete
+              </button>
+            )}
+            <ModalActions
+              onCancel={() => setSlaModalOpen(false)}
+              onSubmit={submitSla}
+              submitLabel={editSla ? "Save Rule" : "Create Rule"}
+            />
+          </>
+        }
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Rule Name" required error={slaErrors.name}>
+            <TextInput value={slaForm.name} invalid={!!slaErrors.name} onChange={(e) => setSlaForm({ ...slaForm, name: e.target.value })} placeholder="e.g. B2B Order Dispatch" />
+          </Field>
+          <Field label="Module" required error={slaErrors.module}>
+            <Select value={slaForm.module} invalid={!!slaErrors.module} onChange={(e) => setSlaForm({ ...slaForm, module: e.target.value })} options={MODULES} placeholder="Select Module" />
+          </Field>
+          <Field label="Target" required error={slaErrors.target}>
+            <TextInput value={slaForm.target} invalid={!!slaErrors.target} onChange={(e) => setSlaForm({ ...slaForm, target: e.target.value })} placeholder="e.g. Within 24 hours of order" />
+          </Field>
+          <Field label="Breach Action" required error={slaErrors.breachAction}>
+            <Select value={slaForm.breachAction} invalid={!!slaErrors.breachAction} onChange={(e) => setSlaForm({ ...slaForm, breachAction: e.target.value })} options={BREACH_ACTIONS} placeholder="Select Action" />
+          </Field>
+          <Field label="Priority" required error={slaErrors.priority}>
+            <Select value={slaForm.priority} invalid={!!slaErrors.priority} onChange={(e) => setSlaForm({ ...slaForm, priority: e.target.value })} options={PRIORITIES} placeholder="Select Priority" />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* Job detail */}
+      <Drawer
+        open={!!jobDetail}
+        onOpenChange={(o) => !o && setJobDetail(null)}
+        title={jobDetail?.name ?? ""}
+        description="Scheduled job detail"
+        footer={
+          <>
+            <button
+              onClick={() => jobDetail && setDeleteJob(jobDetail)}
+              className="rounded-lg border border-danger/30 px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger/10"
+            >
+              Delete Job
+            </button>
+            <button onClick={() => setJobDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+              Close
+            </button>
+          </>
+        }
+      >
+        {jobDetail && (
+          <div className="space-y-1">
+            <DetailRow label="Job ID" value={<span className="font-mono text-brand">{jobDetail.id}</span>} />
+            <DetailRow label="Name" value={jobDetail.name} />
+            <DetailRow label="Module" value={jobDetail.type} />
+            <DetailRow label="Schedule" value={jobDetail.schedule} />
+            <DetailRow label="Last Run" value={jobDetail.lastRun} />
+            <DetailRow label="Next Run" value={jobDetail.nextRun} />
+            <DetailRow label="Duration" value={jobDetail.duration} />
+            <DetailRow label="Enabled" value={jobDetail.enabled ? "Yes" : "No"} />
+            <DetailRow
+              label="Status"
+              value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusConfig[jobDetail.status]?.bg, statusConfig[jobDetail.status]?.color)}>{jobDetail.status}</span>}
+            />
+          </div>
+        )}
+      </Drawer>
+
+      {/* Failure logs */}
+      <Drawer
+        open={logsOpen}
+        onOpenChange={setLogsOpen}
+        title="Failure Logs"
+        description={`${failedCount} job${failedCount === 1 ? "" : "s"} reporting errors`}
+        footer={
+          <button onClick={() => setLogsOpen(false)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        <div className="space-y-4">
+          {failedJobs.map((j) => (
+            <div key={j.id} className="rounded-xl border border-danger/30 bg-danger/5 p-3">
+              <p className="text-sm font-semibold text-danger">{j.id} — {j.name}</p>
+              <p className="mt-1 font-mono text-xs text-muted-foreground">
+                [{j.lastRun}] ERROR {j.type} connector timed out after {j.duration}. Retry scheduled for {j.nextRun}.
+              </p>
+              <button
+                onClick={() => { runJob(j); setLogsOpen(false) }}
+                title="Retry this job now"
+                className="mt-2 px-3 py-1.5 rounded-lg border border-danger/30 text-danger text-xs font-medium hover:bg-danger/10 transition-colors"
+              >
+                Retry Now
+              </button>
+            </div>
+          ))}
+          {failedJobs.length === 0 && (
+            <p className="py-8 text-center text-sm text-muted-foreground">No failures to report.</p>
+          )}
+        </div>
+      </Drawer>
+
+      <ConfirmDialog
+        open={!!deleteJob}
+        onOpenChange={(o) => !o && setDeleteJob(null)}
+        title="Delete this job?"
+        message={`${deleteJob?.name} will be removed from the scheduler. This cannot be undone.`}
+        confirmLabel="Delete Job"
+        onConfirm={() => deleteJob && removeJob(deleteJob)}
+      />
+
+      <ConfirmDialog
+        open={!!deleteSla}
+        onOpenChange={(o) => !o && setDeleteSla(null)}
+        title="Delete this SLA rule?"
+        message={`${deleteSla?.name} will stop being tracked. This cannot be undone.`}
+        confirmLabel="Delete Rule"
+        onConfirm={() => deleteSla && removeSla(deleteSla)}
+      />
     </div>
   )
 }

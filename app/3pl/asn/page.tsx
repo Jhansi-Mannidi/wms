@@ -4,8 +4,18 @@ import { useState } from "react"
 import { Search, Plus, Filter, LayoutGrid, List, AlertCircle, CheckCircle2, Clock, Truck, Package, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ExportButton } from "@/components/wms/export-button"
+import { Modal, Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const asnData = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type ASN = {
+  id: string; client: string; clientInit: string; clientColor: string
+  lines: number; pieces: number; eta: string; mode: string; status: string; discrepancy: boolean
+}
+
+const initialAsnData: ASN[] = [
   { id: "ASN-001", client: "Apex Pharma Ltd", clientInit: "AP", clientColor: "bg-blue-500", lines: 12, pieces: 480, eta: "Today 14:00", mode: "Road", status: "At Gate", discrepancy: false },
   { id: "ASN-002", client: "GlobalTex Fabrics", clientInit: "GT", clientColor: "bg-amber-500", lines: 8, pieces: 320, eta: "Today 16:30", mode: "Air", status: "Expected", discrepancy: false },
   { id: "ASN-003", client: "Sunrise Electronics", clientInit: "SE", clientColor: "bg-emerald-500", lines: 5, pieces: 95, eta: "Yesterday", mode: "Road", status: "Receiving", discrepancy: true },
@@ -34,21 +44,103 @@ const statusBgColors: Record<string, string> = {
 
 const modeIcon: Record<string, string> = { Road: "🚛", Air: "✈️", Sea: "🚢" }
 
-const kpis = [
-  { label: "Expected Today", value: "4", color: "text-blue-400", icon: <Clock className="w-4 h-4" /> },
-  { label: "In Receiving", value: "1", color: "text-brand", icon: <Package className="w-4 h-4" /> },
-  { label: "Discrepancies", value: "1", color: "text-warning", icon: <AlertCircle className="w-4 h-4" /> },
-  { label: "Completed", value: "12", color: "text-success", icon: <CheckCircle2 className="w-4 h-4" /> },
-]
+const CLIENTS = ["Apex Pharma Ltd", "GlobalTex Fabrics", "Sunrise Electronics", "MediSupply Corp", "AutoParts India", "FreshFarm Organics"] as const
+const CLIENT_META: Record<string, { init: string; color: string }> = {
+  "Apex Pharma Ltd": { init: "AP", color: "bg-blue-500" },
+  "GlobalTex Fabrics": { init: "GT", color: "bg-amber-500" },
+  "Sunrise Electronics": { init: "SE", color: "bg-emerald-500" },
+  "MediSupply Corp": { init: "MS", color: "bg-rose-500" },
+  "AutoParts India": { init: "AI", color: "bg-cyan-500" },
+  "FreshFarm Organics": { init: "FF", color: "bg-orange-500" },
+}
+const MODES = ["Road", "Air", "Sea"] as const
+
+const emptyForm = { client: "", lines: "", pieces: "", eta: "", mode: "" }
 
 export default function ASNBoardPage() {
+  const [asnData, setAsnData] = useState<ASN[]>(initialAsnData)
   const [view, setView] = useState<"kanban" | "table">("kanban")
   const [search, setSearch] = useState("")
 
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [modeFilter, setModeFilter] = useState("All")
+  const [statusFilter, setStatusFilter] = useState("All")
+  const [draftFilter, setDraftFilter] = useState({ mode: "All", status: "All" })
+
+  const [createOpen, setCreateOpen] = useState(false)
+  const [form, setForm] = useState(emptyForm)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const [detail, setDetail] = useState<ASN | null>(null)
+  const [closeTarget, setCloseTarget] = useState<ASN | null>(null)
+
   const filtered = asnData.filter(a =>
-    a.id.toLowerCase().includes(search.toLowerCase()) ||
-    a.client.toLowerCase().includes(search.toLowerCase())
+    (modeFilter === "All" || a.mode === modeFilter) &&
+    (statusFilter === "All" || a.status === statusFilter) &&
+    (a.id.toLowerCase().includes(search.toLowerCase()) || a.client.toLowerCase().includes(search.toLowerCase()))
   )
+
+  const kpis = [
+    { label: "Expected Today", value: String(asnData.filter(a => a.status === "Expected").length), color: "text-blue-400", icon: <Clock className="w-4 h-4" /> },
+    { label: "In Receiving", value: String(asnData.filter(a => a.status === "Receiving").length), color: "text-brand", icon: <Package className="w-4 h-4" /> },
+    { label: "Discrepancies", value: String(asnData.filter(a => a.discrepancy).length), color: "text-warning", icon: <AlertCircle className="w-4 h-4" /> },
+    { label: "Completed", value: String(asnData.filter(a => a.status === "Closed" || a.status === "Put-Away").length), color: "text-success", icon: <CheckCircle2 className="w-4 h-4" /> },
+  ]
+
+  function validate() {
+    const e: Record<string, string> = {}
+    if (!form.client) e.client = "Select a client"
+    if (!form.lines.trim()) e.lines = "Line count is required"
+    else if (!/^\d+$/.test(form.lines) || Number(form.lines) < 1) e.lines = "Enter a positive whole number"
+    if (!form.pieces.trim()) e.pieces = "Piece count is required"
+    else if (!/^\d+$/.test(form.pieces) || Number(form.pieces) < 1) e.pieces = "Enter a positive whole number"
+    if (!form.eta.trim()) e.eta = "ETA is required"
+    if (!form.mode) e.mode = "Select a transport mode"
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  function createASN() {
+    if (!validate()) return
+    const meta = CLIENT_META[form.client]
+    const next: ASN = {
+      id: `ASN-${String(asnData.length + 1).padStart(3, "0")}`,
+      client: form.client,
+      clientInit: meta.init,
+      clientColor: meta.color,
+      lines: Number(form.lines),
+      pieces: Number(form.pieces),
+      eta: form.eta.trim(),
+      mode: form.mode,
+      status: "Expected",
+      discrepancy: false,
+    }
+    setAsnData(prev => [next, ...prev])
+    setCreateOpen(false)
+    setForm(emptyForm)
+    setErrors({})
+    notify.success("ASN created", `${next.id} — ${next.pieces} pcs from ${next.client}, ETA ${next.eta}`)
+  }
+
+  function advance(a: ASN) {
+    const idx = columns.indexOf(a.status)
+    if (idx < 0 || idx >= columns.length - 1) return
+    const nextStatus = columns[idx + 1]
+    if (nextStatus === "Closed") { setCloseTarget(a); return }
+    setAsnData(prev => prev.map(x => x.id === a.id ? { ...x, status: nextStatus } : x))
+    notify.success(`ASN moved to ${nextStatus}`, `${a.id} — ${a.client}`)
+  }
+
+  function closeASN(a: ASN) {
+    setAsnData(prev => prev.map(x => x.id === a.id ? { ...x, status: "Closed" } : x))
+    notify.success("ASN closed", `${a.id} receipt has been closed out.`)
+  }
+
+  function toggleDiscrepancy(a: ASN) {
+    setAsnData(prev => prev.map(x => x.id === a.id ? { ...x, discrepancy: !x.discrepancy } : x))
+    if (a.discrepancy) notify.success("Discrepancy cleared", `${a.id} reconciled.`)
+    else notify.warning("Discrepancy flagged", `${a.id} marked for reconciliation.`)
+  }
 
   return (
     <div className="p-6 h-full overflow-y-auto">
@@ -71,13 +163,26 @@ export default function ASNBoardPage() {
           <Search className="w-4 h-4 text-muted-foreground shrink-0" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ASNs, clients..." className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground/60" />
         </div>
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-card text-sm text-muted-foreground hover:text-foreground transition-colors"><Filter className="w-4 h-4" /> Filter</button>
+        <button
+          onClick={() => { setDraftFilter({ mode: modeFilter, status: statusFilter }); setFilterOpen(true) }}
+          title="Filter ASNs"
+          className={cn("flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card text-sm transition-colors",
+            modeFilter !== "All" || statusFilter !== "All" ? "border-brand text-brand" : "border-border text-muted-foreground hover:text-foreground")}>
+          <Filter className="w-4 h-4" /> Filter
+          {(modeFilter !== "All" || statusFilter !== "All") && (
+            <span className="ml-0.5 text-[10px] font-bold bg-brand text-white rounded-full px-1.5">
+              {[modeFilter !== "All", statusFilter !== "All"].filter(Boolean).length}
+            </span>
+          )}
+        </button>
         <ExportButton data={filtered.map(a => ({ id: a.id, client: a.client, lines: a.lines, pieces: a.pieces, eta: a.eta, mode: a.mode, status: a.status, discrepancy: a.discrepancy }))} filename="3pl-asn" />
         <div className="flex items-center gap-1 ml-auto">
-          <button onClick={() => setView("kanban")} className={cn("w-8 h-8 flex items-center justify-center rounded-lg border transition-colors", view === "kanban" ? "bg-brand border-brand text-white" : "border-border text-muted-foreground")}><LayoutGrid className="w-4 h-4" /></button>
-          <button onClick={() => setView("table")} className={cn("w-8 h-8 flex items-center justify-center rounded-lg border transition-colors", view === "table" ? "bg-brand border-brand text-white" : "border-border text-muted-foreground")}><List className="w-4 h-4" /></button>
+          <button onClick={() => setView("kanban")} title="Kanban view" className={cn("w-8 h-8 flex items-center justify-center rounded-lg border transition-colors", view === "kanban" ? "bg-brand border-brand text-white" : "border-border text-muted-foreground")}><LayoutGrid className="w-4 h-4" /></button>
+          <button onClick={() => setView("table")} title="Table view" className={cn("w-8 h-8 flex items-center justify-center rounded-lg border transition-colors", view === "table" ? "bg-brand border-brand text-white" : "border-border text-muted-foreground")}><List className="w-4 h-4" /></button>
         </div>
-        <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+        <button
+          onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
           <Plus className="w-4 h-4" /> New ASN
         </button>
       </div>
@@ -94,7 +199,7 @@ export default function ASNBoardPage() {
                 </div>
                 <div className="space-y-3">
                   {colItems.map(a => (
-                    <div key={a.id} className={cn("p-4 rounded-xl border border-border bg-card border-l-4 hover:border-brand/40 transition-all cursor-pointer", statusColors[a.status])}>
+                    <div key={a.id} onClick={() => setDetail(a)} className={cn("p-4 rounded-xl border border-border bg-card border-l-4 hover:border-brand/40 transition-all cursor-pointer", statusColors[a.status])}>
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className={cn("w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0", a.clientColor)}>{a.clientInit}</div>
@@ -109,9 +214,16 @@ export default function ASNBoardPage() {
                         <div className="flex justify-between"><span>{a.lines} lines · {a.pieces} pcs</span><span>{modeIcon[a.mode]}</span></div>
                         <div className="flex items-center gap-1"><Truck className="w-3 h-3" /><span>{a.eta}</span></div>
                       </div>
-                      <button className="mt-3 w-full flex items-center justify-center gap-1 text-[11px] text-brand hover:underline font-medium">
-                        View ASN <ChevronRight className="w-3 h-3" />
-                      </button>
+                      <div className="mt-3 flex items-center gap-2">
+                        <button onClick={e => { e.stopPropagation(); setDetail(a) }} title="View ASN detail" className="flex-1 flex items-center justify-center gap-1 text-[11px] text-brand hover:underline font-medium">
+                          View ASN <ChevronRight className="w-3 h-3" />
+                        </button>
+                        {a.status !== "Closed" && (
+                          <button onClick={e => { e.stopPropagation(); advance(a) }} title={`Advance to ${columns[columns.indexOf(a.status) + 1]}`} className="text-[11px] font-medium text-success hover:underline">
+                            Advance
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                   {colItems.length === 0 && (
@@ -151,18 +263,122 @@ export default function ASNBoardPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
                       <span className={cn("text-[11px] font-semibold px-2 py-0.5 rounded-full", statusBgColors[a.status])}>{a.status}</span>
-                      {a.discrepancy && <AlertCircle className="w-3.5 h-3.5 text-warning" />}
+                      <button onClick={() => toggleDiscrepancy(a)} title={a.discrepancy ? "Clear discrepancy" : "Flag discrepancy"}>
+                        <AlertCircle className={cn("w-3.5 h-3.5 transition-colors", a.discrepancy ? "text-warning" : "text-muted-foreground/40 hover:text-warning")} />
+                      </button>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <button className="flex items-center gap-1 text-xs text-brand hover:underline">View <ChevronRight className="w-3 h-3" /></button>
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => setDetail(a)} title="View ASN detail" className="flex items-center gap-1 text-xs text-brand hover:underline">View <ChevronRight className="w-3 h-3" /></button>
+                      {a.status !== "Closed" && (
+                        <button onClick={() => advance(a)} title={`Advance to ${columns[columns.indexOf(a.status) + 1]}`} className="text-xs text-success hover:underline">Advance</button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
+              {filtered.length === 0 && (
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">No ASNs match your filters.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
       )}
+
+      {/* Filter modal */}
+      <Modal
+        open={filterOpen}
+        onOpenChange={setFilterOpen}
+        title="Filter ASNs"
+        description="Narrow the board by transport mode and stage"
+        size="sm"
+        footer={
+          <ModalActions
+            onCancel={() => { setModeFilter("All"); setStatusFilter("All"); setFilterOpen(false); notify.info("Filters cleared", "Showing all ASNs.") }}
+            cancelLabel="Clear All"
+            onSubmit={() => {
+              setModeFilter(draftFilter.mode); setStatusFilter(draftFilter.status); setFilterOpen(false)
+              notify.success("Filters applied", `Mode: ${draftFilter.mode} · Stage: ${draftFilter.status}`)
+            }}
+            submitLabel="Apply Filters"
+          />
+        }
+      >
+        <div className="space-y-4">
+          <Field label="Transport Mode">
+            <Select value={draftFilter.mode} onChange={e => setDraftFilter({ ...draftFilter, mode: e.target.value })} options={["All", ...MODES]} />
+          </Field>
+          <Field label="Stage">
+            <Select value={draftFilter.status} onChange={e => setDraftFilter({ ...draftFilter, status: e.target.value })} options={["All", ...columns]} />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* Create ASN */}
+      <Modal
+        open={createOpen}
+        onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setErrors({}) } }}
+        title="New ASN"
+        description="Record an advance shipping notice for an inbound receipt"
+        footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createASN} submitLabel="Create ASN" />}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Client" required error={errors.client}>
+            <Select value={form.client} invalid={!!errors.client} onChange={e => setForm({ ...form, client: e.target.value })} options={CLIENTS} placeholder="Select Client" />
+          </Field>
+          <Field label="Transport Mode" required error={errors.mode}>
+            <Select value={form.mode} invalid={!!errors.mode} onChange={e => setForm({ ...form, mode: e.target.value })} options={MODES} placeholder="Select Mode" />
+          </Field>
+          <Field label="Line Count" required error={errors.lines}>
+            <TextInput value={form.lines} invalid={!!errors.lines} onChange={e => setForm({ ...form, lines: e.target.value })} placeholder="e.g. 12" inputMode="numeric" />
+          </Field>
+          <Field label="Piece Count" required error={errors.pieces}>
+            <TextInput value={form.pieces} invalid={!!errors.pieces} onChange={e => setForm({ ...form, pieces: e.target.value })} placeholder="e.g. 480" inputMode="numeric" />
+          </Field>
+          <Field label="ETA" required error={errors.eta} hint="e.g. Today 14:00 or Jul 22">
+            <TextInput value={form.eta} invalid={!!errors.eta} onChange={e => setForm({ ...form, eta: e.target.value })} placeholder="Today 14:00" />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* ASN detail drawer */}
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.id ?? ""}
+        description="Advance shipping notice detail"
+        footer={
+          <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="ASN Ref" value={<span className="font-mono text-brand">{detail.id}</span>} />
+            <DetailRow label="Client" value={detail.client} />
+            <DetailRow label="Lines" value={String(detail.lines)} />
+            <DetailRow label="Pieces" value={detail.pieces.toLocaleString()} />
+            <DetailRow label="ETA" value={detail.eta} />
+            <DetailRow label="Transport Mode" value={`${modeIcon[detail.mode]} ${detail.mode}`} />
+            <DetailRow label="Stage" value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusBgColors[detail.status])}>{detail.status}</span>} />
+            <DetailRow label="Discrepancy" value={detail.discrepancy ? <span className="text-warning font-semibold">Flagged</span> : <span className="text-success">None</span>} />
+          </div>
+        )}
+      </Drawer>
+
+      {/* Close confirmation */}
+      <ConfirmDialog
+        open={!!closeTarget}
+        onOpenChange={(o) => !o && setCloseTarget(null)}
+        title="Close this ASN?"
+        message={`${closeTarget?.id} for ${closeTarget?.client} will be closed out. No further receiving is possible.`}
+        confirmLabel="Close ASN"
+        cancelLabel="Keep Open"
+        tone="brand"
+        onConfirm={() => closeTarget && closeASN(closeTarget)}
+      />
     </div>
   )
 }

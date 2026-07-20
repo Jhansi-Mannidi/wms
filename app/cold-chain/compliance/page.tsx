@@ -1,7 +1,16 @@
 "use client"
-import { CheckCircle2, AlertTriangle, FileText } from "lucide-react"
+import { useState } from "react"
+import { CheckCircle2, AlertTriangle, BarChart2, Eye } from "lucide-react"
+import { Drawer } from "@/components/ui/modal"
+import { DetailRow } from "@/components/ui/form"
 
-const records = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type ComplianceRecord = {
+  zone: string; standard: string; lastAudit: string; nextAudit: string
+  score: number; status: string
+}
+
+const records: ComplianceRecord[] = [
   { zone:"Cold Room A", standard:"FSSAI Cold Storage", lastAudit:"2025-06-15", nextAudit:"2025-12-15", score:96, status:"Compliant" },
   { zone:"Cold Room B", standard:"FSSAI Cold Storage", lastAudit:"2025-06-15", nextAudit:"2025-12-15", score:88, status:"Minor Issue" },
   { zone:"Freezer Zone", standard:"FDA 21 CFR 211.68", lastAudit:"2025-05-20", nextAudit:"2025-11-20", score:99, status:"Compliant" },
@@ -9,13 +18,34 @@ const records = [
   { zone:"Loading Bay", standard:"HACCP", lastAudit:"2025-03-01", nextAudit:"2025-09-01", score:72, status:"Action Required" },
 ]
 
+function statusClass(status: string) {
+  return status === "Compliant" ? "bg-success/10 text-success"
+    : status === "Minor Issue" ? "bg-amber-50 text-amber-600"
+    : "bg-danger/10 text-danger"
+}
+
 export default function ColdChainCompliancePage() {
+  const [detail, setDetail] = useState<ComplianceRecord | null>(null)
+
+  const avgScore = Math.round(records.reduce((s, r) => s + r.score, 0) / records.length)
+  const compliant = records.filter((r) => r.status === "Compliant").length
+  const actionNeeded = records.filter((r) => r.status === "Action Required").length
+
   return (
     <div className="p-6 space-y-6">
       <div><h1 className="text-2xl font-bold text-foreground">Compliance Records</h1><p className="text-sm text-muted-foreground mt-1">Regulatory compliance scores and audit schedules per zone</p></div>
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: "Average Score", value: `${avgScore}%`, sub: "across all zones", icon: <BarChart2 className="w-5 h-5 text-brand" /> },
+          { label: "Fully Compliant", value: `${compliant} / ${records.length}`, sub: "zones passing", icon: <CheckCircle2 className="w-5 h-5 text-success" /> },
+          { label: "Action Required", value: actionNeeded.toString(), sub: "needs remediation", icon: <AlertTriangle className="w-5 h-5 text-amber-500" /> },
+        ].map((s) => (
+          <div key={s.label} className="bg-card border border-border rounded-xl p-4"><div className="mb-2">{s.icon}</div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold text-foreground">{s.value}</p><p className="text-xs text-muted-foreground">{s.sub}</p></div>
+        ))}
+      </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr>{["Zone","Standard","Last Audit","Next Audit","Score","Status"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <thead className="bg-muted/50"><tr>{["Zone","Standard","Last Audit","Next Audit","Score","Status","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {records.map(r=>(
               <tr key={r.zone} className="hover:bg-muted/30 transition-colors">
@@ -29,12 +59,40 @@ export default function ColdChainCompliancePage() {
                     <span className="text-xs font-medium">{r.score}%</span>
                   </div>
                 </td>
-                <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${r.status==="Compliant"?"bg-success/10 text-success":r.status==="Minor Issue"?"bg-amber-50 text-amber-600":"bg-danger/10 text-danger"}`}>{r.status}</span></td>
+                <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusClass(r.status)}`}>{r.status}</span></td>
+                <td className="px-4 py-3">
+                  <button onClick={() => setDetail(r)} title={`View ${r.zone} audit record`} className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
+                </td>
               </tr>
             ))}
+            {records.length === 0 && (
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">No compliance records on file.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
+
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.zone ?? ""}
+        description="Compliance audit record"
+        footer={
+          <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">Close</button>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="Zone" value={detail.zone} />
+            <DetailRow label="Standard" value={detail.standard} />
+            <DetailRow label="Last Audit" value={detail.lastAudit} />
+            <DetailRow label="Next Audit" value={detail.nextAudit} />
+            <DetailRow label="Score" value={`${detail.score}%`} />
+            <DetailRow label="Gap to Full Marks" value={`${100 - detail.score} points`} />
+            <DetailRow label="Status" value={<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusClass(detail.status)}`}>{detail.status}</span>} />
+          </div>
+        )}
+      </Drawer>
     </div>
   )
 }

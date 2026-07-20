@@ -7,8 +7,20 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ExportButton } from "@/components/wms/export-button"
+import { Modal, Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const invoices = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type Invoice = {
+  id: string; client: string; period: string; services: string[]
+  amount: string; due: string; status: string; raised: string
+}
+
+type ContractRate = { client: string; service: string; rate: string; uom: string }
+
+const initialInvoices: Invoice[] = [
   { id: "INV-2024-112", client: "Acme Foods", period: "Dec 1–15, 2024", services: ["Storage", "Handling", "Transport"], amount: "₹1,24,500", due: "2024-12-30", status: "Pending", raised: "2024-12-16" },
   { id: "INV-2024-111", client: "Global Oils", period: "Nov 16–30, 2024", services: ["Storage", "Palletization"], amount: "₹68,200", due: "2024-12-20", status: "Overdue", raised: "2024-12-01" },
   { id: "INV-2024-110", client: "Agro Corp", period: "Nov 1–15, 2024", services: ["Storage", "Handling"], amount: "₹45,000", due: "2024-11-30", status: "Paid", raised: "2024-11-16" },
@@ -24,7 +36,7 @@ const statusConfig: Record<string, { color: string; bg: string }> = {
   Draft: { color: "text-muted-foreground", bg: "bg-muted" },
 }
 
-const contractRates = [
+const initialContractRates: ContractRate[] = [
   { client: "Acme Foods", service: "Storage (per pallet/month)", rate: "₹850", uom: "Per Pallet" },
   { client: "Acme Foods", service: "Inward Handling", rate: "₹12", uom: "Per Unit" },
   { client: "Acme Foods", service: "Outward Handling", rate: "₹15", uom: "Per Unit" },
@@ -32,11 +44,55 @@ const contractRates = [
   { client: "Global Oils", service: "Palletization", rate: "₹180", uom: "Per Pallet" },
 ]
 
+const reportCards = [
+  { title: "Monthly Revenue Report", desc: "Revenue breakdown by client and service type", icon: <DollarSign className="w-5 h-5" /> },
+  { title: "Outstanding Payments", desc: "Overdue and pending invoice summary", icon: <AlertTriangle className="w-5 h-5" /> },
+  { title: "Client-wise Billing", desc: "Per-client billing history and trends", icon: <FileText className="w-5 h-5" /> },
+  { title: "Service-wise Revenue", desc: "Storage vs handling vs transport breakdown", icon: <CheckCircle2 className="w-5 h-5" /> },
+]
+
+const CLIENTS = ["Acme Foods", "Global Oils", "Agro Corp", "Sweet Mills", "Salt Works", "Fresh Farms"] as const
+const SERVICES = ["Storage", "Cold Storage", "Handling", "Transport", "Palletization"] as const
+const UOMS = ["Per Pallet", "Per Unit", "Per Trip", "Per Month"] as const
+const PAGE_SIZE = 5
+
+function parseAmount(a: string) {
+  return Number(a.replace(/[^0-9.]/g, "")) || 0
+}
+function formatAmount(n: number) {
+  return `₹${n.toLocaleString("en-IN")}`
+}
+function today() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+const emptyInvoiceForm = { client: "", period: "", amount: "", due: "", services: [] as string[] }
+const emptyRateForm = { client: "", service: "", rate: "", uom: "" }
+
 export default function BillingPage() {
   const [tab, setTab] = useState<"invoices" | "rates" | "reports">("invoices")
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("All Status")
   const [clientFilter, setClientFilter] = useState("All Clients")
+  const [page, setPage] = useState(1)
+
+  const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices)
+  const [contractRates, setContractRates] = useState<ContractRate[]>(initialContractRates)
+  const [reportRuns, setReportRuns] = useState<Record<string, string>>({})
+
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false)
+  const [editInvoice, setEditInvoice] = useState<Invoice | null>(null)
+  const [invoiceForm, setInvoiceForm] = useState(emptyInvoiceForm)
+  const [invoiceErrors, setInvoiceErrors] = useState<Record<string, string>>({})
+
+  const [rateModalOpen, setRateModalOpen] = useState(false)
+  const [editRateIndex, setEditRateIndex] = useState<number | null>(null)
+  const [rateForm, setRateForm] = useState(emptyRateForm)
+  const [rateErrors, setRateErrors] = useState<Record<string, string>>({})
+
+  const [detail, setDetail] = useState<Invoice | null>(null)
+  const [deleteInvoice, setDeleteInvoice] = useState<Invoice | null>(null)
+  const [deleteRateIndex, setDeleteRateIndex] = useState<number | null>(null)
 
   const filtered = invoices.filter((inv) => {
     const q = search.toLowerCase()
@@ -47,8 +103,171 @@ export default function BillingPage() {
     )
   })
 
-  const totalPending = invoices.filter((i) => i.status === "Pending").reduce(() => 0, 0)
-  const overdueCount = invoices.filter((i) => i.status === "Overdue").length
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount)
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
+  const totalBilled = invoices.reduce((s, i) => s + parseAmount(i.amount), 0)
+  const pendingInvoices = invoices.filter((i) => i.status === "Pending" || i.status === "Overdue")
+  const pendingTotal = pendingInvoices.reduce((s, i) => s + parseAmount(i.amount), 0)
+  const overdueInvoices = invoices.filter((i) => i.status === "Overdue")
+  const overdueTotal = overdueInvoices.reduce((s, i) => s + parseAmount(i.amount), 0)
+  const collectedTotal = invoices.filter((i) => i.status === "Paid").reduce((s, i) => s + parseAmount(i.amount), 0)
+
+  /* ---------------- invoices ---------------- */
+
+  function openNewInvoice() {
+    setEditInvoice(null)
+    setInvoiceForm(emptyInvoiceForm)
+    setInvoiceErrors({})
+    setInvoiceModalOpen(true)
+  }
+
+  function openEditInvoice(inv: Invoice) {
+    setEditInvoice(inv)
+    setInvoiceForm({
+      client: inv.client, period: inv.period, amount: String(parseAmount(inv.amount)),
+      due: inv.due, services: [...inv.services],
+    })
+    setInvoiceErrors({})
+    setDetail(null)
+    setInvoiceModalOpen(true)
+  }
+
+  function toggleService(s: string) {
+    setInvoiceForm((f) => ({
+      ...f,
+      services: f.services.includes(s) ? f.services.filter((x) => x !== s) : [...f.services, s],
+    }))
+  }
+
+  function validateInvoice() {
+    const e: Record<string, string> = {}
+    if (!invoiceForm.client) e.client = "Select a client"
+    if (!invoiceForm.period.trim()) e.period = "Billing period is required"
+    if (!invoiceForm.amount.trim()) e.amount = "Amount is required"
+    else if (!/^\d+(\.\d{1,2})?$/.test(invoiceForm.amount) || Number(invoiceForm.amount) <= 0) e.amount = "Enter a positive amount"
+    if (!invoiceForm.due.trim()) e.due = "Due date is required"
+    else if (!/^\d{4}-\d{2}-\d{2}$/.test(invoiceForm.due)) e.due = "Use format YYYY-MM-DD"
+    if (invoiceForm.services.length === 0) e.services = "Select at least one service"
+    setInvoiceErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  function submitInvoice() {
+    if (!validateInvoice()) return
+    if (editInvoice) {
+      setInvoices((prev) => prev.map((i) => (i.id === editInvoice.id ? {
+        ...i, client: invoiceForm.client, period: invoiceForm.period.trim(),
+        amount: formatAmount(Number(invoiceForm.amount)), due: invoiceForm.due.trim(),
+        services: invoiceForm.services,
+      } : i)))
+      notify.success("Invoice updated", `${editInvoice.id} has been saved.`)
+    } else {
+      const nextNum = 113 + invoices.filter((i) => i.id.startsWith("INV-2024-1")).length - 6
+      const next: Invoice = {
+        id: `INV-2024-${nextNum}`,
+        client: invoiceForm.client,
+        period: invoiceForm.period.trim(),
+        services: invoiceForm.services,
+        amount: formatAmount(Number(invoiceForm.amount)),
+        due: invoiceForm.due.trim(),
+        status: "Draft",
+        raised: today(),
+      }
+      setInvoices((prev) => [next, ...prev])
+      setPage(1)
+      notify.success("Invoice created", `${next.id} for ${next.client} — ${next.amount}.`)
+    }
+    setInvoiceModalOpen(false)
+    setEditInvoice(null)
+    setInvoiceForm(emptyInvoiceForm)
+    setInvoiceErrors({})
+  }
+
+  function sendInvoice(inv: Invoice) {
+    if (inv.status === "Paid") {
+      notify.info("Already settled", `${inv.id} is paid — nothing to send.`)
+      return
+    }
+    setInvoices((prev) => prev.map((i) => (i.id === inv.id ? { ...i, status: "Pending", raised: today() } : i)))
+    notify.success("Invoice sent", `${inv.id} emailed to ${inv.client} — status set to Pending.`)
+  }
+
+  function markPaid(inv: Invoice) {
+    setInvoices((prev) => prev.map((i) => (i.id === inv.id ? { ...i, status: "Paid" } : i)))
+    setDetail(null)
+    notify.success("Payment recorded", `${inv.id} marked Paid — ${inv.amount} collected.`)
+  }
+
+  function removeInvoice(inv: Invoice) {
+    setInvoices((prev) => prev.filter((i) => i.id !== inv.id))
+    setDetail(null)
+    notify.warning("Invoice deleted", `${inv.id} has been removed.`)
+  }
+
+  /* ---------------- contract rates ---------------- */
+
+  function openNewRate() {
+    setEditRateIndex(null)
+    setRateForm(emptyRateForm)
+    setRateErrors({})
+    setRateModalOpen(true)
+  }
+
+  function openEditRate(index: number) {
+    const r = contractRates[index]
+    setEditRateIndex(index)
+    setRateForm({ client: r.client, service: r.service, rate: String(parseAmount(r.rate)), uom: r.uom })
+    setRateErrors({})
+    setRateModalOpen(true)
+  }
+
+  function validateRate() {
+    const e: Record<string, string> = {}
+    if (!rateForm.client) e.client = "Select a client"
+    if (!rateForm.service.trim()) e.service = "Service name is required"
+    if (!rateForm.rate.trim()) e.rate = "Rate is required"
+    else if (!/^\d+(\.\d{1,2})?$/.test(rateForm.rate) || Number(rateForm.rate) <= 0) e.rate = "Enter a positive amount"
+    if (!rateForm.uom) e.uom = "Select a unit of measure"
+    setRateErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  function submitRate() {
+    if (!validateRate()) return
+    const row: ContractRate = {
+      client: rateForm.client,
+      service: rateForm.service.trim(),
+      rate: formatAmount(Number(rateForm.rate)),
+      uom: rateForm.uom,
+    }
+    if (editRateIndex !== null) {
+      setContractRates((prev) => prev.map((r, i) => (i === editRateIndex ? row : r)))
+      notify.success("Rate updated", `${row.client} — ${row.service} is now ${row.rate}.`)
+    } else {
+      setContractRates((prev) => [row, ...prev])
+      notify.success("Rate added", `${row.client} — ${row.service} at ${row.rate} ${row.uom}.`)
+    }
+    setRateModalOpen(false)
+    setEditRateIndex(null)
+    setRateForm(emptyRateForm)
+    setRateErrors({})
+  }
+
+  function removeRate(index: number) {
+    const r = contractRates[index]
+    setContractRates((prev) => prev.filter((_, i) => i !== index))
+    notify.warning("Rate removed", `${r.client} — ${r.service} deleted from the rate card.`)
+  }
+
+  /* ---------------- reports ---------------- */
+
+  function generateReport(title: string) {
+    const at = new Date().toTimeString().slice(0, 5)
+    setReportRuns((prev) => ({ ...prev, [title]: `Today ${at}` }))
+    notify.success("Report generated", `${title} built from ${invoices.length} invoices.`)
+  }
 
   return (
     <div className="h-full overflow-y-auto">
@@ -61,7 +280,7 @@ export default function BillingPage() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <ExportButton data={filtered.map(inv => ({ ...inv, services: inv.services.join(", ") }))} filename="billing-invoices" />
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
+            <button onClick={openNewInvoice} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
               <Plus className="w-4 h-4" /> New Invoice
             </button>
           </div>
@@ -70,10 +289,10 @@ export default function BillingPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Total Billed (Dec)", value: "₹3,78,500", sub: "+12% vs Nov", icon: <DollarSign className="w-5 h-5" />, subColor: "text-success" },
-            { label: "Pending Collection", value: "₹1,92,700", sub: "4 invoices", icon: <Clock className="w-5 h-5" />, subColor: "text-warning" },
-            { label: "Overdue Amount", value: "₹68,200", sub: `${overdueCount} invoice overdue`, icon: <AlertTriangle className="w-5 h-5" />, subColor: "text-danger" },
-            { label: "Collected (MTD)", value: "₹2,56,300", sub: "On track", icon: <CheckCircle2 className="w-5 h-5" />, subColor: "text-success" },
+            { label: "Total Billed", value: formatAmount(totalBilled), sub: `${invoices.length} invoices`, icon: <DollarSign className="w-5 h-5" />, subColor: "text-success" },
+            { label: "Pending Collection", value: formatAmount(pendingTotal), sub: `${pendingInvoices.length} invoice${pendingInvoices.length === 1 ? "" : "s"}`, icon: <Clock className="w-5 h-5" />, subColor: "text-warning" },
+            { label: "Overdue Amount", value: formatAmount(overdueTotal), sub: `${overdueInvoices.length} invoice${overdueInvoices.length === 1 ? "" : "s"} overdue`, icon: <AlertTriangle className="w-5 h-5" />, subColor: "text-danger" },
+            { label: "Collected", value: formatAmount(collectedTotal), sub: "Settled to date", icon: <CheckCircle2 className="w-5 h-5" />, subColor: "text-success" },
           ].map((stat, i) => (
             <div key={i} className="p-5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
@@ -108,14 +327,14 @@ export default function BillingPage() {
             <div className="flex flex-wrap gap-3">
               <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-xl border border-border bg-card">
                 <Search className="w-4 h-4 text-muted-foreground shrink-0" />
-                <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground" placeholder="Search invoice, client..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground" placeholder="Search invoice, client..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
               </div>
               {[
                 { value: statusFilter, options: ["All Status", "Draft", "Pending", "Overdue", "Paid"], onChange: setStatusFilter },
                 { value: clientFilter, options: ["All Clients", "Acme Foods", "Global Oils", "Agro Corp", "Sweet Mills", "Salt Works", "Fresh Farms"], onChange: setClientFilter },
               ].map((f, i) => (
                 <div key={i} className="relative">
-                  <select className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={f.value} onChange={(e) => f.onChange(e.target.value)}>
+                  <select className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={f.value} onChange={(e) => { f.onChange(e.target.value); setPage(1) }}>
                     {f.options.map((o) => <option key={o}>{o}</option>)}
                   </select>
                   <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -135,12 +354,12 @@ export default function BillingPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((inv, i) => (
+                    {paged.map((inv, i) => (
                       <tr key={inv.id} className={cn("border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors", i % 2 === 1 ? "bg-muted/10" : "")}>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="text-brand font-medium hover:underline cursor-pointer flex items-center gap-1.5">
+                          <button onClick={() => setDetail(inv)} title="View invoice" className="text-brand font-medium hover:underline cursor-pointer flex items-center gap-1.5">
                             <FileText className="w-3.5 h-3.5" /> {inv.id}
-                          </span>
+                          </button>
                         </td>
                         <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">{inv.client}</td>
                         <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">{inv.period}</td>
@@ -161,13 +380,16 @@ export default function BillingPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1">
-                            <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="View"><Eye className="w-3.5 h-3.5" /></button>
-                            <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Send"><Send className="w-3.5 h-3.5" /></button>
-                            <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => setDetail(inv)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="View"><Eye className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => sendInvoice(inv)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Send"><Send className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => openEditInvoice(inv)} title="Edit invoice" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
                           </div>
                         </td>
                       </tr>
                     ))}
+                    {paged.length === 0 && (
+                      <tr><td colSpan={9} className="px-4 py-10 text-center text-sm text-muted-foreground">No invoices match your filters.</td></tr>
+                    )}
                   </tbody>
                 </table>
                 {filtered.length === 0 && (
@@ -178,10 +400,10 @@ export default function BillingPage() {
                 )}
               </div>
               <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
-                <span className="text-xs text-muted-foreground">Showing {filtered.length} of {invoices.length} invoices</span>
+                <span className="text-xs text-muted-foreground">Showing {paged.length} of {filtered.length} invoices</span>
                 <div className="flex gap-1">
-                  {[1, 2, 3].map((p) => (
-                    <button key={p} className={cn("w-7 h-7 rounded-lg text-xs transition-colors", p === 1 ? "bg-brand text-white" : "text-muted-foreground hover:bg-muted")}>{p}</button>
+                  {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) => (
+                    <button key={p} onClick={() => setPage(p)} title={`Go to page ${p}`} className={cn("w-7 h-7 rounded-lg text-xs transition-colors", p === currentPage ? "bg-brand text-white" : "text-muted-foreground hover:bg-muted")}>{p}</button>
                   ))}
                 </div>
               </div>
@@ -193,7 +415,7 @@ export default function BillingPage() {
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">Contract Rate Card</h2>
-              <button className="flex items-center gap-1.5 text-xs text-brand hover:underline">
+              <button onClick={openNewRate} className="flex items-center gap-1.5 text-xs text-brand hover:underline">
                 <Plus className="w-3.5 h-3.5" /> Add Rate
               </button>
             </div>
@@ -208,16 +430,19 @@ export default function BillingPage() {
                 </thead>
                 <tbody>
                   {contractRates.map((r, i) => (
-                    <tr key={i} className={cn("border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors", i % 2 === 1 ? "bg-muted/10" : "")}>
+                    <tr key={`${r.client}-${r.service}-${i}`} className={cn("border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors", i % 2 === 1 ? "bg-muted/10" : "")}>
                       <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">{r.client}</td>
                       <td className="px-4 py-3 text-muted-foreground">{r.service}</td>
                       <td className="px-4 py-3 font-bold text-foreground whitespace-nowrap">{r.rate}</td>
                       <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">{r.uom}</td>
                       <td className="px-4 py-3">
-                        <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => openEditRate(i)} title="Edit rate" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
                       </td>
                     </tr>
                   ))}
+                  {contractRates.length === 0 && (
+                    <tr><td colSpan={5} className="px-4 py-10 text-center text-sm text-muted-foreground">No contract rates configured.</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -226,13 +451,13 @@ export default function BillingPage() {
 
         {tab === "reports" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { title: "Monthly Revenue Report", desc: "Revenue breakdown by client and service type", icon: <DollarSign className="w-5 h-5" /> },
-              { title: "Outstanding Payments", desc: "Overdue and pending invoice summary", icon: <AlertTriangle className="w-5 h-5" /> },
-              { title: "Client-wise Billing", desc: "Per-client billing history and trends", icon: <FileText className="w-5 h-5" /> },
-              { title: "Service-wise Revenue", desc: "Storage vs handling vs transport breakdown", icon: <CheckCircle2 className="w-5 h-5" /> },
-            ].map((r, i) => (
-              <div key={i} className="p-5 rounded-2xl border border-border bg-card hover:border-brand/40 transition-colors cursor-pointer group">
+            {reportCards.map((r, i) => (
+              <button
+                key={i}
+                onClick={() => generateReport(r.title)}
+                title={`Generate ${r.title}`}
+                className="text-left p-5 rounded-2xl border border-border bg-card hover:border-brand/40 transition-colors cursor-pointer group"
+              >
                 <div className="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center text-brand mb-3 group-hover:bg-brand/25 transition-colors">
                   {r.icon}
                 </div>
@@ -241,11 +466,152 @@ export default function BillingPage() {
                 <div className="mt-3 flex items-center gap-1.5 text-xs text-brand">
                   <Download className="w-3.5 h-3.5" /> Generate Report
                 </div>
-              </div>
+                {reportRuns[r.title] && (
+                  <p className="mt-2 text-[10px] text-muted-foreground">Last generated: {reportRuns[r.title]}</p>
+                )}
+              </button>
             ))}
           </div>
         )}
       </div>
+
+      {/* Invoice create / edit */}
+      <Modal
+        open={invoiceModalOpen}
+        onOpenChange={(o) => { setInvoiceModalOpen(o); if (!o) { setEditInvoice(null); setInvoiceForm(emptyInvoiceForm); setInvoiceErrors({}) } }}
+        title={editInvoice ? "Edit Invoice" : "New Invoice"}
+        description={editInvoice ? `Update ${editInvoice.id}` : "Raise a new client invoice"}
+        footer={<ModalActions onCancel={() => setInvoiceModalOpen(false)} onSubmit={submitInvoice} submitLabel={editInvoice ? "Save Invoice" : "Create Invoice"} />}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Client" required error={invoiceErrors.client}>
+            <Select value={invoiceForm.client} invalid={!!invoiceErrors.client} onChange={(e) => setInvoiceForm({ ...invoiceForm, client: e.target.value })} options={CLIENTS} placeholder="Select Client" />
+          </Field>
+          <Field label="Billing Period" required error={invoiceErrors.period}>
+            <TextInput value={invoiceForm.period} invalid={!!invoiceErrors.period} onChange={(e) => setInvoiceForm({ ...invoiceForm, period: e.target.value })} placeholder="e.g. Dec 1–15, 2024" />
+          </Field>
+          <Field label="Amount (₹)" required error={invoiceErrors.amount}>
+            <TextInput value={invoiceForm.amount} invalid={!!invoiceErrors.amount} onChange={(e) => setInvoiceForm({ ...invoiceForm, amount: e.target.value })} placeholder="e.g. 124500" inputMode="numeric" />
+          </Field>
+          <Field label="Due Date" required error={invoiceErrors.due} hint="YYYY-MM-DD">
+            <TextInput value={invoiceForm.due} invalid={!!invoiceErrors.due} onChange={(e) => setInvoiceForm({ ...invoiceForm, due: e.target.value })} placeholder="2024-12-30" />
+          </Field>
+        </div>
+        <div className="mt-4">
+          <Field label="Services" required error={invoiceErrors.services}>
+            <div className="flex flex-wrap gap-2">
+              {SERVICES.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => toggleService(s)}
+                  title={`Toggle ${s}`}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
+                    invoiceForm.services.includes(s)
+                      ? "bg-brand text-white border-brand"
+                      : "bg-card border-border text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </Field>
+        </div>
+      </Modal>
+
+      {/* Contract rate create / edit */}
+      <Modal
+        open={rateModalOpen}
+        onOpenChange={(o) => { setRateModalOpen(o); if (!o) { setEditRateIndex(null); setRateForm(emptyRateForm); setRateErrors({}) } }}
+        title={editRateIndex !== null ? "Edit Contract Rate" : "Add Contract Rate"}
+        description="Rates drive automatic invoice generation"
+        footer={
+          <>
+            {editRateIndex !== null && (
+              <button
+                onClick={() => { const idx = editRateIndex; setRateModalOpen(false); setDeleteRateIndex(idx) }}
+                className="mr-auto rounded-lg border border-danger/30 px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger/10"
+              >
+                Delete
+              </button>
+            )}
+            <ModalActions onCancel={() => setRateModalOpen(false)} onSubmit={submitRate} submitLabel={editRateIndex !== null ? "Save Rate" : "Add Rate"} />
+          </>
+        }
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Client" required error={rateErrors.client}>
+            <Select value={rateForm.client} invalid={!!rateErrors.client} onChange={(e) => setRateForm({ ...rateForm, client: e.target.value })} options={CLIENTS} placeholder="Select Client" />
+          </Field>
+          <Field label="Service" required error={rateErrors.service}>
+            <TextInput value={rateForm.service} invalid={!!rateErrors.service} onChange={(e) => setRateForm({ ...rateForm, service: e.target.value })} placeholder="e.g. Inward Handling" />
+          </Field>
+          <Field label="Rate (₹)" required error={rateErrors.rate}>
+            <TextInput value={rateForm.rate} invalid={!!rateErrors.rate} onChange={(e) => setRateForm({ ...rateForm, rate: e.target.value })} placeholder="e.g. 850" inputMode="numeric" />
+          </Field>
+          <Field label="Unit of Measure" required error={rateErrors.uom}>
+            <Select value={rateForm.uom} invalid={!!rateErrors.uom} onChange={(e) => setRateForm({ ...rateForm, uom: e.target.value })} options={UOMS} placeholder="Select UOM" />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* Invoice detail */}
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.id ?? ""}
+        description="Invoice detail"
+        footer={
+          <>
+            <button
+              onClick={() => detail && setDeleteInvoice(detail)}
+              className="rounded-lg border border-danger/30 px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger/10"
+            >
+              Delete
+            </button>
+            {detail && detail.status !== "Paid" && (
+              <button onClick={() => markPaid(detail)} className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90">
+                Mark as Paid
+              </button>
+            )}
+            <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+              Close
+            </button>
+          </>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="Invoice ID" value={<span className="font-mono text-brand">{detail.id}</span>} />
+            <DetailRow label="Client" value={detail.client} />
+            <DetailRow label="Billing Period" value={detail.period} />
+            <DetailRow label="Services" value={detail.services.join(", ")} />
+            <DetailRow label="Amount" value={<span className="font-bold">{detail.amount}</span>} />
+            <DetailRow label="Raised On" value={detail.raised} />
+            <DetailRow label="Due Date" value={detail.due} />
+            <DetailRow label="Status" value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusConfig[detail.status]?.bg, statusConfig[detail.status]?.color)}>{detail.status}</span>} />
+          </div>
+        )}
+      </Drawer>
+
+      <ConfirmDialog
+        open={!!deleteInvoice}
+        onOpenChange={(o) => !o && setDeleteInvoice(null)}
+        title="Delete this invoice?"
+        message={`${deleteInvoice?.id} for ${deleteInvoice?.client} (${deleteInvoice?.amount}) will be permanently removed.`}
+        confirmLabel="Delete Invoice"
+        onConfirm={() => deleteInvoice && removeInvoice(deleteInvoice)}
+      />
+
+      <ConfirmDialog
+        open={deleteRateIndex !== null}
+        onOpenChange={(o) => !o && setDeleteRateIndex(null)}
+        title="Delete this contract rate?"
+        message={deleteRateIndex !== null ? `${contractRates[deleteRateIndex]?.client} — ${contractRates[deleteRateIndex]?.service} will be removed from the rate card.` : ""}
+        confirmLabel="Delete Rate"
+        onConfirm={() => deleteRateIndex !== null && removeRate(deleteRateIndex)}
+      />
     </div>
   )
 }

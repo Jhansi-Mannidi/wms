@@ -9,6 +9,15 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTheme } from "@/components/theme-provider"
+import { Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { notify } from "@/components/ui/toast"
+
+const initialNotifications = [
+  { title: "ASN-2241 received", body: "240 cartons received and putaway complete.", time: "4h ago" },
+  { title: "Low stock — APX-7790", body: "Amoxicillin 250mg is below its reorder level (48 units).", time: "2h ago" },
+  { title: "Invoice INV-0441 overdue", body: "Payment is 3 days past the due date.", time: "1d ago" },
+]
 
 const navItems = [
   { label: "Home", href: "/portal", icon: <Home className="w-5 h-5" /> },
@@ -33,6 +42,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname()
   const { resolvedTheme, setTheme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [notifications, setNotifications] = useState(initialNotifications)
+  const [signOutOpen, setSignOutOpen] = useState(false)
 
   return (
     // Portal uses a LIGHT theme base — intentionally different from operator WMS
@@ -85,7 +97,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           <button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#E4E9F0] dark:hover:bg-muted transition-colors text-muted-foreground">
             {resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
-          <button className="flex items-center gap-2 text-xs text-muted-foreground hover:text-danger transition-colors">
+          <button onClick={() => setSignOutOpen(true)} title="Sign out" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-danger transition-colors">
             <LogOut className="w-4 h-4" /> Sign out
           </button>
         </div>
@@ -107,9 +119,15 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#E4E9F0] dark:hover:bg-muted transition-colors relative">
+            <button
+              onClick={() => setNotificationsOpen(true)}
+              title="Notifications"
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#E4E9F0] dark:hover:bg-muted transition-colors relative"
+            >
               <Bell className="w-4 h-4 text-muted-foreground" />
-              <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#F7941D] text-white text-[8px] font-bold rounded-full flex items-center justify-center">3</span>
+              {notifications.length > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#F7941D] text-white text-[8px] font-bold rounded-full flex items-center justify-center">{notifications.length}</span>
+              )}
             </button>
             <div className="flex items-center gap-2 pl-2 cursor-pointer">
               <div className="w-7 h-7 rounded-full bg-[#1E3A5F] flex items-center justify-center text-white text-xs font-bold">AP</div>
@@ -167,12 +185,73 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
               </Link>
             )
           })}
-          <button className="flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 text-[10px] font-medium text-muted-foreground">
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            title="More sections"
+            className="flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 text-[10px] font-medium text-muted-foreground"
+          >
             <Menu className="w-5 h-5" />
             More
           </button>
         </nav>
       </div>
+
+      {/* Notifications drawer */}
+      <Drawer
+        open={notificationsOpen}
+        onOpenChange={setNotificationsOpen}
+        title="Notifications"
+        description={notifications.length > 0 ? `${notifications.length} unread` : "You're all caught up"}
+        footer={
+          <>
+            <button onClick={() => setNotificationsOpen(false)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+              Close
+            </button>
+            {notifications.length > 0 && (
+              <button
+                onClick={() => { setNotifications([]); notify.success("All caught up", "Every notification has been marked as read.") }}
+                className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90"
+              >
+                Mark all read
+              </button>
+            )}
+          </>
+        }
+      >
+        <div className="divide-y divide-border">
+          {notifications.map((n, i) => (
+            <div key={i} className="flex items-start gap-3 py-3">
+              <Bell className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-foreground">{n.title}</p>
+                <p className="text-xs text-muted-foreground">{n.body}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{n.time}</p>
+              </div>
+              <button
+                onClick={() => setNotifications(prev => prev.filter((_, idx) => idx !== i))}
+                title="Dismiss notification"
+                className="w-6 h-6 shrink-0 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))}
+          {notifications.length === 0 && (
+            <p className="py-10 text-center text-sm text-muted-foreground">No new notifications.</p>
+          )}
+        </div>
+      </Drawer>
+
+      {/* Sign out confirmation */}
+      <ConfirmDialog
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        title="Sign out of the portal?"
+        message="You will need to sign in again to view your inventory, orders, and invoices."
+        confirmLabel="Sign Out"
+        cancelLabel="Stay Signed In"
+        onConfirm={() => notify.info("Signed out", "Your portal session has ended.")}
+      />
     </div>
   )
 }

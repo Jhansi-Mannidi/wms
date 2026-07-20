@@ -1,8 +1,18 @@
 "use client"
-import { Thermometer, Wifi, AlertTriangle, CheckCircle2 } from "lucide-react"
+import { useState } from "react"
+import { Wifi, AlertTriangle, CheckCircle2, Eye, RefreshCw } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Drawer } from "@/components/ui/modal"
+import { DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const sensors = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type Sensor = {
+  id: string; zone: string; location: string; temp: number
+  humid: number; status: string; lastPing: string
+}
+
+const initialSensors: Sensor[] = [
   { id: "SEN-001", zone: "Cold Room A", location: "A-12", temp: 2.4, humid: 68, status: "ok", lastPing: "30s ago" },
   { id: "SEN-002", zone: "Cold Room A", location: "A-08", temp: 3.1, humid: 70, status: "ok", lastPing: "28s ago" },
   { id: "SEN-003", zone: "Cold Room B", location: "B-04", temp: 6.8, humid: 72, status: "warn", lastPing: "35s ago" },
@@ -12,18 +22,43 @@ const sensors = [
   { id: "SEN-007", zone: "Loading Bay", location: "LB-1", temp: 14.2, humid: 60, status: "alert", lastPing: "5m ago" },
 ]
 
+function statusLabel(status: string) {
+  return status === "ok" ? "Normal" : status === "warn" ? "Warning" : "Alert"
+}
+
 export default function ColdChainSensorsPage() {
+  const [sensors, setSensors] = useState<Sensor[]>(initialSensors)
+  const [detail, setDetail] = useState<Sensor | null>(null)
+
+  // A sensor counts as online while it has pinged within the last 5 minutes.
+  const online = sensors.filter((s) => {
+    const minutes = /^(\d+)m ago$/.exec(s.lastPing)
+    return !minutes || Number(minutes[1]) < 5
+  }).length
+  const alerting = sensors.filter((s) => s.status !== "ok").length
+
+  function ping(s: Sensor) {
+    setSensors((prev) => prev.map((x) => (x.id === s.id ? { ...x, lastPing: "just now" } : x)))
+    notify.info("Sensor pinged", `${s.id} in ${s.zone} responded — reading ${s.temp}°C.`)
+  }
+
+  const stats = [
+    { label: "Total Sensors", value: sensors.length.toString(), sub: "deployed", icon: <Wifi className="w-5 h-5 text-brand" /> },
+    { label: "Online", value: online.toString(), sub: online === sensors.length ? "all connected" : "responding", icon: <CheckCircle2 className="w-5 h-5 text-success" /> },
+    { label: "Alerts", value: alerting.toString(), sub: "require attention", icon: <AlertTriangle className="w-5 h-5 text-amber-500" /> },
+  ]
+
   return (
     <div className="p-6 space-y-6">
       <div><h1 className="text-2xl font-bold text-foreground">Sensor Network</h1><p className="text-sm text-muted-foreground mt-1">Real-time temperature and humidity sensors across all cold zones</p></div>
       <div className="grid grid-cols-3 gap-4">
-        {[{ label:"Total Sensors",value:"7",sub:"deployed",icon:<Wifi className="w-5 h-5 text-brand"/>},{label:"Online",value:"7",sub:"all connected",icon:<CheckCircle2 className="w-5 h-5 text-success"/>},{label:"Alerts",value:"2",sub:"require attention",icon:<AlertTriangle className="w-5 h-5 text-amber-500"/>}].map(s=>(
+        {stats.map(s=>(
           <div key={s.label} className="bg-card border border-border rounded-xl p-4"><div className="mb-2">{s.icon}</div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold text-foreground">{s.value}</p><p className="text-xs text-muted-foreground">{s.sub}</p></div>
         ))}
       </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr>{["Sensor ID","Zone","Location","Temp (°C)","Humidity","Status","Last Ping"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <thead className="bg-muted/50"><tr>{["Sensor ID","Zone","Location","Temp (°C)","Humidity","Status","Last Ping","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {sensors.map(s=>(
               <tr key={s.id} className="hover:bg-muted/30 transition-colors">
@@ -32,13 +67,44 @@ export default function ColdChainSensorsPage() {
                 <td className="px-4 py-3 text-muted-foreground">{s.location}</td>
                 <td className="px-4 py-3"><span className={cn("font-bold",s.status==="alert"?"text-danger":s.status==="warn"?"text-amber-500":"text-foreground")}>{s.temp}°</span></td>
                 <td className="px-4 py-3 text-muted-foreground">{s.humid}%</td>
-                <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium",s.status==="ok"?"bg-success/10 text-success":s.status==="warn"?"bg-amber-50 text-amber-600":"bg-danger/10 text-danger")}>{s.status==="ok"?"Normal":s.status==="warn"?"Warning":"Alert"}</span></td>
+                <td className="px-4 py-3"><span className={cn("px-2 py-0.5 rounded-full text-xs font-medium",s.status==="ok"?"bg-success/10 text-success":s.status==="warn"?"bg-amber-50 text-amber-600":"bg-danger/10 text-danger")}>{statusLabel(s.status)}</span></td>
                 <td className="px-4 py-3 text-muted-foreground text-xs">{s.lastPing}</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setDetail(s)} title={`View ${s.id} details`} className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => ping(s)} title={`Ping ${s.id}`} className="p-1.5 rounded-md text-brand hover:bg-brand/10 transition-colors"><RefreshCw className="w-3.5 h-3.5" /></button>
+                  </div>
+                </td>
               </tr>
             ))}
+            {sensors.length === 0 && (
+              <tr><td colSpan={8} className="px-4 py-10 text-center text-sm text-muted-foreground">No sensors deployed.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
+
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.id ?? ""}
+        description="Sensor detail"
+        footer={
+          <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">Close</button>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="Sensor ID" value={<span className="font-mono text-brand">{detail.id}</span>} />
+            <DetailRow label="Zone" value={detail.zone} />
+            <DetailRow label="Location" value={<span className="font-mono">{detail.location}</span>} />
+            <DetailRow label="Temperature" value={`${detail.temp}°C`} />
+            <DetailRow label="Humidity" value={`${detail.humid}%`} />
+            <DetailRow label="Last Ping" value={detail.lastPing} />
+            <DetailRow label="Status" value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium",detail.status==="ok"?"bg-success/10 text-success":detail.status==="warn"?"bg-amber-50 text-amber-600":"bg-danger/10 text-danger")}>{statusLabel(detail.status)}</span>} />
+          </div>
+        )}
+      </Drawer>
     </div>
   )
 }

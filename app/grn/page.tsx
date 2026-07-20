@@ -7,6 +7,8 @@ import {
   ChevronDown, Plus, Trash2, X, AlertCircle, Save
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { notify } from "@/components/ui/toast"
 
 const steps = [
   { id: 1, label: "Vehicle & Documents", icon: <Truck className="w-4 h-4" /> },
@@ -22,7 +24,8 @@ const gateEntries = [
   { id: "GE-2024-087", label: "GE-2024-087 — DL-01-EF-9012 (Agro Corp)" },
 ]
 
-interface LineItem {
+// `type` (not `interface`) so rows stay assignable to Record<string, unknown> consumers
+type LineItem = {
   id: string
   sku: string
   name: string
@@ -32,6 +35,14 @@ interface LineItem {
   batch: string
   expiry: string
   condition: string
+}
+
+type QcResult = "Passed" | "Flagged" | "Quarantined"
+
+const qcStyle: Record<QcResult, string> = {
+  Passed: "bg-success/10 text-success",
+  Flagged: "bg-warning/10 text-warning",
+  Quarantined: "bg-danger/10 text-danger",
 }
 
 const defaultItems: LineItem[] = [
@@ -51,6 +62,11 @@ export default function GRNPage() {
   const [lineItems, setLineItems] = useState<LineItem[]>(defaultItems)
   const [notes, setNotes] = useState("")
 
+  const [draft, setDraft] = useState<{ ref: string; savedAt: string } | null>(null)
+  const [cancelOpen, setCancelOpen] = useState(false)
+  const [removeTarget, setRemoveTarget] = useState<LineItem | null>(null)
+  const [qcResult, setQcResult] = useState<QcResult | null>(null)
+
   const canProceed = () => {
     if (step === 1) return supplier.length > 0 && vehicleNo.length > 0
     if (step === 2) return lineItems.length > 0
@@ -61,6 +77,50 @@ export default function GRNPage() {
   const totalReceived = lineItems.reduce((s, i) => s + i.received, 0)
   const discrepancy = totalExpected - totalReceived
 
+  // Form is dirty once the user has touched anything beyond the seeded defaults.
+  const dirty =
+    gateEntry !== "" || docNumber !== "" || supplier !== "" || vehicleNo !== "" ||
+    driverName !== "" || notes !== "" || docType !== "Purchase Order" ||
+    JSON.stringify(lineItems) !== JSON.stringify(defaultItems)
+
+  function saveDraft() {
+    const now = new Date()
+    const ref = draft?.ref ?? `GRN-DRAFT-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(Math.floor(Math.random() * 900) + 100)}`
+    setDraft({ ref, savedAt: now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) })
+    notify.success("Draft saved", `${ref} — ${lineItems.length} line item${lineItems.length === 1 ? "" : "s"}, resume any time.`)
+  }
+
+  function discardAndLeave() {
+    setDraft(null)
+    notify.warning("GRN discarded", "Your unsaved changes were dropped.")
+    router.back()
+  }
+
+  function handleCancel() {
+    if (dirty) setCancelOpen(true)
+    else router.back()
+  }
+
+  function runQc(result: QcResult) {
+    setQcResult(result)
+    if (result === "Passed") {
+      setLineItems(prev => prev.map(i => ({ ...i, condition: "Good" })))
+      notify.success("Quality check passed", `All ${lineItems.length} line items marked Good.`)
+    } else if (result === "Flagged") {
+      setLineItems(prev => prev.map(i => (i.received < i.expected ? { ...i, condition: "Damaged" } : i)))
+      const flagged = lineItems.filter(i => i.received < i.expected).length
+      notify.warning("Items flagged", flagged > 0 ? `${flagged} short-received item${flagged === 1 ? "" : "s"} marked Damaged.` : "No short-received items found to flag.")
+    } else {
+      setLineItems(prev => prev.map(i => ({ ...i, condition: "Quarantine" })))
+      notify.error("Shipment quarantined", `All ${lineItems.length} line items moved to Quarantine.`)
+    }
+  }
+
+  function removeItem(item: LineItem) {
+    setLineItems(prev => prev.filter(i => i.id !== item.id))
+    notify.warning("Line item removed", `${item.name || item.sku || "Item"} removed from this GRN.`)
+  }
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="w-full p-6 space-y-6">
@@ -69,16 +129,29 @@ export default function GRNPage() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Create Goods Receipt Note</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Record incoming inventory from suppliers</p>
+            {draft && (
+              <p className="text-xs text-success mt-1.5 flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5" />
+                Draft <span className="font-mono font-semibold">{draft.ref}</span> saved at {draft.savedAt}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={() => router.back()}
+              onClick={handleCancel}
               className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors"
             >
               <X className="w-4 h-4" /> Cancel
             </button>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
-              <Save className="w-4 h-4" /> Save as Draft
+            <button
+              onClick={saveDraft}
+              title="Save this GRN as a draft"
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors",
+                draft ? "border-success/40 bg-success/10 text-success hover:bg-success/20" : "border-border bg-card text-foreground hover:bg-muted",
+              )}
+            >
+              <Save className="w-4 h-4" /> {draft ? "Draft Saved" : "Save as Draft"}
             </button>
           </div>
         </div>
@@ -272,12 +345,15 @@ export default function GRNPage() {
                           </select>
                         </td>
                         <td className="px-4 py-3">
-                          <button onClick={() => setLineItems(lineItems.filter((_, j) => j !== i))} className="p-1.5 rounded-lg hover:bg-danger/10 text-muted-foreground hover:text-danger transition-colors">
+                          <button onClick={() => setRemoveTarget(item)} title="Remove line item" className="p-1.5 rounded-lg hover:bg-danger/10 text-muted-foreground hover:text-danger transition-colors">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </td>
                       </tr>
                     ))}
+                    {lineItems.length === 0 && (
+                      <tr><td colSpan={9} className="px-4 py-10 text-center text-sm text-muted-foreground">No line items yet — use “Add Item” to start.</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -308,16 +384,46 @@ export default function GRNPage() {
             <h2 className="text-lg font-semibold text-foreground mb-2">Quality Check</h2>
             <p className="text-muted-foreground text-sm mb-6">Verify items meet quality standards before putaway</p>
             <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
-              {["Pass All", "Flag Items", "Quarantine"].map((action) => (
-                <button key={action} className={cn("py-2 px-3 rounded-xl text-sm font-medium transition-colors border",
-                  action === "Pass All" ? "bg-success text-white border-success hover:bg-success/90" :
-                  action === "Flag Items" ? "border-warning text-warning hover:bg-warning/10" :
-                  "border-danger text-danger hover:bg-danger/10"
-                )}>
+              {([
+                { action: "Pass All", result: "Passed" as const },
+                { action: "Flag Items", result: "Flagged" as const },
+                { action: "Quarantine", result: "Quarantined" as const },
+              ]).map(({ action, result }) => (
+                <button
+                  key={action}
+                  onClick={() => runQc(result)}
+                  title={`Mark quality check as ${result}`}
+                  className={cn("py-2 px-3 rounded-xl text-sm font-medium transition-colors border",
+                    action === "Pass All" ? "bg-success text-white border-success hover:bg-success/90" :
+                    action === "Flag Items" ? "border-warning text-warning hover:bg-warning/10" :
+                    "border-danger text-danger hover:bg-danger/10",
+                    qcResult === result && "ring-2 ring-offset-2 ring-brand ring-offset-background"
+                  )}
+                >
                   {action}
                 </button>
               ))}
             </div>
+            {qcResult && (
+              <div className="mt-6 max-w-sm mx-auto space-y-2">
+                <span className={cn("inline-block px-3 py-1 rounded-full text-xs font-semibold", qcStyle[qcResult])}>
+                  Quality check: {qcResult}
+                </span>
+                <div className="text-left space-y-1 pt-2">
+                  {lineItems.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-2.5 rounded-xl bg-muted border border-border text-sm">
+                      <span className="text-muted-foreground truncate flex-1">{item.name || item.sku || "Untitled item"}</span>
+                      <span className={cn("text-xs font-medium ml-2 shrink-0",
+                        item.condition === "Good" ? "text-success" : item.condition === "Quarantine" ? "text-danger" : "text-warning"
+                      )}>{item.condition}</span>
+                    </div>
+                  ))}
+                  {lineItems.length === 0 && (
+                    <p className="text-xs text-muted-foreground text-center py-4">No line items to check.</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -381,13 +487,47 @@ export default function GRNPage() {
             </button>
           ) : (
             <button
-              onClick={() => router.push("/inventory")}
+              onClick={() => {
+                if (lineItems.length === 0) {
+                  notify.error("Cannot confirm GRN", "Add at least one line item before confirming.")
+                  return
+                }
+                notify.success("GRN confirmed", `${lineItems.length} line item${lineItems.length === 1 ? "" : "s"} · ${totalReceived} units received from ${supplier || "supplier"}.`)
+                setDraft(null)
+                router.push("/inventory")
+              }}
               className="px-5 py-2.5 rounded-xl bg-success text-white text-sm font-medium hover:bg-success/90 transition-colors"
             >
               Confirm GRN
             </button>
           )}
         </div>
+
+        {/* Cancel confirmation — only reachable while the form is dirty */}
+        <ConfirmDialog
+          open={cancelOpen}
+          onOpenChange={setCancelOpen}
+          title="Discard this GRN?"
+          message={
+            draft
+              ? `You have unsaved changes since draft ${draft.ref}. Leaving now discards them.`
+              : "You have unsaved changes. Leaving now discards this GRN entirely."
+          }
+          confirmLabel="Discard & Leave"
+          cancelLabel="Keep Editing"
+          onConfirm={discardAndLeave}
+        />
+
+        {/* Line item removal */}
+        <ConfirmDialog
+          open={!!removeTarget}
+          onOpenChange={(o) => !o && setRemoveTarget(null)}
+          title="Remove this line item?"
+          message={`${removeTarget?.name || removeTarget?.sku || "This item"} will be removed from the GRN. This cannot be undone.`}
+          confirmLabel="Remove Item"
+          cancelLabel="Keep Item"
+          onConfirm={() => removeTarget && removeItem(removeTarget)}
+        />
       </div>
     </div>
   )

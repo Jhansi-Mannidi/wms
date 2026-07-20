@@ -1,12 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Package, Download, CheckCircle2, Truck, Wind, MapPin, ArrowRight, Plane } from "lucide-react"
+import { Search, Package, Download, CheckCircle2, Truck, Wind, MapPin, ArrowRight, Plane, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
 type Branch = "local" | "export"
 
-interface AirShipment {
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type AirShipment = {
   ref: string
   consignee: string
   initials: string
@@ -22,7 +27,7 @@ interface AirShipment {
   uld?: string
 }
 
-const shipments: AirShipment[] = [
+const initialShipments: AirShipment[] = [
   { ref: "AIR-LOC-003", consignee: "MedLine Hospital", initials: "ML", color: "bg-rose-500", branch: "local", dest: "Banjara Hills", weight: "5.5 kg", awb: "DL884732910", stage: 3, eta: "Today", carrier: "Delhivery" },
   { ref: "AIR-EXP-001", consignee: "TechParts GmbH", initials: "TG", color: "bg-blue-500", branch: "export", dest: "FRA", weight: "18.4 kg", awb: "VF-HAWB-2024-0052", stage: 4, eta: "26 Jul 2026", flight: "6E 1234", uld: "PMC12345AI" },
   { ref: "AIR-LOC-006", consignee: "HealthPlus Clinic", initials: "HP", color: "bg-emerald-500", branch: "local", dest: "Gachibowli", weight: "0.9 kg", awb: "VF-D-00247", stage: 2, eta: "Today", carrier: "Own Fleet" },
@@ -32,10 +37,17 @@ const shipments: AirShipment[] = [
 const localStages = ["Received", "Routed (Local)", "Out-for-Delivery", "Delivered"]
 const exportStages = ["Received", "Routed (Export)", "Loaded (ULD)", "Handed to Airline", "In-Transit", "Arrived"]
 
+/** Documents surfaced in the Docs drawer, per branch. */
+const localDocs = ["Delivery Run Sheet", "Proof of Delivery", "Handling-In Receipt"]
+const exportDocs = ["House Air Waybill (HAWB)", "Master Air Waybill (MAWB)", "ULD Manifest", "Export Declaration"]
+
 export default function AirTrackingPage() {
+  const [shipments, setShipments] = useState<AirShipment[]>(initialShipments)
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<"all" | "local" | "export">("all")
-  const [selected, setSelected] = useState<string>(shipments[0].ref)
+  const [selected, setSelected] = useState<string>(initialShipments[0].ref)
+  const [docsOpen, setDocsOpen] = useState(false)
+  const [advanceTarget, setAdvanceTarget] = useState<AirShipment | null>(null)
 
   const filtered = shipments.filter(s => {
     const matchSearch = s.ref.toLowerCase().includes(search.toLowerCase()) || s.consignee.toLowerCase().includes(search.toLowerCase())
@@ -45,6 +57,16 @@ export default function AirTrackingPage() {
 
   const detail = shipments.find(s => s.ref === selected)
   const stages = detail?.branch === "local" ? localStages : exportStages
+  const docs = detail?.branch === "local" ? localDocs : exportDocs
+  const atFinalStage = detail ? detail.stage >= stages.length - 1 : true
+
+  function advanceStage(s: AirShipment) {
+    const stageList = s.branch === "local" ? localStages : exportStages
+    if (s.stage >= stageList.length - 1) return
+    const nextStage = s.stage + 1
+    setShipments(prev => prev.map(x => x.ref === s.ref ? { ...x, stage: nextStage } : x))
+    notify.success("Shipment advanced", `${s.ref} is now at “${stageList[nextStage]}”.`)
+  }
 
   return (
     <div className="p-6 h-full">
@@ -100,6 +122,11 @@ export default function AirTrackingPage() {
                 </button>
               )
             })}
+            {filtered.length === 0 && (
+              <div className="p-6 text-center text-xs text-muted-foreground rounded-xl border border-dashed border-border">
+                No shipments match your search or filter.
+              </div>
+            )}
           </div>
         </div>
 
@@ -120,9 +147,15 @@ export default function AirTrackingPage() {
                     detail.branch === "local" ? "bg-success/15 text-success" : "bg-brand/15 text-brand")}>
                     {detail.branch === "local" ? "Local Delivery" : "Export"}
                   </span>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground">
+                  <button onClick={() => setDocsOpen(true)} title="View shipment documents" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground">
                     <Download className="w-3.5 h-3.5" /> Docs
                   </button>
+                  {!atFinalStage && (
+                    <button onClick={() => setAdvanceTarget(detail)} title="Advance to the next tracking stage"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-semibold hover:bg-brand/90 transition-colors">
+                      <ArrowRight className="w-3.5 h-3.5" /> Advance Stage
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -219,6 +252,59 @@ export default function AirTrackingPage() {
           </div>
         )}
       </div>
+
+      {/* Documents drawer */}
+      <Drawer
+        open={docsOpen}
+        onOpenChange={setDocsOpen}
+        title={`Documents — ${detail?.ref ?? ""}`}
+        description="Paperwork attached to this shipment"
+        footer={
+          <button onClick={() => setDocsOpen(false)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {detail && (
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <DetailRow label="Shipment" value={<span className="font-mono text-brand">{detail.ref}</span>} />
+              <DetailRow label="Consignee" value={detail.consignee} />
+              <DetailRow label="AWB / Ref" value={<span className="font-mono">{detail.awb}</span>} />
+              <DetailRow label="Branch" value={detail.branch === "local" ? "Local Delivery" : "Export"} />
+            </div>
+            <div className="space-y-2">
+              {docs.map(d => (
+                <div key={d} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/40 px-3 py-2.5">
+                  <span className="flex items-center gap-2 text-sm text-foreground">
+                    <FileText className="h-4 w-4 text-brand shrink-0" /> {d}
+                  </span>
+                  <button
+                    onClick={() => notify.info("Document downloaded", `${d} for ${detail.ref} generated as PDF.`)}
+                    title={`Download ${d}`}
+                    className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground">
+                    <Download className="h-3 w-3" /> Download
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Drawer>
+
+      {/* Advance confirmation */}
+      <ConfirmDialog
+        open={!!advanceTarget}
+        onOpenChange={(o) => !o && setAdvanceTarget(null)}
+        title="Advance this shipment?"
+        message={advanceTarget
+          ? `${advanceTarget.ref} will move to “${(advanceTarget.branch === "local" ? localStages : exportStages)[advanceTarget.stage + 1]}”. Milestones are reported to the consignee.`
+          : ""}
+        confirmLabel="Advance Stage"
+        cancelLabel="Cancel"
+        tone="brand"
+        onConfirm={() => advanceTarget && advanceStage(advanceTarget)}
+      />
     </div>
   )
 }

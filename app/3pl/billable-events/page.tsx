@@ -1,11 +1,21 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Filter, DollarSign, Package, Wrench, Truck, CheckCircle2, AlertCircle, ChevronDown, Play } from "lucide-react"
+import { Search, DollarSign, Package, Wrench, Truck, AlertCircle, Play, Plus, Eye, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ExportButton } from "@/components/wms/export-button"
+import { Modal, Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const events = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type BillableEvent = {
+  id: string; client: string; clientInit: string; clientColor: string; type: string
+  desc: string; qty: number; uom: string; rate: number; amount: number; period: string; status: string
+}
+
+const initialEvents: BillableEvent[] = [
   { id: "BE-0421", client: "Apex Pharma Ltd", clientInit: "AP", clientColor: "bg-blue-500", type: "Storage", desc: "Pallet storage — Jul 2025", qty: 24, uom: "pallet-days", rate: 45, amount: 1080, period: "Jul 2025", status: "Pending" },
   { id: "BE-0422", client: "GlobalTex Fabrics", clientInit: "GT", clientColor: "bg-amber-500", type: "Handling", desc: "Inbound receipt handling — ASN-002", qty: 320, uom: "pieces", rate: 2.5, amount: 800, period: "Jul 2025", status: "Pending" },
   { id: "BE-0423", client: "Sunrise Electronics", clientInit: "SE", clientColor: "bg-emerald-500", type: "VAS", desc: "Kitting — KIT-089", qty: 50, uom: "units", rate: 35, amount: 1750, period: "Jul 2025", status: "Invoiced" },
@@ -28,18 +38,33 @@ const typeIcons: Record<string, React.ReactNode> = {
   Ancillary: <DollarSign className="w-3.5 h-3.5" />,
 }
 
-const kpis = [
-  { label: "Un-invoiced Value", value: "₹15,490", sub: "7 events", color: "text-warning", icon: <AlertCircle className="w-4 h-4" /> },
-  { label: "Storage Accrued", value: "₹7,920", sub: "Jul 2025", color: "text-blue-400", icon: <Package className="w-4 h-4" /> },
-  { label: "Handling Events", value: "₹1,070", sub: "2 events", color: "text-amber-400", icon: <Truck className="w-4 h-4" /> },
-  { label: "VAS Events", value: "₹3,350", sub: "2 events", color: "text-violet-400", icon: <Wrench className="w-4 h-4" /> },
-  { label: "Clients with Dues", value: "4", sub: "Pending invoice", color: "text-danger", icon: <AlertCircle className="w-4 h-4" /> },
-]
+const CLIENTS = ["Apex Pharma Ltd", "GlobalTex Fabrics", "Sunrise Electronics", "AutoParts India", "MediSupply Corp", "FreshFarm Organics"] as const
+const CLIENT_META: Record<string, { init: string; color: string }> = {
+  "Apex Pharma Ltd": { init: "AP", color: "bg-blue-500" },
+  "GlobalTex Fabrics": { init: "GT", color: "bg-amber-500" },
+  "Sunrise Electronics": { init: "SE", color: "bg-emerald-500" },
+  "AutoParts India": { init: "AI", color: "bg-cyan-500" },
+  "MediSupply Corp": { init: "MS", color: "bg-rose-500" },
+  "FreshFarm Organics": { init: "FF", color: "bg-orange-500" },
+}
+const EVENT_TYPES = ["Storage", "Handling", "VAS", "Ancillary"] as const
+const UOMS = ["pallet-days", "pieces", "units", "month", "sqft-month"] as const
+
+const emptyForm = { client: "", type: "", desc: "", qty: "", uom: "", rate: "", period: "Jul 2025" }
 
 export default function BillableEventsPage() {
+  const [events, setEvents] = useState<BillableEvent[]>(initialEvents)
   const [search, setSearch] = useState("")
   const [selected, setSelected] = useState<string[]>([])
   const [typeFilter, setTypeFilter] = useState("All")
+
+  const [createOpen, setCreateOpen] = useState(false)
+  const [form, setForm] = useState(emptyForm)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const [detail, setDetail] = useState<BillableEvent | null>(null)
+  const [voidTarget, setVoidTarget] = useState<BillableEvent | null>(null)
+  const [runOpen, setRunOpen] = useState(false)
 
   const types = ["All", "Storage", "Handling", "VAS", "Ancillary"]
 
@@ -52,6 +77,71 @@ export default function BillableEventsPage() {
     setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id])
 
   const totalSelected = events.filter(e => selected.includes(e.id)).reduce((sum, e) => sum + e.amount, 0)
+
+  const pending = events.filter(e => e.status === "Pending")
+  const sumOf = (pred: (e: BillableEvent) => boolean) => pending.filter(pred).reduce((s, e) => s + e.amount, 0)
+  const kpis = [
+    { label: "Un-invoiced Value", value: `₹${sumOf(() => true).toLocaleString()}`, sub: `${pending.length} events`, color: "text-warning", icon: <AlertCircle className="w-4 h-4" /> },
+    { label: "Storage Accrued", value: `₹${sumOf(e => e.type === "Storage").toLocaleString()}`, sub: "Jul 2025", color: "text-blue-400", icon: <Package className="w-4 h-4" /> },
+    { label: "Handling Events", value: `₹${sumOf(e => e.type === "Handling").toLocaleString()}`, sub: `${pending.filter(e => e.type === "Handling").length} events`, color: "text-amber-400", icon: <Truck className="w-4 h-4" /> },
+    { label: "VAS Events", value: `₹${sumOf(e => e.type === "VAS").toLocaleString()}`, sub: `${pending.filter(e => e.type === "VAS").length} events`, color: "text-violet-400", icon: <Wrench className="w-4 h-4" /> },
+    { label: "Clients with Dues", value: String(new Set(pending.map(e => e.client)).size), sub: "Pending invoice", color: "text-danger", icon: <AlertCircle className="w-4 h-4" /> },
+  ]
+
+  function validate() {
+    const e: Record<string, string> = {}
+    if (!form.client) e.client = "Select a client"
+    if (!form.type) e.type = "Select an event type"
+    if (!form.desc.trim()) e.desc = "Description is required"
+    if (!form.qty.trim()) e.qty = "Quantity is required"
+    else if (!/^\d+(\.\d+)?$/.test(form.qty) || Number(form.qty) <= 0) e.qty = "Enter a positive number"
+    if (!form.uom) e.uom = "Select a unit of measure"
+    if (!form.rate.trim()) e.rate = "Rate is required"
+    else if (!/^\d+(\.\d+)?$/.test(form.rate) || Number(form.rate) <= 0) e.rate = "Enter a positive amount"
+    if (!form.period.trim()) e.period = "Billing period is required"
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  function createEvent() {
+    if (!validate()) return
+    const meta = CLIENT_META[form.client]
+    const qty = Number(form.qty)
+    const rate = Number(form.rate)
+    const next: BillableEvent = {
+      id: `BE-${String(421 + events.length).padStart(4, "0")}`,
+      client: form.client,
+      clientInit: meta.init,
+      clientColor: meta.color,
+      type: form.type,
+      desc: form.desc.trim(),
+      qty,
+      uom: form.uom,
+      rate,
+      amount: Math.round(qty * rate * 100) / 100,
+      period: form.period.trim(),
+      status: "Pending",
+    }
+    setEvents(prev => [next, ...prev])
+    setCreateOpen(false)
+    setForm(emptyForm)
+    setErrors({})
+    notify.success("Billable event captured", `${next.id} — ₹${next.amount.toLocaleString()} for ${next.client}`)
+  }
+
+  function runInvoice() {
+    const ids = [...selected]
+    const count = ids.length
+    setEvents(prev => prev.map(e => ids.includes(e.id) ? { ...e, status: "Invoiced" } : e))
+    setSelected([])
+    notify.success("Invoice run complete", `${count} event${count === 1 ? "" : "s"} invoiced for ₹${totalSelected.toLocaleString()}.`)
+  }
+
+  function voidEvent(e: BillableEvent) {
+    setEvents(prev => prev.filter(x => x.id !== e.id))
+    setSelected(s => s.filter(x => x !== e.id))
+    notify.warning("Event voided", `${e.id} removed from the billing ledger.`)
+  }
 
   return (
     <div className="p-6 h-full overflow-y-auto">
@@ -82,8 +172,13 @@ export default function BillableEventsPage() {
             </button>
           ))}
         </div>
+        <button
+          onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }}
+          className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
+          <Plus className="w-4 h-4" /> New Event
+        </button>
         {selected.length > 0 && (
-          <button className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+          <button onClick={() => setRunOpen(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
             <Play className="w-4 h-4" /> Run Invoice (₹{totalSelected.toLocaleString()})
           </button>
         )}
@@ -93,8 +188,8 @@ export default function BillableEventsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/30">
-              <th className="w-10 px-4 py-3"><input type="checkbox" className="rounded" onChange={e => setSelected(e.target.checked ? events.map(ev => ev.id) : [])} /></th>
-              {["Event", "Client", "Type", "Description", "Qty / UOM", "Rate (₹)", "Amount (₹)", "Period", "Status"].map(h => (
+              <th className="w-10 px-4 py-3"><input type="checkbox" title="Select all events" className="rounded" checked={selected.length > 0 && selected.length === filtered.length} onChange={e => setSelected(e.target.checked ? filtered.map(ev => ev.id) : [])} /></th>
+              {["Event", "Client", "Type", "Description", "Qty / UOM", "Rate (₹)", "Amount (₹)", "Period", "Status", ""].map(h => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -103,7 +198,7 @@ export default function BillableEventsPage() {
             {filtered.map((e, i) => (
               <tr key={e.id} className={cn("border-b border-border/50 hover:bg-muted/20 transition-colors", selected.includes(e.id) ? "bg-brand/5" : i % 2 === 0 ? "" : "bg-muted/5")}>
                 <td className="px-4 py-3">
-                  <input type="checkbox" checked={selected.includes(e.id)} onChange={() => toggleSelect(e.id)} className="rounded" />
+                  <input type="checkbox" title={`Select ${e.id}`} checked={selected.includes(e.id)} onChange={() => toggleSelect(e.id)} className="rounded" />
                 </td>
                 <td className="px-4 py-3 text-xs font-mono text-brand font-semibold">{e.id}</td>
                 <td className="px-4 py-3">
@@ -128,8 +223,19 @@ export default function BillableEventsPage() {
                     {e.status}
                   </span>
                 </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setDetail(e)} title="View event detail" className="w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-brand hover:bg-brand/10 transition-colors"><Eye className="w-3.5 h-3.5" /></button>
+                    {e.status === "Pending" && (
+                      <button onClick={() => setVoidTarget(e)} title="Void event" className="w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
+            {filtered.length === 0 && (
+              <tr><td colSpan={11} className="px-4 py-10 text-center text-sm text-muted-foreground">No billable events match your filters.</td></tr>
+            )}
           </tbody>
         </table>
         <div className="px-4 py-3 border-t border-border flex items-center justify-between bg-muted/10">
@@ -137,6 +243,89 @@ export default function BillableEventsPage() {
           <span className="text-xs font-semibold text-foreground">Total: ₹{filtered.reduce((s, e) => s + e.amount, 0).toLocaleString()}</span>
         </div>
       </div>
+
+      {/* Create billable event */}
+      <Modal
+        open={createOpen}
+        onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setErrors({}) } }}
+        title="New Billable Event"
+        description="Capture a chargeable activity against a client"
+        footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createEvent} submitLabel="Create Event" />}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Client" required error={errors.client}>
+            <Select value={form.client} invalid={!!errors.client} onChange={e => setForm({ ...form, client: e.target.value })} options={CLIENTS} placeholder="Select Client" />
+          </Field>
+          <Field label="Event Type" required error={errors.type}>
+            <Select value={form.type} invalid={!!errors.type} onChange={e => setForm({ ...form, type: e.target.value })} options={EVENT_TYPES} placeholder="Select Type" />
+          </Field>
+          <Field label="Description" required error={errors.desc}>
+            <TextInput value={form.desc} invalid={!!errors.desc} onChange={e => setForm({ ...form, desc: e.target.value })} placeholder="e.g. Pallet storage — Jul 2025" />
+          </Field>
+          <Field label="Billing Period" required error={errors.period}>
+            <TextInput value={form.period} invalid={!!errors.period} onChange={e => setForm({ ...form, period: e.target.value })} placeholder="e.g. Jul 2025" />
+          </Field>
+          <Field label="Quantity" required error={errors.qty}>
+            <TextInput value={form.qty} invalid={!!errors.qty} onChange={e => setForm({ ...form, qty: e.target.value })} placeholder="e.g. 24" inputMode="decimal" />
+          </Field>
+          <Field label="Unit of Measure" required error={errors.uom}>
+            <Select value={form.uom} invalid={!!errors.uom} onChange={e => setForm({ ...form, uom: e.target.value })} options={UOMS} placeholder="Select UOM" />
+          </Field>
+          <Field label="Rate (₹)" required error={errors.rate} hint={form.qty && form.rate && /^\d+(\.\d+)?$/.test(form.qty) && /^\d+(\.\d+)?$/.test(form.rate) ? `Amount: ₹${(Number(form.qty) * Number(form.rate)).toLocaleString()}` : undefined}>
+            <TextInput value={form.rate} invalid={!!errors.rate} onChange={e => setForm({ ...form, rate: e.target.value })} placeholder="e.g. 45" inputMode="decimal" />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* Event detail drawer */}
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.id ?? ""}
+        description="Billable event detail"
+        footer={
+          <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="Event ID" value={<span className="font-mono text-brand">{detail.id}</span>} />
+            <DetailRow label="Client" value={detail.client} />
+            <DetailRow label="Type" value={<span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold", typeColors[detail.type])}>{typeIcons[detail.type]}{detail.type}</span>} />
+            <DetailRow label="Description" value={detail.desc} />
+            <DetailRow label="Quantity" value={`${detail.qty.toLocaleString()} ${detail.uom}`} />
+            <DetailRow label="Rate" value={`₹${detail.rate}`} />
+            <DetailRow label="Amount" value={<span className="font-bold">₹{detail.amount.toLocaleString()}</span>} />
+            <DetailRow label="Billing Period" value={detail.period} />
+            <DetailRow label="Status" value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", detail.status === "Invoiced" ? "bg-success/15 text-success" : "bg-warning/15 text-warning")}>{detail.status}</span>} />
+          </div>
+        )}
+      </Drawer>
+
+      {/* Run invoice confirmation */}
+      <ConfirmDialog
+        open={runOpen}
+        onOpenChange={setRunOpen}
+        title="Run invoice for selected events?"
+        message={`${selected.length} event(s) totalling ₹${totalSelected.toLocaleString()} will be marked Invoiced and locked from further edits.`}
+        confirmLabel="Run Invoice"
+        cancelLabel="Not Yet"
+        tone="brand"
+        onConfirm={runInvoice}
+      />
+
+      {/* Void confirmation */}
+      <ConfirmDialog
+        open={!!voidTarget}
+        onOpenChange={(o) => !o && setVoidTarget(null)}
+        title="Void this billable event?"
+        message={`${voidTarget?.id} (₹${voidTarget?.amount.toLocaleString()}) will be removed from the billing ledger. This cannot be undone.`}
+        confirmLabel="Void Event"
+        cancelLabel="Keep It"
+        onConfirm={() => voidTarget && voidEvent(voidTarget)}
+      />
     </div>
   )
 }

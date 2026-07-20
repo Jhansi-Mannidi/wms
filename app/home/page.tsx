@@ -155,7 +155,7 @@ export default function DashboardPage() {
           <Link href="/3pl"><button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-orange-500/40 bg-orange-500/10 text-orange-400 text-sm font-medium hover:bg-orange-500/20 transition-colors"><Layers className="w-4 h-4" /> 3PL Operations</button></Link>
           <Link href="/lcl"><button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><Globe className="w-4 h-4" /> LCL Console</button></Link>
           <Link href="/air-handling"><button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><Wind className="w-4 h-4" /> Air Handling</button></Link>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><RefreshCw className="w-4 h-4" /> Cycle Count</button>
+          <Link href="/inventory/cycle-counts"><button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><RefreshCw className="w-4 h-4" /> Cycle Count</button></Link>
           <Link href="/gate-management"><button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><LogIn className="w-4 h-4" /> Gate Entry</button></Link>
         </div>
 

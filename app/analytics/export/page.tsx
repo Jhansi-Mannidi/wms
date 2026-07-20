@@ -1,8 +1,17 @@
 "use client"
-import { FileText, Download, Calendar, CheckCircle2 } from "lucide-react"
+import { useState } from "react"
+import { FileText, Download, Calendar, Check } from "lucide-react"
 import { ExportButton } from "@/components/wms/export-button"
+import { exportCSV, exportJSON, fileTimestamp } from "@/lib/export"
+import { notify } from "@/components/ui/toast"
 
-const reports = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type Report = {
+  id: string; name: string; category: string; schedule: string
+  lastRun: string; rows: number; format: string
+}
+
+const initialReports: Report[] = [
   { id: "RPT-001", name: "Monthly KPI Summary", category: "KPI", schedule: "Monthly", lastRun: "2025-06-30", rows: 1240, format: "CSV" },
   { id: "RPT-002", name: "Order Fulfilment Report", category: "Orders", schedule: "Weekly", lastRun: "2025-07-14", rows: 4820, format: "CSV" },
   { id: "RPT-003", name: "Inventory Turnover", category: "Inventory", schedule: "Monthly", lastRun: "2025-06-30", rows: 2458, format: "Excel" },
@@ -12,6 +21,22 @@ const reports = [
 ]
 
 export default function AnalyticsExportPage() {
+  const [reports, setReports] = useState<Report[]>(initialReports)
+  const [downloaded, setDownloaded] = useState<string | null>(null)
+
+  function download(r: Report) {
+    const name = `${r.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}_${fileTimestamp()}`
+    // Excel and PDF exports fall back to the machine-readable formats we can generate client-side.
+    if (r.format === "Excel") exportJSON([r], name)
+    else exportCSV([r], name)
+
+    const today = new Date().toISOString().slice(0, 10)
+    setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, lastRun: today } : x)))
+    setDownloaded(r.id)
+    setTimeout(() => setDownloaded((cur) => (cur === r.id ? null : cur)), 2000)
+    notify.success("Report downloaded", `${r.name} (${r.rows.toLocaleString()} rows) exported as ${r.format === "Excel" ? "JSON" : "CSV"}.`)
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-start justify-between">
@@ -38,12 +63,20 @@ export default function AnalyticsExportPage() {
                 <td className="px-4 py-3 text-muted-foreground">{r.rows.toLocaleString()}</td>
                 <td className="px-4 py-3"><span className="px-2 py-0.5 rounded bg-muted text-xs font-mono text-muted-foreground">{r.format}</span></td>
                 <td className="px-4 py-3">
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs text-foreground hover:bg-muted transition-colors">
-                    <Download className="w-3.5 h-3.5" /> Download
+                  <button
+                    onClick={() => download(r)}
+                    title={`Download ${r.name}`}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-card text-xs transition-colors hover:bg-muted ${downloaded === r.id ? "border-success/60 text-success" : "border-border text-foreground"}`}
+                  >
+                    {downloaded === r.id ? <Check className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+                    {downloaded === r.id ? "Downloaded" : "Download"}
                   </button>
                 </td>
               </tr>
             ))}
+            {reports.length === 0 && (
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">No reports available.</td></tr>
+            )}
           </tbody>
         </table>
       </div>

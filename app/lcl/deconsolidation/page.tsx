@@ -1,10 +1,20 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowRight, CheckCircle2, Truck, Package, AlertTriangle, Plus, Minus } from "lucide-react"
+import { Truck, AlertTriangle, Plus, Minus, Eye, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const expectedLines = [
+// `type` (not `interface`) so rows stay assignable to Record<string, unknown> consumers
+type ExpectedLine = {
+  ref: string; consignee: string; initials: string; color: string
+  expectedPcs: number; expectedCbm: number; expectedWt: number; status: string
+}
+
+const expectedLines: ExpectedLine[] = [
   { ref: "CFS-2024-0451", consignee: "Apex Pharma Ltd", initials: "AP", color: "bg-blue-500", expectedPcs: 48, expectedCbm: 8.2, expectedWt: 1240, status: "Pending" },
   { ref: "CFS-2024-0452", consignee: "GlobalTex Fabrics", initials: "GT", color: "bg-amber-500", expectedPcs: 120, expectedCbm: 22.4, expectedWt: 3800, status: "Pending" },
   { ref: "CFS-2024-0453", consignee: "MediSupply Corp", initials: "MS", color: "bg-rose-500", expectedPcs: 36, expectedCbm: 4.6, expectedWt: 720, status: "Pending" },
@@ -24,6 +34,10 @@ export default function DeconsolidationPage() {
   const [modes2, setModes2] = useState<Record<string, string>>(
     Object.fromEntries(expectedLines.map(l => [l.ref, ""]))
   )
+  const [released, setReleased] = useState<Record<string, string>>({})
+
+  const [detail, setDetail] = useState<ExpectedLine | null>(null)
+  const [releaseTarget, setReleaseTarget] = useState<ExpectedLine | null>(null)
 
   const setActual = (ref: string, val: number) => setActuals(p => ({ ...p, [ref]: Math.max(0, val) }))
   const setStatus = (ref: string, val: string) => setStatuses(p => ({ ...p, [ref]: val }))
@@ -31,6 +45,14 @@ export default function DeconsolidationPage() {
   const totalExpected = expectedLines.reduce((s, l) => s + l.expectedPcs, 0)
   const totalActual = Object.values(actuals).reduce((s, v) => s + v, 0)
   const discrepancies = expectedLines.filter(l => actuals[l.ref] !== l.expectedPcs).length
+  const releasedCount = Object.keys(released).length
+
+  function confirmRelease(line: ExpectedLine) {
+    const mode = modes2[line.ref]
+    setReleased(p => ({ ...p, [line.ref]: mode }))
+    setStatus(line.ref, "De-Stuffed")
+    notify.success("Shipment released", `${line.consignee} (${line.ref}) released via ${mode}.`)
+  }
 
   return (
     <div className="p-6 w-full">
@@ -39,7 +61,10 @@ export default function DeconsolidationPage() {
         <div>
           <div className="flex items-center gap-3 mb-1">
             <span className="px-2.5 py-1 rounded-full bg-navy/20 text-foreground text-xs font-bold border border-navy/30">CONSOL-2024-087</span>
-            <span className="px-2.5 py-1 rounded-full bg-warning/15 text-warning text-xs font-semibold">De-Stuffing in Progress</span>
+            <span className={cn("px-2.5 py-1 rounded-full text-xs font-semibold",
+              releasedCount === expectedLines.length ? "bg-success/15 text-success" : "bg-warning/15 text-warning")}>
+              {releasedCount === expectedLines.length ? "De-Stuffing Complete" : "De-Stuffing in Progress"}
+            </span>
           </div>
           <h1 className="text-xl font-bold text-foreground">De-Consolidation Board</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
@@ -54,7 +79,7 @@ export default function DeconsolidationPage() {
           { label: "Expected Pieces", value: totalExpected, color: "text-foreground" },
           { label: "De-Stuffed So Far", value: totalActual, color: "text-brand" },
           { label: "Discrepancies", value: discrepancies, color: discrepancies > 0 ? "text-danger" : "text-success" },
-          { label: "HAWB Lines", value: expectedLines.length, color: "text-foreground" },
+          { label: "Released Shipments", value: `${releasedCount} / ${expectedLines.length}`, color: releasedCount === expectedLines.length ? "text-success" : "text-foreground" },
         ].map(k => (
           <div key={k.label} className="rounded-xl border border-border bg-card p-4 text-center">
             <p className="text-xs text-muted-foreground mb-1">{k.label}</p>
@@ -75,7 +100,7 @@ export default function DeconsolidationPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/20">
-                  {["HAWB / Consignee", "Expected", "De-Stuffed", "Delta", "Status"].map(h => (
+                  {["HAWB / Consignee", "Expected", "De-Stuffed", "Delta", "Status", ""].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -99,11 +124,11 @@ export default function DeconsolidationPage() {
                       <td className="px-4 py-3 text-xs font-semibold text-foreground">{line.expectedPcs} pcs</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5">
-                          <button onClick={() => setActual(line.ref, actual - 1)} className="w-5 h-5 rounded bg-muted flex items-center justify-center hover:bg-muted/80 text-muted-foreground">
+                          <button onClick={() => setActual(line.ref, actual - 1)} title={`Decrease de-stuffed count for ${line.ref}`} className="w-5 h-5 rounded bg-muted flex items-center justify-center hover:bg-muted/80 text-muted-foreground">
                             <Minus className="w-3 h-3" />
                           </button>
                           <span className="w-8 text-center text-xs font-bold text-foreground">{actual}</span>
-                          <button onClick={() => setActual(line.ref, actual + 1)} className="w-5 h-5 rounded bg-muted flex items-center justify-center hover:bg-muted/80 text-muted-foreground">
+                          <button onClick={() => setActual(line.ref, actual + 1)} title={`Increase de-stuffed count for ${line.ref}`} className="w-5 h-5 rounded bg-muted flex items-center justify-center hover:bg-muted/80 text-muted-foreground">
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
@@ -122,6 +147,12 @@ export default function DeconsolidationPage() {
                           <option>Short-Shipped</option>
                           <option>Damaged</option>
                         </select>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button onClick={() => setDetail(line)} title={`View ${line.ref} details`}
+                          className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
                       </td>
                     </tr>
                   )
@@ -149,22 +180,31 @@ export default function DeconsolidationPage() {
                       {statuses[line.ref]}
                     </span>
                   </div>
-                  <div className="flex gap-1 flex-wrap">
-                    {modes.map(m => (
-                      <button key={m} onClick={() => setModes2(p => ({ ...p, [line.ref]: m }))}
-                        className={cn("text-[10px] px-2 py-1 rounded-lg border font-medium transition-colors",
-                          modes2[line.ref] === m
-                            ? "bg-brand border-brand text-white"
-                            : "border-border text-muted-foreground hover:border-brand/40 hover:text-foreground"
-                        )}>
-                        {m}
-                      </button>
-                    ))}
-                  </div>
-                  {modes2[line.ref] && (
-                    <button className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-[#F7941D] text-white text-[11px] font-bold hover:bg-[#F7941D]/90 transition-colors">
-                      <Truck className="w-3 h-3" /> Confirm Release ({modes2[line.ref]})
-                    </button>
+                  {released[line.ref] ? (
+                    <div className="flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-success/15 border border-success/30 text-success text-[11px] font-bold">
+                      <CheckCircle2 className="w-3 h-3" /> Released · {released[line.ref]}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex gap-1 flex-wrap">
+                        {modes.map(m => (
+                          <button key={m} onClick={() => setModes2(p => ({ ...p, [line.ref]: m }))}
+                            className={cn("text-[10px] px-2 py-1 rounded-lg border font-medium transition-colors",
+                              modes2[line.ref] === m
+                                ? "bg-brand border-brand text-white"
+                                : "border-border text-muted-foreground hover:border-brand/40 hover:text-foreground"
+                            )}>
+                            {m}
+                          </button>
+                        ))}
+                      </div>
+                      {modes2[line.ref] && (
+                        <button onClick={() => setReleaseTarget(line)}
+                          className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-[#F7941D] text-white text-[11px] font-bold hover:bg-[#F7941D]/90 transition-colors">
+                          <Truck className="w-3 h-3" /> Confirm Release ({modes2[line.ref]})
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               ))}
@@ -172,6 +212,51 @@ export default function DeconsolidationPage() {
           </div>
         </div>
       </div>
+
+      {/* Line detail drawer */}
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.ref ?? ""}
+        description="De-consolidation line detail"
+        footer={
+          <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="HAWB Ref" value={<span className="font-mono text-brand">{detail.ref}</span>} />
+            <DetailRow label="Consignee" value={detail.consignee} />
+            <DetailRow label="Expected Pieces" value={`${detail.expectedPcs}`} />
+            <DetailRow label="De-Stuffed Pieces" value={`${actuals[detail.ref]}`} />
+            <DetailRow label="Delta" value={
+              actuals[detail.ref] === detail.expectedPcs
+                ? <span className="text-success">Reconciled</span>
+                : <span className="text-danger">{actuals[detail.ref] - detail.expectedPcs} pcs</span>
+            } />
+            <DetailRow label="Expected Volume" value={`${detail.expectedCbm} m³`} />
+            <DetailRow label="Expected Weight" value={`${detail.expectedWt.toLocaleString()} kg`} />
+            <DetailRow label="Status" value={statuses[detail.ref]} />
+            <DetailRow label="Release Mode" value={released[detail.ref] ?? modes2[detail.ref] ?? "Not selected"} />
+            <DetailRow label="Released" value={released[detail.ref] ? "Yes" : "No"} />
+            <DetailRow label="Consolidation" value="CONSOL-2024-087" />
+          </div>
+        )}
+      </Drawer>
+
+      {/* Release confirmation */}
+      <ConfirmDialog
+        open={!!releaseTarget}
+        onOpenChange={(o) => !o && setReleaseTarget(null)}
+        title="Confirm shipment release?"
+        message={`${releaseTarget?.consignee} (${releaseTarget?.ref}) will be released via ${releaseTarget ? modes2[releaseTarget.ref] : ""} and marked de-stuffed.`}
+        confirmLabel="Confirm Release"
+        cancelLabel="Not Yet"
+        tone="brand"
+        onConfirm={() => releaseTarget && confirmRelease(releaseTarget)}
+      />
     </div>
   )
 }

@@ -4,9 +4,27 @@ import { useState } from "react"
 import {
   Settings, User, Bell, Shield, Database, Palette, Globe, Key,
   ChevronRight, Save, Mail, Phone, Building2, MapPin,
-  Eye, EyeOff, Check
+  Eye, EyeOff, Check, Upload
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Modal } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Field, TextInput, ModalActions } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
+
+type ApiToken = { name: string; key: string; created: string; lastUsed: string }
+type Session = { device: string; location: string; time: string; current: boolean }
+type Integration = { name: string; desc: string; connected: boolean }
+
+/** Deterministic pastel swatches offered as stand-ins for a real avatar upload. */
+const AVATAR_PRESETS = [
+  { id: "brand", label: "Brand", cls: "bg-brand" },
+  { id: "emerald", label: "Emerald", cls: "bg-emerald-500" },
+  { id: "violet", label: "Violet", cls: "bg-violet-500" },
+  { id: "amber", label: "Amber", cls: "bg-amber-500" },
+  { id: "rose", label: "Rose", cls: "bg-rose-500" },
+  { id: "slate", label: "Slate", cls: "bg-slate-500" },
+] as const
 
 const sections = [
   { id: "profile", label: "Profile", icon: <User className="w-4 h-4" /> },
@@ -39,7 +57,40 @@ function Toggle2({ checked, onChange }: { checked: boolean; onChange: (v: boolea
 
 function ProfileSection() {
   const [saved, setSaved] = useState(false)
-  const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2000) }
+  const handleSave = () => {
+    setSaved(true)
+    notify.success("Profile updated", "Your personal details have been saved.")
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  // Avatar state — `initials`/`color` are what the page renders; the modal edits drafts.
+  const [initials, setInitials] = useState("VJ")
+  const [color, setColor] = useState<string>("bg-brand")
+  const [photoOpen, setPhotoOpen] = useState(false)
+  const [draftInitials, setDraftInitials] = useState("VJ")
+  const [draftColor, setDraftColor] = useState<string>("bg-brand")
+  const [draftFile, setDraftFile] = useState<string | null>(null)
+  const [photoError, setPhotoError] = useState("")
+
+  function openPhoto() {
+    setDraftInitials(initials)
+    setDraftColor(color)
+    setDraftFile(null)
+    setPhotoError("")
+    setPhotoOpen(true)
+  }
+
+  function applyPhoto() {
+    const next = draftInitials.trim().toUpperCase()
+    if (!next) { setPhotoError("Enter 1–2 initials for the avatar"); return }
+    if (!/^[A-Z]{1,2}$/.test(next)) { setPhotoError("Use 1–2 letters only"); return }
+    setInitials(next)
+    setColor(draftColor)
+    setPhotoOpen(false)
+    setPhotoError("")
+    notify.success("Photo updated", draftFile ? `${draftFile} applied to your profile.` : "Avatar style applied to your profile.")
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -48,14 +99,99 @@ function ProfileSection() {
       </div>
       {/* Avatar */}
       <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-brand flex items-center justify-center text-white text-xl font-bold shrink-0">VJ</div>
+        <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold shrink-0", color)}>{initials}</div>
         <div>
-          <button className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
+          <button onClick={openPhoto} className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
             Change Photo
           </button>
           <p className="text-xs text-muted-foreground mt-1">JPG, PNG or GIF. Max 2MB.</p>
         </div>
       </div>
+
+      {/* Change photo — simulated upload with live preview */}
+      <Modal
+        open={photoOpen}
+        onOpenChange={(o) => { setPhotoOpen(o); if (!o) setPhotoError("") }}
+        title="Change Profile Photo"
+        description="Upload an image or pick an avatar style"
+        footer={<ModalActions onCancel={() => setPhotoOpen(false)} onSubmit={applyPhoto} submitLabel="Apply Photo" />}
+      >
+        <div className="space-y-5">
+          {/* Live preview */}
+          <div className="flex items-center gap-4">
+            <div className={cn("w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shrink-0", draftColor)}>
+              {draftInitials.trim().toUpperCase() || "?"}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-foreground">Preview</p>
+              <p className="text-xs text-muted-foreground mt-0.5 break-words">
+                {draftFile ? `Selected: ${draftFile}` : "No file selected — using initials avatar."}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label
+              className="flex items-center justify-center gap-2 w-full px-3 py-6 rounded-xl border border-dashed border-border bg-background text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+              title="Choose an image file"
+            >
+              <Upload className="w-4 h-4" />
+              {draftFile ? "Choose a different image" : "Click to upload JPG, PNG or GIF"}
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/gif"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0]
+                  if (!f) return
+                  if (f.size > 2 * 1024 * 1024) {
+                    setPhotoError("File exceeds the 2MB limit")
+                    notify.error("File too large", `${f.name} is over the 2MB limit.`)
+                    return
+                  }
+                  setPhotoError("")
+                  setDraftFile(f.name)
+                  // No backend to store the binary — derive initials from the filename so the preview reacts.
+                  const stem = f.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z]/g, "")
+                  if (stem) setDraftInitials(stem.slice(0, 2).toUpperCase())
+                  notify.info("Image selected", `${f.name} ready to apply.`)
+                }}
+              />
+            </label>
+            {photoError && <p className="mt-1 text-xs text-danger">{photoError}</p>}
+          </div>
+
+          <Field label="Initials" required error={photoError && !draftFile ? photoError : undefined} hint="Shown when no image is set">
+            <TextInput
+              value={draftInitials}
+              invalid={!!photoError}
+              maxLength={2}
+              onChange={(e) => { setDraftInitials(e.target.value); setPhotoError("") }}
+              placeholder="e.g. VJ"
+            />
+          </Field>
+
+          <div>
+            <p className="mb-1.5 block text-sm font-medium text-foreground">Background</p>
+            <div className="flex flex-wrap gap-2">
+              {AVATAR_PRESETS.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setDraftColor(p.cls)}
+                  title={p.label}
+                  className={cn(
+                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                    p.cls,
+                    draftColor === p.cls ? "ring-2 ring-offset-2 ring-brand ring-offset-background" : "opacity-80 hover:opacity-100"
+                  )}
+                >
+                  {draftColor === p.cls && <Check className="w-4 h-4 text-white" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Modal>
       {/* Fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
@@ -154,10 +290,46 @@ function NotificationsSection() {
   )
 }
 
+const initialSessions: Session[] = [
+  { device: "Chrome — Windows 11", location: "Bengaluru, India", time: "Current session", current: true },
+  { device: "Safari — iPhone 14", location: "Bengaluru, India", time: "2 hours ago", current: false },
+  { device: "Chrome — MacBook Pro", location: "Mumbai, India", time: "1 day ago", current: false },
+]
+
 function SecuritySection() {
   const [showOld, setShowOld] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [twoFA, setTwoFA] = useState(true)
+
+  const [pw, setPw] = useState({ current: "", next: "", confirm: "" })
+  const [pwErrors, setPwErrors] = useState<Record<string, string>>({})
+  const [sessions, setSessions] = useState<Session[]>(initialSessions)
+  const [revokeTarget, setRevokeTarget] = useState<Session | null>(null)
+
+  function updatePassword() {
+    const e: Record<string, string> = {}
+    if (!pw.current) e.current = "Enter your current password"
+    if (!pw.next) e.next = "Enter a new password"
+    else if (pw.next.length < 8) e.next = "Must be at least 8 characters"
+    else if (pw.next === pw.current) e.next = "New password must differ from the current one"
+    if (!pw.confirm) e.confirm = "Re-enter the new password"
+    else if (pw.confirm !== pw.next) e.confirm = "Passwords do not match"
+    setPwErrors(e)
+    if (Object.keys(e).length > 0) return
+    setPw({ current: "", next: "", confirm: "" })
+    notify.success("Password updated", "Use your new password at next sign-in.")
+  }
+
+  function revokeSession(s: Session) {
+    setSessions(prev => prev.filter(x => x.device !== s.device))
+    notify.warning("Session revoked", `${s.device} has been signed out.`)
+  }
+
+  const passwordFields = [
+    { key: "current" as const, label: "Current Password", show: showOld, onToggle: () => setShowOld(v => !v) },
+    { key: "next" as const, label: "New Password", show: showNew, onToggle: () => setShowNew(v => !v) },
+    { key: "confirm" as const, label: "Confirm New Password", show: showNew, onToggle: () => setShowNew(v => !v) },
+  ]
 
   return (
     <div className="space-y-6">
@@ -168,22 +340,25 @@ function SecuritySection() {
       {/* Password */}
       <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
         <p className="text-sm font-semibold text-foreground">Change Password</p>
-        {[
-          { label: "Current Password", show: showOld, onToggle: () => setShowOld(v => !v) },
-          { label: "New Password", show: showNew, onToggle: () => setShowNew(v => !v) },
-          { label: "Confirm New Password", show: showNew, onToggle: () => setShowNew(v => !v) },
-        ].map((f) => (
+        {passwordFields.map((f) => (
           <div key={f.label}>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">{f.label}</label>
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-background focus-within:border-brand/50 transition-all">
-              <input type={f.show ? "text" : "password"} placeholder="••••••••" className="bg-transparent text-sm outline-none flex-1 text-foreground" />
-              <button onClick={f.onToggle} className="text-muted-foreground hover:text-foreground transition-colors">
+            <div className={cn("flex items-center gap-2 px-3 py-2.5 rounded-xl border bg-background focus-within:border-brand/50 transition-all", pwErrors[f.key] ? "border-danger" : "border-border")}>
+              <input
+                type={f.show ? "text" : "password"}
+                placeholder="••••••••"
+                value={pw[f.key]}
+                onChange={(e) => { setPw({ ...pw, [f.key]: e.target.value }); setPwErrors(prev => ({ ...prev, [f.key]: "" })) }}
+                className="bg-transparent text-sm outline-none flex-1 text-foreground"
+              />
+              <button onClick={f.onToggle} title={f.show ? "Hide password" : "Show password"} className="text-muted-foreground hover:text-foreground transition-colors">
                 {f.show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+            {pwErrors[f.key] && <p className="mt-1 text-xs text-danger">{pwErrors[f.key]}</p>}
           </div>
         ))}
-        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
+        <button onClick={updatePassword} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
           <Save className="w-4 h-4" /> Update Password
         </button>
       </div>
@@ -209,11 +384,7 @@ function SecuritySection() {
         <div className="px-5 py-3 border-b border-border bg-muted/20">
           <p className="text-sm font-semibold text-foreground">Active Sessions</p>
         </div>
-        {[
-          { device: "Chrome — Windows 11", location: "Bengaluru, India", time: "Current session", current: true },
-          { device: "Safari — iPhone 14", location: "Bengaluru, India", time: "2 hours ago", current: false },
-          { device: "Chrome — MacBook Pro", location: "Mumbai, India", time: "1 day ago", current: false },
-        ].map((s, i) => (
+        {sessions.map((s, i) => (
           <div key={i} className="flex items-center justify-between px-5 py-4 border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors">
             <div>
               <p className="text-sm font-medium text-foreground">{s.device}</p>
@@ -222,11 +393,24 @@ function SecuritySection() {
             {s.current ? (
               <span className="px-2 py-0.5 rounded-full text-xs bg-success/15 text-success font-medium">Active</span>
             ) : (
-              <button className="text-xs text-danger hover:underline">Revoke</button>
+              <button onClick={() => setRevokeTarget(s)} title={`Revoke ${s.device}`} className="text-xs text-danger hover:underline">Revoke</button>
             )}
           </div>
         ))}
+        {sessions.length === 0 && (
+          <div className="px-5 py-10 text-center text-sm text-muted-foreground">No active sessions.</div>
+        )}
       </div>
+
+      <ConfirmDialog
+        open={!!revokeTarget}
+        onOpenChange={(o) => !o && setRevokeTarget(null)}
+        title="Revoke this session?"
+        message={`${revokeTarget?.device} (${revokeTarget?.location}) will be signed out immediately.`}
+        confirmLabel="Revoke Session"
+        cancelLabel="Keep Signed In"
+        onConfirm={() => revokeTarget && revokeSession(revokeTarget)}
+      />
     </div>
   )
 }
@@ -287,11 +471,43 @@ function AppearanceSection() {
   )
 }
 
+const initialTokens: ApiToken[] = [
+  { name: "Production API Key", key: "vwms_prod_••••••••••••••••4a2f", created: "Dec 1, 2024", lastUsed: "2 mins ago" },
+  { name: "Staging API Key", key: "vwms_stg_••••••••••••••••8c31", created: "Nov 15, 2024", lastUsed: "1 day ago" },
+]
+
 function ApiSection() {
-  const tokens = [
-    { name: "Production API Key", key: "vwms_prod_••••••••••••••••4a2f", created: "Dec 1, 2024", lastUsed: "2 mins ago" },
-    { name: "Staging API Key", key: "vwms_stg_••••••••••••••••8c31", created: "Nov 15, 2024", lastUsed: "1 day ago" },
-  ]
+  const [tokens, setTokens] = useState<ApiToken[]>(initialTokens)
+  const [genOpen, setGenOpen] = useState(false)
+  const [keyName, setKeyName] = useState("")
+  const [keyError, setKeyError] = useState("")
+  const [revokeTarget, setRevokeTarget] = useState<ApiToken | null>(null)
+  const [webhook, setWebhook] = useState("https://hooks.acmelogistics.com/wms/events")
+
+  function generateKey() {
+    const name = keyName.trim()
+    if (!name) { setKeyError("Key name is required"); return }
+    if (tokens.some(t => t.name.toLowerCase() === name.toLowerCase())) { setKeyError("A key with that name already exists"); return }
+    const suffix = Math.random().toString(16).slice(2, 6)
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 12) || "key"
+    const next: ApiToken = {
+      name,
+      key: `vwms_${slug}_••••••••••••••••${suffix}`,
+      created: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      lastUsed: "Never",
+    }
+    setTokens(prev => [next, ...prev])
+    setGenOpen(false)
+    setKeyName("")
+    setKeyError("")
+    notify.success("API key generated", `${next.name} — copy it now, it won't be shown again.`)
+  }
+
+  function revokeToken(t: ApiToken) {
+    setTokens(prev => prev.filter(x => x.name !== t.name))
+    notify.warning("API key revoked", `${t.name} can no longer authenticate.`)
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -301,7 +517,7 @@ function ApiSection() {
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
         <div className="px-5 py-3 flex items-center justify-between border-b border-border bg-muted/20">
           <p className="text-sm font-semibold text-foreground">API Keys</p>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand/90 transition-colors">
+          <button onClick={() => { setKeyName(""); setKeyError(""); setGenOpen(true) }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand/90 transition-colors">
             <Key className="w-3.5 h-3.5" /> Generate Key
           </button>
         </div>
@@ -314,19 +530,104 @@ function ApiSection() {
                   <p className="text-xs font-mono text-muted-foreground mt-0.5">{t.key}</p>
                   <p className="text-xs text-muted-foreground mt-1">Created {t.created} · Last used {t.lastUsed}</p>
                 </div>
-                <button className="text-xs text-danger hover:underline mt-0.5">Revoke</button>
+                <button onClick={() => setRevokeTarget(t)} title={`Revoke ${t.name}`} className="text-xs text-danger hover:underline mt-0.5">Revoke</button>
               </div>
             </div>
           ))}
+          {tokens.length === 0 && (
+            <div className="px-5 py-10 text-center text-sm text-muted-foreground">No API keys. Generate one to get started.</div>
+          )}
         </div>
       </div>
       <div className="rounded-2xl border border-border bg-card p-5">
         <p className="text-sm font-semibold text-foreground mb-2">Webhook URL</p>
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-background">
-          <input defaultValue="https://hooks.acmelogistics.com/wms/events" className="bg-transparent text-sm font-mono outline-none flex-1 text-foreground" />
+          <input value={webhook} onChange={(e) => setWebhook(e.target.value)} className="bg-transparent text-sm font-mono outline-none flex-1 text-foreground" />
         </div>
         <p className="text-xs text-muted-foreground mt-2">Events will be POSTed to this URL on order and inventory changes.</p>
       </div>
+
+      {/* Generate API key */}
+      <Modal
+        open={genOpen}
+        onOpenChange={(o) => { setGenOpen(o); if (!o) { setKeyName(""); setKeyError("") } }}
+        title="Generate API Key"
+        description="Create a new key for an external integration"
+        footer={<ModalActions onCancel={() => setGenOpen(false)} onSubmit={generateKey} submitLabel="Generate Key" />}
+      >
+        <Field label="Key Name" required error={keyError} hint="e.g. Warehouse Sync, Mobile Scanner">
+          <TextInput
+            value={keyName}
+            invalid={!!keyError}
+            onChange={(e) => { setKeyName(e.target.value); setKeyError("") }}
+            placeholder="e.g. Reporting API Key"
+          />
+        </Field>
+      </Modal>
+
+      <ConfirmDialog
+        open={!!revokeTarget}
+        onOpenChange={(o) => !o && setRevokeTarget(null)}
+        title="Revoke this API key?"
+        message={`${revokeTarget?.name} will stop working immediately. Any integration using it will fail. This cannot be undone.`}
+        confirmLabel="Revoke Key"
+        cancelLabel="Keep Key"
+        onConfirm={() => revokeTarget && revokeToken(revokeTarget)}
+      />
+    </div>
+  )
+}
+
+const initialIntegrations: Integration[] = [
+  { name: "Tally ERP", desc: "Accounting & billing sync", connected: true },
+  { name: "Shopify", desc: "E-commerce order sync", connected: false },
+  { name: "FedEx / Blue Dart", desc: "Shipping label & tracking", connected: true },
+  { name: "WhatsApp Business", desc: "Dispatch notifications", connected: false },
+  { name: "SAP B1", desc: "ERP integration", connected: false },
+]
+
+function IntegrationsSection() {
+  const [integrations, setIntegrations] = useState<Integration[]>(initialIntegrations)
+  const [disconnectTarget, setDisconnectTarget] = useState<Integration | null>(null)
+
+  function connect(int: Integration) {
+    setIntegrations(prev => prev.map(x => x.name === int.name ? { ...x, connected: true } : x))
+    notify.success("Integration connected", `${int.name} is now syncing.`)
+  }
+
+  function disconnect(int: Integration) {
+    setIntegrations(prev => prev.map(x => x.name === int.name ? { ...x, connected: false } : x))
+    notify.warning("Integration disconnected", `${int.name} will no longer sync.`)
+  }
+
+  return (
+    <div className="space-y-4">
+      <div><h2 className="text-lg font-bold text-foreground">Integrations</h2><p className="text-sm text-muted-foreground">Connect third-party services</p></div>
+      {integrations.map((int) => (
+        <div key={int.name} className="flex items-center justify-between p-4 rounded-2xl border border-border bg-card hover:bg-muted/20 transition-colors">
+          <div>
+            <p className="text-sm font-semibold text-foreground">{int.name}</p>
+            <p className="text-xs text-muted-foreground">{int.desc}</p>
+          </div>
+          <button
+            onClick={() => int.connected ? setDisconnectTarget(int) : connect(int)}
+            title={int.connected ? `Disconnect ${int.name}` : `Connect ${int.name}`}
+            className={cn("px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors", int.connected ? "bg-success/15 text-success hover:bg-success/25" : "bg-brand text-white hover:bg-brand/90")}
+          >
+            {int.connected ? "Connected" : "Connect"}
+          </button>
+        </div>
+      ))}
+
+      <ConfirmDialog
+        open={!!disconnectTarget}
+        onOpenChange={(o) => !o && setDisconnectTarget(null)}
+        title="Disconnect this integration?"
+        message={`${disconnectTarget?.name} will stop syncing (${disconnectTarget?.desc?.toLowerCase()}). You can reconnect at any time.`}
+        confirmLabel="Disconnect"
+        cancelLabel="Stay Connected"
+        onConfirm={() => disconnectTarget && disconnect(disconnectTarget)}
+      />
     </div>
   )
 }
@@ -340,28 +641,7 @@ export default function SettingsPage() {
     security: <SecuritySection />,
     appearance: <AppearanceSection />,
     api: <ApiSection />,
-    integrations: (
-      <div className="space-y-4">
-        <div><h2 className="text-lg font-bold text-foreground">Integrations</h2><p className="text-sm text-muted-foreground">Connect third-party services</p></div>
-        {[
-          { name: "Tally ERP", desc: "Accounting & billing sync", connected: true },
-          { name: "Shopify", desc: "E-commerce order sync", connected: false },
-          { name: "FedEx / Blue Dart", desc: "Shipping label & tracking", connected: true },
-          { name: "WhatsApp Business", desc: "Dispatch notifications", connected: false },
-          { name: "SAP B1", desc: "ERP integration", connected: false },
-        ].map((int) => (
-          <div key={int.name} className="flex items-center justify-between p-4 rounded-2xl border border-border bg-card hover:bg-muted/20 transition-colors">
-            <div>
-              <p className="text-sm font-semibold text-foreground">{int.name}</p>
-              <p className="text-xs text-muted-foreground">{int.desc}</p>
-            </div>
-            <button className={cn("px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors", int.connected ? "bg-success/15 text-success hover:bg-success/25" : "bg-brand text-white hover:bg-brand/90")}>
-              {int.connected ? "Connected" : "Connect"}
-            </button>
-          </div>
-        ))}
-      </div>
-    ),
+    integrations: <IntegrationsSection />,
     localization: (
       <div className="space-y-4">
         <div><h2 className="text-lg font-bold text-foreground">Localization</h2><p className="text-sm text-muted-foreground">Regional and currency settings</p></div>

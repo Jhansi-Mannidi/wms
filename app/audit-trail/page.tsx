@@ -3,12 +3,21 @@
 import { useState } from "react"
 import {
   Shield, User, Package, ShoppingCart, Truck, DollarSign,
-  Search, ChevronDown, Eye, Filter, Clock
+  Search, ChevronDown, Eye, Filter, Clock, X as XIcon
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ExportButton } from "@/components/wms/export-button"
+import { Modal, Drawer } from "@/components/ui/modal"
+import { Field, TextInput, ModalActions, DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const auditLogs = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type AuditLog = {
+  id: string; time: string; user: string; role: string; module: string
+  action: string; entity: string; details: string; ip: string
+}
+
+const auditLogs: AuditLog[] = [
   { id: "AUD-20241", time: "2024-12-16 16:42:03", user: "Vijay Kumar", role: "Manager", module: "Inventory", action: "Stock Adjustment", entity: "SKU-001235", details: "Adjusted qty from 55 to 45 — Damage write-off", ip: "192.168.1.12" },
   { id: "AUD-20240", time: "2024-12-16 15:30:11", user: "Priya Sharma", role: "Packer", module: "Orders", action: "Order Packed", entity: "ORD-2024-155", details: "Order packed and ready for dispatch", ip: "192.168.1.18" },
   { id: "AUD-20239", time: "2024-12-16 14:55:47", user: "Ravi Kumar", role: "Picker", module: "Orders", action: "Pick Completed", entity: "ORD-2024-156", details: "All 3 line items picked successfully", ip: "192.168.1.21" },
@@ -43,13 +52,29 @@ const moduleColors: Record<string, string> = {
   Workforce: "text-success bg-success/15",
 }
 
+const PAGE_SIZE = 5
+
+function isFailure(log: AuditLog) {
+  return log.action.toLowerCase().includes("failed") || log.action.toLowerCase().includes("error")
+}
+
 export default function AuditTrailPage() {
   const [search, setSearch] = useState("")
   const [moduleFilter, setModuleFilter] = useState("All Modules")
   const [userFilter, setUserFilter] = useState("All Users")
+  const [page, setPage] = useState(1)
+
+  // Applied date range (drives the table); draft lives in the modal until submitted.
+  const [range, setRange] = useState({ from: "", to: "" })
+  const [rangeOpen, setRangeOpen] = useState(false)
+  const [draftRange, setDraftRange] = useState({ from: "", to: "" })
+  const [rangeErrors, setRangeErrors] = useState<Record<string, string>>({})
+
+  const [detail, setDetail] = useState<AuditLog | null>(null)
 
   const filtered = auditLogs.filter((log) => {
     const q = search.toLowerCase()
+    const day = log.time.slice(0, 10)
     return (
       (log.id.toLowerCase().includes(q) ||
         log.user.toLowerCase().includes(q) ||
@@ -57,9 +82,49 @@ export default function AuditTrailPage() {
         log.entity.toLowerCase().includes(q) ||
         log.details.toLowerCase().includes(q)) &&
       (moduleFilter === "All Modules" || log.module === moduleFilter) &&
-      (userFilter === "All Users" || log.user === userFilter)
+      (userFilter === "All Users" || log.user === userFilter) &&
+      (!range.from || day >= range.from) &&
+      (!range.to || day <= range.to)
     )
   })
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage = Math.min(page, pageCount)
+  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+
+  const rangeActive = !!(range.from || range.to)
+
+  function openRange() {
+    setDraftRange(range)
+    setRangeErrors({})
+    setRangeOpen(true)
+  }
+
+  function applyRange() {
+    const e: Record<string, string> = {}
+    if (!draftRange.from && !draftRange.to) e.from = "Enter at least a From or To date"
+    if (draftRange.from && draftRange.to && draftRange.from > draftRange.to) e.to = "To date must be on or after the From date"
+    setRangeErrors(e)
+    if (Object.keys(e).length) return
+    setRange(draftRange)
+    setRangeOpen(false)
+    setPage(1)
+    notify.success("Date range applied", `Showing events ${draftRange.from || "the beginning"} → ${draftRange.to || "now"}.`)
+  }
+
+  function clearRange() {
+    setRange({ from: "", to: "" })
+    setDraftRange({ from: "", to: "" })
+    setPage(1)
+    notify.info("Date range cleared", "Showing all audit events.")
+  }
+
+  const stats = [
+    { label: "Total Events (Today)", value: filtered.length.toString(), sub: rangeActive ? "In selected range" : "All modules" },
+    { label: "User Actions", value: filtered.filter((l) => l.role !== "Automation").length.toString(), sub: "Manual operations" },
+    { label: "System Events", value: filtered.filter((l) => l.role === "Automation").length.toString(), sub: "Automated" },
+    { label: "Critical Events", value: filtered.filter(isFailure).length.toString(), sub: "Failures & errors" },
+  ]
 
   return (
     <div className="h-full overflow-y-auto">
@@ -79,12 +144,7 @@ export default function AuditTrailPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: "Total Events (Today)", value: auditLogs.length.toString(), sub: "All modules" },
-            { label: "User Actions", value: auditLogs.filter((l) => l.role !== "Automation").length.toString(), sub: "Manual operations" },
-            { label: "System Events", value: auditLogs.filter((l) => l.role === "Automation").length.toString(), sub: "Automated" },
-            { label: "Critical Events", value: "1", sub: "Failures & errors" },
-          ].map((stat, i) => (
+          {stats.map((stat, i) => (
             <div key={i} className="p-5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
@@ -104,7 +164,7 @@ export default function AuditTrailPage() {
               className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground"
               placeholder="Search by user, action, entity..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
             />
           </div>
           {[
@@ -115,16 +175,33 @@ export default function AuditTrailPage() {
               <select
                 className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-card text-sm text-foreground outline-none cursor-pointer"
                 value={f.value}
-                onChange={(e) => f.onChange(e.target.value)}
+                onChange={(e) => { f.onChange(e.target.value); setPage(1) }}
               >
                 {f.options.map((o) => <option key={o}>{o}</option>)}
               </select>
               <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           ))}
-          <button className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-card text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <Filter className="w-4 h-4" /> Date Range
+          <button
+            onClick={openRange}
+            title="Filter by date range"
+            className={cn(
+              "flex items-center gap-2 px-3 py-2 rounded-xl border border-border text-sm transition-colors",
+              rangeActive ? "bg-brand text-white border-brand" : "bg-card text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Filter className="w-4 h-4" />
+            {rangeActive ? `${range.from || "Any"} → ${range.to || "Any"}` : "Date Range"}
           </button>
+          {rangeActive && (
+            <button
+              onClick={clearRange}
+              title="Clear date range"
+              className="flex items-center gap-1 px-3 py-2 rounded-xl border border-border bg-card text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <XIcon className="w-4 h-4" /> Clear
+            </button>
+          )}
         </div>
 
         {/* Log table */}
@@ -141,8 +218,8 @@ export default function AuditTrailPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((log, i) => {
-                  const isFailed = log.action.toLowerCase().includes("failed") || log.action.toLowerCase().includes("error")
+                {paged.map((log, i) => {
+                  const isFailed = isFailure(log)
                   return (
                     <tr
                       key={log.id}
@@ -153,7 +230,7 @@ export default function AuditTrailPage() {
                       )}
                     >
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-brand font-medium text-xs font-mono">{log.id}</span>
+                        <button onClick={() => setDetail(log)} title={`View ${log.id}`} className="text-brand font-medium text-xs font-mono hover:underline">{log.id}</button>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
@@ -181,8 +258,8 @@ export default function AuditTrailPage() {
                       <td className={cn("px-4 py-3 font-medium whitespace-nowrap text-xs", isFailed ? "text-danger" : "text-foreground")}>
                         {log.action}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-xs font-mono text-brand hover:underline cursor-pointer">
-                        {log.entity}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <button onClick={() => setDetail(log)} title={`View entity ${log.entity}`} className="text-xs font-mono text-brand hover:underline">{log.entity}</button>
                       </td>
                       <td className="px-4 py-3 text-muted-foreground text-xs max-w-64">
                         <span className="line-clamp-1">{log.details}</span>
@@ -191,7 +268,7 @@ export default function AuditTrailPage() {
                         {log.ip}
                       </td>
                       <td className="px-4 py-3">
-                        <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                        <button onClick={() => setDetail(log)} title="View details" className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                           <Eye className="w-3.5 h-3.5" />
                         </button>
                       </td>
@@ -209,13 +286,15 @@ export default function AuditTrailPage() {
           </div>
           <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
             <span className="text-xs text-muted-foreground">
-              Showing {filtered.length} of {auditLogs.length} records
+              Showing {paged.length} of {filtered.length} records
             </span>
             <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((p) => (
+              {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) => (
                 <button
                   key={p}
-                  className={cn("w-7 h-7 rounded-lg text-xs transition-colors", p === 1 ? "bg-brand text-white" : "text-muted-foreground hover:bg-muted")}
+                  onClick={() => setPage(p)}
+                  title={`Page ${p}`}
+                  className={cn("w-7 h-7 rounded-lg text-xs transition-colors", p === safePage ? "bg-brand text-white" : "text-muted-foreground hover:bg-muted")}
                 >
                   {p}
                 </button>
@@ -224,6 +303,63 @@ export default function AuditTrailPage() {
           </div>
         </div>
       </div>
+
+      {/* Date range filter */}
+      <Modal
+        open={rangeOpen}
+        onOpenChange={(o) => { setRangeOpen(o); if (!o) setRangeErrors({}) }}
+        title="Filter by Date Range"
+        description="Narrow the audit log to events within a period"
+        size="sm"
+        footer={
+          <>
+            <button onClick={() => { clearRange(); setRangeOpen(false) }} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+              Clear
+            </button>
+            <ModalActions onCancel={() => setRangeOpen(false)} onSubmit={applyRange} submitLabel="Apply Range" />
+          </>
+        }
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="From Date" error={rangeErrors.from}>
+            <TextInput type="date" value={draftRange.from} invalid={!!rangeErrors.from} onChange={(e) => setDraftRange({ ...draftRange, from: e.target.value })} />
+          </Field>
+          <Field label="To Date" error={rangeErrors.to} hint="Leave a field empty for an open-ended range">
+            <TextInput type="date" value={draftRange.to} invalid={!!rangeErrors.to} onChange={(e) => setDraftRange({ ...draftRange, to: e.target.value })} />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* Detail drawer */}
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.id ?? ""}
+        description="Audit event detail"
+        footer={
+          <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="Log ID" value={<span className="font-mono text-brand">{detail.id}</span>} />
+            <DetailRow label="Timestamp" value={detail.time} />
+            <DetailRow label="User" value={detail.user} />
+            <DetailRow label="Role" value={detail.role} />
+            <DetailRow label="Module" value={
+              <span className={cn("inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium", moduleColors[detail.module] ?? "text-muted-foreground bg-muted")}>
+                {moduleIcons[detail.module]}{detail.module}
+              </span>
+            } />
+            <DetailRow label="Action" value={<span className={isFailure(detail) ? "text-danger font-medium" : "font-medium"}>{detail.action}</span>} />
+            <DetailRow label="Entity" value={<span className="font-mono">{detail.entity}</span>} />
+            <DetailRow label="Details" value={detail.details} />
+            <DetailRow label="Source IP" value={<span className="font-mono">{detail.ip}</span>} />
+          </div>
+        )}
+      </Drawer>
     </div>
   )
 }

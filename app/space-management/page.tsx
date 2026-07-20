@@ -3,11 +3,26 @@
 import { useState } from "react"
 import {
   Building2, Users, LayoutGrid, AlertTriangle,
-  Plus, Search, ChevronDown, Eye, MoreHorizontal, MapPin, TrendingUp
+  Plus, Search, Eye, MoreHorizontal, MapPin, TrendingUp
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Modal, Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const zones = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type Zone = {
+  id: string; name: string; type: string; pallets: number; capacity: number
+  utilization: number; tenant: string; temp: string; aisles: number; racking: string
+}
+
+type Tenant = {
+  id: string; name: string; contract: string; zones: string[]; pallets: number
+  space: string; rent: string; status: string; since: string
+}
+
+const initialZones: Zone[] = [
   { id: "ZN-A", name: "Zone A", type: "Dry Storage", pallets: 320, capacity: 400, utilization: 80, tenant: "Acme Foods", temp: "Ambient", aisles: 8, racking: "Selective" },
   { id: "ZN-B", name: "Zone B", type: "Dry Storage", pallets: 185, capacity: 250, utilization: 74, tenant: "Multi-tenant", temp: "Ambient", aisles: 6, racking: "Drive-In" },
   { id: "ZN-C", name: "Zone C", type: "Bulk Storage", pallets: 112, capacity: 150, utilization: 75, tenant: "Agro Corp", temp: "Ambient", aisles: 4, racking: "Block Stack" },
@@ -16,13 +31,19 @@ const zones = [
   { id: "ZN-F", name: "Zone F", type: "Staging", pallets: 44, capacity: 60, utilization: 73, tenant: "All Clients", temp: "Ambient", aisles: 2, racking: "Floor" },
 ]
 
-const tenants = [
+const initialTenants: Tenant[] = [
   { id: "TNT-001", name: "Acme Foods", contract: "Long-term (3yr)", zones: ["Zone A"], pallets: 320, space: "8,000 sqft", rent: "₹1,20,000/mo", status: "Active", since: "2022-01" },
   { id: "TNT-002", name: "Global Oils", contract: "Annual", zones: ["Zone B partial"], pallets: 90, space: "3,200 sqft", rent: "₹48,000/mo", status: "Active", since: "2023-06" },
   { id: "TNT-003", name: "Agro Corp", contract: "Annual", zones: ["Zone C"], pallets: 112, space: "4,800 sqft", rent: "₹64,000/mo", status: "Active", since: "2023-03" },
   { id: "TNT-004", name: "Fresh Farms", contract: "Monthly", zones: ["Zone D"], pallets: 95, space: "3,600 sqft", rent: "₹90,000/mo", status: "Active", since: "2024-07" },
   { id: "TNT-005", name: "Salt Works", contract: "Annual", zones: ["Zone B partial"], pallets: 55, space: "1,800 sqft", rent: "₹22,000/mo", status: "Active", since: "2023-09" },
 ]
+
+const ZONE_TYPES = ["Dry Storage", "Bulk Storage", "Cold Storage", "Hazmat", "Staging"] as const
+const RACKING = ["Selective", "Drive-In", "Block Stack", "Cantilever", "Floor"] as const
+const TEMPS = ["Ambient", "Chilled 2–8°C", "Frozen -18°C", "Controlled"] as const
+
+const emptyZoneForm = { name: "", type: "", capacity: "", tenant: "", temp: "", aisles: "", racking: "" }
 
 function UtilBar({ pct }: { pct: number }) {
   const color = pct >= 90 ? "bg-danger" : pct >= 75 ? "bg-warning" : "bg-success"
@@ -42,14 +63,77 @@ export default function SpaceManagementPage() {
   const [tab, setTab] = useState<"zones" | "tenants">("zones")
   const [search, setSearch] = useState("")
 
+  const [zones, setZones] = useState<Zone[]>(initialZones)
+  const [tenants, setTenants] = useState<Tenant[]>(initialTenants)
+
+  const [createOpen, setCreateOpen] = useState(false)
+  const [form, setForm] = useState(emptyZoneForm)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const [zoneDetail, setZoneDetail] = useState<Zone | null>(null)
+  const [zoneDeleteTarget, setZoneDeleteTarget] = useState<Zone | null>(null)
+  const [tenantDetail, setTenantDetail] = useState<Tenant | null>(null)
+  const [tenantEndTarget, setTenantEndTarget] = useState<Tenant | null>(null)
+
   const totalPallets = zones.reduce((s, z) => s + z.pallets, 0)
   const totalCapacity = zones.reduce((s, z) => s + z.capacity, 0)
-  const overallUtil = Math.round((totalPallets / totalCapacity) * 100)
+  const overallUtil = totalCapacity === 0 ? 0 : Math.round((totalPallets / totalCapacity) * 100)
+  const activeTenants = tenants.filter((t) => t.status === "Active").length
 
   const filteredTenants = tenants.filter((t) => {
     const q = search.toLowerCase()
     return t.name.toLowerCase().includes(q) || t.id.toLowerCase().includes(q)
   })
+
+  function validate() {
+    const e: Record<string, string> = {}
+    if (!form.name.trim()) e.name = "Zone name is required"
+    else if (zones.some((z) => z.name.toLowerCase() === form.name.trim().toLowerCase())) e.name = "A zone with this name already exists"
+    if (!form.type) e.type = "Select a zone type"
+    if (!form.capacity.trim()) e.capacity = "Capacity is required"
+    else if (!/^\d+$/.test(form.capacity) || Number(form.capacity) < 1) e.capacity = "Enter a positive whole number"
+    if (!form.tenant.trim()) e.tenant = "Tenant is required"
+    if (!form.temp) e.temp = "Select a temperature profile"
+    if (!form.aisles.trim()) e.aisles = "Aisle count is required"
+    else if (!/^\d+$/.test(form.aisles) || Number(form.aisles) < 1) e.aisles = "Enter a positive whole number"
+    if (!form.racking) e.racking = "Select a racking system"
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  function createZone() {
+    if (!validate()) return
+    const letter = String.fromCharCode(65 + zones.length)
+    const next: Zone = {
+      id: `ZN-${letter}`,
+      name: form.name.trim(),
+      type: form.type,
+      pallets: 0,
+      capacity: Number(form.capacity),
+      utilization: 0,
+      tenant: form.tenant.trim(),
+      temp: form.temp,
+      aisles: Number(form.aisles),
+      racking: form.racking,
+    }
+    setZones((prev) => [...prev, next])
+    setCreateOpen(false)
+    setForm(emptyZoneForm)
+    setErrors({})
+    notify.success("Zone created", `${next.name} added with ${next.capacity} pallet positions.`)
+  }
+
+  function deleteZone(z: Zone) {
+    setZones((prev) => prev.filter((x) => x.id !== z.id))
+    setZoneDetail(null)
+    notify.warning("Zone removed", `${z.name} has been removed from the warehouse layout.`)
+  }
+
+  function endContract(t: Tenant) {
+    setTenants((prev) => prev.map((x) => (x.id === t.id ? { ...x, status: "Ended" } : x)))
+    setTenantDetail(null)
+    notify.warning("Contract ended", `${t.name} is no longer an active tenant.`)
+  }
 
   return (
     <div className="h-full overflow-y-auto">
@@ -59,7 +143,7 @@ export default function SpaceManagementPage() {
             <h1 className="text-2xl font-bold text-foreground">Space Management</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Warehouse zones, utilization and tenant management</p>
           </div>
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
+          <button onClick={() => setCreateOpen(true)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
             <Plus className="w-4 h-4" /> Add Zone
           </button>
         </div>
@@ -70,7 +154,7 @@ export default function SpaceManagementPage() {
             { label: "Total Zones", value: zones.length.toString(), sub: "Across warehouse", icon: <LayoutGrid className="w-5 h-5" /> },
             { label: "Total Capacity", value: `${totalCapacity} Pallets`, sub: "Available positions", icon: <Building2 className="w-5 h-5" /> },
             { label: "Overall Utilization", value: `${overallUtil}%`, sub: `${totalPallets} pallets stored`, icon: <TrendingUp className="w-5 h-5" /> },
-            { label: "Active Tenants", value: tenants.length.toString(), sub: "Client contracts", icon: <Users className="w-5 h-5" /> },
+            { label: "Active Tenants", value: activeTenants.toString(), sub: "Client contracts", icon: <Users className="w-5 h-5" /> },
           ].map((stat, i) => (
             <div key={i} className="p-5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
@@ -116,7 +200,7 @@ export default function SpaceManagementPage() {
                       </div>
                     </div>
                   </div>
-                  <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                  <button onClick={() => setZoneDetail(zone)} title={`View ${zone.name} details`} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                 </div>
@@ -149,6 +233,11 @@ export default function SpaceManagementPage() {
                 </div>
               </div>
             ))}
+            {zones.length === 0 && (
+              <div className="col-span-full p-10 text-center text-sm text-muted-foreground rounded-2xl border border-border bg-card">
+                No zones configured. Use “Add Zone” to create one.
+              </div>
+            )}
           </div>
         )}
 
@@ -189,16 +278,19 @@ export default function SpaceManagementPage() {
                         <td className="px-4 py-3 font-bold text-foreground whitespace-nowrap">{t.rent}</td>
                         <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">{t.since}</td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-success/15 text-success">{t.status}</span>
+                          <span className={cn("px-2 py-1 rounded-full text-xs font-medium", t.status === "Active" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground")}>{t.status}</span>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1">
-                            <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
-                            <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><MoreHorizontal className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => setTenantDetail(t)} title={`View ${t.name} details`} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><Eye className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => setTenantEndTarget(t)} disabled={t.status !== "Active"} title={t.status === "Active" ? `End contract with ${t.name}` : "Contract already ended"} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"><MoreHorizontal className="w-3.5 h-3.5" /></button>
                           </div>
                         </td>
                       </tr>
                     ))}
+                    {filteredTenants.length === 0 && (
+                      <tr><td colSpan={10} className="px-4 py-10 text-center text-sm text-muted-foreground">No tenants match your search.</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -206,6 +298,121 @@ export default function SpaceManagementPage() {
           </>
         )}
       </div>
+
+      {/* Create zone */}
+      <Modal
+        open={createOpen}
+        onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyZoneForm); setErrors({}) } }}
+        title="Add Zone"
+        description="Define a new storage zone in the warehouse"
+        footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createZone} submitLabel="Create Zone" />}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Zone Name" required error={errors.name}>
+            <TextInput value={form.name} invalid={!!errors.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Zone G" />
+          </Field>
+          <Field label="Zone Type" required error={errors.type}>
+            <Select value={form.type} invalid={!!errors.type} onChange={(e) => setForm({ ...form, type: e.target.value })} options={ZONE_TYPES} placeholder="Select Type" />
+          </Field>
+          <Field label="Capacity (pallets)" required error={errors.capacity}>
+            <TextInput value={form.capacity} invalid={!!errors.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value })} placeholder="e.g. 200" inputMode="numeric" />
+          </Field>
+          <Field label="Tenant" required error={errors.tenant}>
+            <TextInput value={form.tenant} invalid={!!errors.tenant} onChange={(e) => setForm({ ...form, tenant: e.target.value })} placeholder="e.g. Acme Foods" />
+          </Field>
+          <Field label="Temperature" required error={errors.temp}>
+            <Select value={form.temp} invalid={!!errors.temp} onChange={(e) => setForm({ ...form, temp: e.target.value })} options={TEMPS} placeholder="Select Profile" />
+          </Field>
+          <Field label="Aisles" required error={errors.aisles}>
+            <TextInput value={form.aisles} invalid={!!errors.aisles} onChange={(e) => setForm({ ...form, aisles: e.target.value })} placeholder="e.g. 4" inputMode="numeric" />
+          </Field>
+          <Field label="Racking System" required error={errors.racking}>
+            <Select value={form.racking} invalid={!!errors.racking} onChange={(e) => setForm({ ...form, racking: e.target.value })} options={RACKING} placeholder="Select Racking" />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* Zone detail drawer */}
+      <Drawer
+        open={!!zoneDetail}
+        onOpenChange={(o) => !o && setZoneDetail(null)}
+        title={zoneDetail?.name ?? ""}
+        description="Zone detail"
+        footer={
+          <>
+            <button onClick={() => zoneDetail && setZoneDeleteTarget(zoneDetail)} className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-danger/90">
+              Remove Zone
+            </button>
+            <button onClick={() => setZoneDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+              Close
+            </button>
+          </>
+        }
+      >
+        {zoneDetail && (
+          <div className="space-y-1">
+            <DetailRow label="Zone ID" value={<span className="font-mono text-brand">{zoneDetail.id}</span>} />
+            <DetailRow label="Name" value={zoneDetail.name} />
+            <DetailRow label="Type" value={zoneDetail.type} />
+            <DetailRow label="Tenant" value={zoneDetail.tenant} />
+            <DetailRow label="Temperature" value={zoneDetail.temp} />
+            <DetailRow label="Pallets Stored" value={`${zoneDetail.pallets} / ${zoneDetail.capacity}`} />
+            <DetailRow label="Utilization" value={`${zoneDetail.utilization}%`} />
+            <DetailRow label="Aisles" value={zoneDetail.aisles} />
+            <DetailRow label="Racking" value={zoneDetail.racking} />
+            <DetailRow label="Free Positions" value={`${zoneDetail.capacity - zoneDetail.pallets} pallets`} />
+          </div>
+        )}
+      </Drawer>
+
+      {/* Tenant detail drawer */}
+      <Drawer
+        open={!!tenantDetail}
+        onOpenChange={(o) => !o && setTenantDetail(null)}
+        title={tenantDetail?.name ?? ""}
+        description="Tenant detail"
+        footer={
+          <button onClick={() => setTenantDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {tenantDetail && (
+          <div className="space-y-1">
+            <DetailRow label="Tenant ID" value={<span className="font-mono text-brand">{tenantDetail.id}</span>} />
+            <DetailRow label="Client Name" value={tenantDetail.name} />
+            <DetailRow label="Contract" value={tenantDetail.contract} />
+            <DetailRow label="Zones" value={tenantDetail.zones.join(", ")} />
+            <DetailRow label="Pallets" value={tenantDetail.pallets} />
+            <DetailRow label="Space" value={tenantDetail.space} />
+            <DetailRow label="Monthly Rent" value={tenantDetail.rent} />
+            <DetailRow label="Client Since" value={tenantDetail.since} />
+            <DetailRow label="Status" value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", tenantDetail.status === "Active" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground")}>{tenantDetail.status}</span>} />
+          </div>
+        )}
+      </Drawer>
+
+      {/* Remove zone confirmation */}
+      <ConfirmDialog
+        open={!!zoneDeleteTarget}
+        onOpenChange={(o) => !o && setZoneDeleteTarget(null)}
+        title="Remove this zone?"
+        message={`${zoneDeleteTarget?.name} holds ${zoneDeleteTarget?.pallets ?? 0} pallets. Removing it will drop it from the layout and recalculate capacity.`}
+        confirmLabel="Remove Zone"
+        cancelLabel="Keep It"
+        onConfirm={() => zoneDeleteTarget && deleteZone(zoneDeleteTarget)}
+      />
+
+      {/* End contract confirmation */}
+      <ConfirmDialog
+        open={!!tenantEndTarget}
+        onOpenChange={(o) => !o && setTenantEndTarget(null)}
+        title="End this tenant contract?"
+        message={`${tenantEndTarget?.name} will be marked as Ended and excluded from the active tenant count.`}
+        confirmLabel="End Contract"
+        cancelLabel="Keep Active"
+        onConfirm={() => tenantEndTarget && endContract(tenantEndTarget)}
+      />
     </div>
   )
 }

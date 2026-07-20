@@ -1,15 +1,20 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, X, CheckCircle2, FileText, Download, Send, Wind } from "lucide-react"
+import { Plus, X, CheckCircle2, FileText, Download, Send, Wind, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Modal } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Field, TextInput, Select, ModalActions } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
 const uldTypes = ["PMC – 88×125 in (max 1,588 kg)", "AKE – 60.4×61.5 in (max 1,497 kg)", "PAG – 88×125 in (max 4,626 kg)", "LD3 – 79.1×60.4 in (max 1,588 kg)"]
 const airlines = ["IndiGo – 6E", "Air India – AI", "SpiceJet – SG", "Emirates – EK", "Qatar Airways – QR"]
 
-interface ExportPkg { id: string; ref: string; consignee: string; weight: number; dest: string; initials: string; color: string }
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type ExportPkg = { id: string; ref: string; consignee: string; weight: number; dest: string; initials: string; color: string }
 
-const pool: ExportPkg[] = [
+const initialPool: ExportPkg[] = [
   { id: "p1", ref: "AIR-EXP-001", consignee: "TechParts GmbH", weight: 18.4, dest: "FRA", initials: "TG", color: "bg-blue-500" },
   { id: "p2", ref: "AIR-EXP-002", consignee: "MedDevice UK", weight: 5.2, dest: "LHR", initials: "MD", color: "bg-rose-500" },
   { id: "p3", ref: "AIR-EXP-003", consignee: "Spice Lane Dubai", weight: 32.0, dest: "DXB", initials: "SL", color: "bg-amber-500" },
@@ -25,21 +30,92 @@ const hawbLines = [
   { hawb: "VF-HAWB-2024-0052", shipper: "GlobalTex Fabrics", pieces: 4, weight: 18.4, dest: "FRA" },
 ]
 
+const COLORS = ["bg-blue-500", "bg-rose-500", "bg-amber-500", "bg-emerald-500", "bg-violet-500", "bg-orange-500"]
+
+const emptyForm = { ref: "", consignee: "", weight: "", dest: "" }
+
 export default function ULDBuildPage() {
   const [selectedUld, setSelectedUld] = useState(uldTypes[0])
   const [selectedAirline, setSelectedAirline] = useState(airlines[0])
   const [flight, setFlight] = useState("")
   const [seal, setSeal] = useState("")
   const [uldId, setUldId] = useState("")
+  const [pool, setPool] = useState<ExportPkg[]>(initialPool)
   const [loaded, setLoaded] = useState<ExportPkg[]>([])
   const [confirmed, setConfirmed] = useState(false)
+
+  const [createOpen, setCreateOpen] = useState(false)
+  const [form, setForm] = useState(emptyForm)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [resetTarget, setResetTarget] = useState(false)
 
   const totalLoaded = loaded.reduce((s, p) => s + p.weight, 0)
   const fillPct = Math.min((totalLoaded / ULD_MAX) * 100, 100)
   const remaining = pool.filter(p => !loaded.find(l => l.id === p.id))
 
-  const addToUld = (pkg: ExportPkg) => setLoaded(prev => [...prev, pkg])
-  const removeFromUld = (id: string) => setLoaded(prev => prev.filter(p => p.id !== id))
+  const addToUld = (pkg: ExportPkg) => {
+    if (totalLoaded + pkg.weight > ULD_MAX) {
+      notify.error("ULD capacity exceeded", `Adding ${pkg.ref} would exceed the ${ULD_MAX} kg limit.`)
+      return
+    }
+    setLoaded(prev => [...prev, pkg])
+    notify.success("Loaded into ULD", `${pkg.ref} — ${pkg.weight} kg added (${(totalLoaded + pkg.weight).toFixed(1)} kg total).`)
+  }
+
+  const removeFromUld = (id: string) => {
+    const pkg = loaded.find(p => p.id === id)
+    setLoaded(prev => prev.filter(p => p.id !== id))
+    if (pkg) notify.info("Removed from ULD", `${pkg.ref} returned to the export pool.`)
+  }
+
+  function validate() {
+    const e: Record<string, string> = {}
+    if (!form.ref.trim()) e.ref = "Shipment reference is required"
+    else if (pool.some(p => p.ref.toLowerCase() === form.ref.trim().toLowerCase())) e.ref = "This reference is already in the pool"
+    if (!form.consignee.trim()) e.consignee = "Consignee is required"
+    if (!form.weight.trim()) e.weight = "Weight is required"
+    else if (!/^\d+(\.\d+)?$/.test(form.weight) || Number(form.weight) <= 0) e.weight = "Enter a positive number of kg"
+    if (!form.dest.trim()) e.dest = "Destination is required"
+    else if (!/^[A-Za-z]{3}$/.test(form.dest.trim())) e.dest = "Use a 3-letter airport code"
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  function createPackage() {
+    if (!validate()) return
+    const words = form.consignee.trim().split(/\s+/)
+    const initials = ((words[0]?.[0] ?? "") + (words[1]?.[0] ?? words[0]?.[1] ?? "")).toUpperCase()
+    const next: ExportPkg = {
+      id: `p${Date.now()}`,
+      ref: form.ref.trim().toUpperCase(),
+      consignee: form.consignee.trim(),
+      weight: Number(form.weight),
+      dest: form.dest.trim().toUpperCase(),
+      initials,
+      color: COLORS[pool.length % COLORS.length],
+    }
+    setPool(prev => [...prev, next])
+    setCreateOpen(false)
+    setForm(emptyForm)
+    setErrors({})
+    notify.success("Package added to pool", `${next.ref} — ${next.weight} kg to ${next.dest}.`)
+  }
+
+  function confirmBuild() {
+    setConfirmed(true)
+    notify.success("ULD handed off", `${uldId || "ULD"} on ${flight} sealed with ${seal} — ${loaded.length} package(s), ${totalLoaded.toFixed(1)} kg.`)
+  }
+
+  function resetBuild() {
+    setLoaded([])
+    setConfirmed(false)
+    setSeal("")
+    setFlight("")
+    setUldId("")
+    notify.info("Build reset", "The ULD has been emptied and is ready for a new build.")
+  }
 
   return (
     <div className="p-6 w-full">
@@ -83,7 +159,13 @@ export default function ULDBuildPage() {
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-5 py-3 border-b border-border flex items-center justify-between">
             <h2 className="text-sm font-bold text-foreground">Export Package Pool</h2>
-            <span className="text-xs text-muted-foreground">{remaining.length} available</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">{remaining.length} available</span>
+              <button onClick={() => setCreateOpen(true)} title="Add an export package to the pool"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand text-white text-xs font-semibold hover:bg-brand/90 transition-colors">
+                <Plus className="w-3 h-3" /> New Package
+              </button>
+            </div>
           </div>
           <div className="p-4 space-y-2">
             {remaining.length === 0 ? (
@@ -103,7 +185,7 @@ export default function ULDBuildPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-xs font-bold text-foreground">{pkg.weight} kg</span>
-                    <button onClick={() => addToUld(pkg)}
+                    <button onClick={() => addToUld(pkg)} title={`Load ${pkg.ref} into the ULD`}
                       className="w-7 h-7 rounded-lg bg-brand text-white flex items-center justify-center hover:bg-brand/90 transition-colors opacity-0 group-hover:opacity-100">
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -156,7 +238,7 @@ export default function ULDBuildPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-foreground">{pkg.weight} kg</span>
-                    <button onClick={() => removeFromUld(pkg.id)} className="text-muted-foreground hover:text-danger transition-colors"><X className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => removeFromUld(pkg.id)} title={`Remove ${pkg.ref} from the ULD`} className="text-muted-foreground hover:text-danger transition-colors"><X className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
               ))}
@@ -177,10 +259,13 @@ export default function ULDBuildPage() {
                 ))}
               </div>
               <div className="flex gap-2">
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={() => setPreviewOpen(true)} title="Preview the full manifest" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground transition-colors">
                   <FileText className="w-3.5 h-3.5" /> Preview
                 </button>
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <button
+                  onClick={() => notify.info("Manifest downloaded", `MAWB manifest for ${uldId || "the current ULD"} (${loaded.length} package(s), ${totalLoaded.toFixed(1)} kg) generated as PDF.`)}
+                  title="Download the manifest"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground transition-colors">
                   <Download className="w-3.5 h-3.5" /> Download
                 </button>
               </div>
@@ -193,18 +278,120 @@ export default function ULDBuildPage() {
             <input value={seal} onChange={e => setSeal(e.target.value)} placeholder="e.g. SL-2024-08842"
               className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm outline-none focus:border-brand mb-3" />
             {!confirmed ? (
-              <button onClick={() => setConfirmed(true)} disabled={loaded.length === 0 || !seal || !flight}
+              <button onClick={confirmBuild} disabled={loaded.length === 0 || !seal || !flight}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#F7941D] text-white text-sm font-bold hover:bg-[#F7941D]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-[#F7941D]/20">
                 <Send className="w-4 h-4" /> Confirm Build & Handoff to Airline
               </button>
             ) : (
-              <div className="flex items-center justify-center gap-2 py-3 rounded-xl bg-success/15 border border-success/30 text-success text-sm font-bold">
-                <CheckCircle2 className="w-4 h-4" /> ULD Handed Off · Status: Exported/In-Transit
+              <div className="space-y-2">
+                <div className="flex items-center justify-center gap-2 py-3 rounded-xl bg-success/15 border border-success/30 text-success text-sm font-bold">
+                  <CheckCircle2 className="w-4 h-4" /> ULD Handed Off · Status: Exported/In-Transit
+                </div>
+                <button onClick={() => setResetTarget(true)} title="Start a new ULD build"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                  <RotateCcw className="w-4 h-4" /> Start New Build
+                </button>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* New export package */}
+      <Modal
+        open={createOpen}
+        onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setErrors({}) } }}
+        title="New Export Package"
+        description="Add a package to the export pool available for ULD build"
+        footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createPackage} submitLabel="Add to Pool" />}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Shipment Reference" required error={errors.ref}>
+            <TextInput value={form.ref} invalid={!!errors.ref} onChange={e => setForm({ ...form, ref: e.target.value })} placeholder="e.g. AIR-EXP-007" />
+          </Field>
+          <Field label="Consignee" required error={errors.consignee}>
+            <TextInput value={form.consignee} invalid={!!errors.consignee} onChange={e => setForm({ ...form, consignee: e.target.value })} placeholder="e.g. Nordic Retail AB" />
+          </Field>
+          <Field label="Weight (kg)" required error={errors.weight}>
+            <TextInput value={form.weight} invalid={!!errors.weight} onChange={e => setForm({ ...form, weight: e.target.value })} placeholder="e.g. 14.5" inputMode="decimal" />
+          </Field>
+          <Field label="Destination" required error={errors.dest} hint="3-letter IATA airport code">
+            <TextInput value={form.dest} invalid={!!errors.dest} onChange={e => setForm({ ...form, dest: e.target.value })} placeholder="e.g. ARN" />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* Manifest preview */}
+      <Modal
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        title="MAWB / Manifest Preview"
+        description={`${selectedAirline} · ${flight || "flight TBC"} · ${uldId || "ULD TBC"}`}
+        size="lg"
+        footer={
+          <>
+            <button onClick={() => setPreviewOpen(false)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+              Close
+            </button>
+            <button
+              onClick={() => { setPreviewOpen(false); notify.info("Manifest downloaded", `MAWB manifest generated for ${loaded.length} package(s).`) }}
+              className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90">
+              Download PDF
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { label: "ULD Type", value: selectedUld.split(" – ")[0] },
+              { label: "Seal", value: seal || "—" },
+              { label: "Packages", value: String(loaded.length) },
+              { label: "Gross Weight", value: `${totalLoaded.toFixed(1)} kg` },
+            ].map(r => (
+              <div key={r.label}>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{r.label}</p>
+                <p className="text-sm font-semibold text-foreground">{r.value}</p>
+              </div>
+            ))}
+          </div>
+          <div className="rounded-xl border border-border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  {["Reference", "Consignee", "Destination", "Weight"].map(h => (
+                    <th key={h} className="px-4 py-2.5 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {loaded.map(p => (
+                  <tr key={p.id}>
+                    <td className="px-4 py-2.5 font-mono text-xs text-brand">{p.ref}</td>
+                    <td className="px-4 py-2.5 text-xs text-foreground">{p.consignee}</td>
+                    <td className="px-4 py-2.5 text-xs text-muted-foreground">{p.dest}</td>
+                    <td className="px-4 py-2.5 text-xs font-semibold text-foreground">{p.weight} kg</td>
+                  </tr>
+                ))}
+                {loaded.length === 0 && (
+                  <tr><td colSpan={4} className="px-4 py-8 text-center text-sm text-muted-foreground">No packages loaded into this ULD yet.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Reset confirmation */}
+      <ConfirmDialog
+        open={resetTarget}
+        onOpenChange={setResetTarget}
+        title="Start a new build?"
+        message="The current ULD contents, flight number and seal will be cleared and every package returned to the export pool."
+        confirmLabel="Start New Build"
+        cancelLabel="Keep Current"
+        onConfirm={resetBuild}
+      />
     </div>
   )
 }

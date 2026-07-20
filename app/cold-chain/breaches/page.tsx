@@ -1,7 +1,18 @@
 "use client"
-import { AlertTriangle, Thermometer, Clock } from "lucide-react"
+import { useState } from "react"
+import { AlertTriangle, Eye, CheckCircle2 } from "lucide-react"
+import { Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const breaches = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type Breach = {
+  id: string; zone: string; sensor: string; type: string; reading: string
+  threshold: string; duration: string; detected: string; resolved: boolean
+}
+
+const initialBreaches: Breach[] = [
   { id:"BR-001", zone:"Loading Bay", sensor:"SEN-007", type:"High Temp", reading:"14.2°C", threshold:"10°C", duration:"12 min", detected:"2025-07-19 11:32", resolved:false },
   { id:"BR-002", zone:"Cold Room B", sensor:"SEN-003", type:"High Temp", reading:"6.8°C", threshold:"5°C", duration:"5 min", detected:"2025-07-19 09:15", resolved:false },
   { id:"BR-003", zone:"Freezer Zone", sensor:"SEN-005", type:"Temp Rise", reading:"-17.8°C", threshold:"-18°C", duration:"8 min", detected:"2025-07-18 22:42", resolved:true },
@@ -10,7 +21,18 @@ const breaches = [
 ]
 
 export default function ColdChainBreachesPage() {
+  const [breaches, setBreaches] = useState<Breach[]>(initialBreaches)
+  const [detail, setDetail] = useState<Breach | null>(null)
+  const [resolveTarget, setResolveTarget] = useState<Breach | null>(null)
+
   const active = breaches.filter(b => !b.resolved)
+
+  function resolve(b: Breach) {
+    setBreaches((prev) => prev.map((x) => (x.id === b.id ? { ...x, resolved: true } : x)))
+    setDetail(null)
+    notify.success("Breach resolved", `${b.id} in ${b.zone} marked as resolved.`)
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div><h1 className="text-2xl font-bold text-foreground">Breach Log</h1><p className="text-sm text-muted-foreground mt-1">Temperature and humidity excursion events with resolution status</p></div>
@@ -22,7 +44,7 @@ export default function ColdChainBreachesPage() {
       )}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr>{["Breach ID","Zone","Sensor","Type","Reading","Threshold","Duration","Detected","Status"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <thead className="bg-muted/50"><tr>{["Breach ID","Zone","Sensor","Type","Reading","Threshold","Duration","Detected","Status","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {breaches.map(b=>(
               <tr key={b.id} className="hover:bg-muted/30 transition-colors">
@@ -35,11 +57,62 @@ export default function ColdChainBreachesPage() {
                 <td className="px-4 py-3 text-muted-foreground">{b.duration}</td>
                 <td className="px-4 py-3 text-muted-foreground text-xs">{b.detected}</td>
                 <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${b.resolved?"bg-success/10 text-success":"bg-danger/10 text-danger"}`}>{b.resolved?"Resolved":"Active"}</span></td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setDetail(b)} title={`View ${b.id} details`} className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"><Eye className="w-3.5 h-3.5" /></button>
+                    {!b.resolved && (
+                      <button onClick={() => setResolveTarget(b)} title={`Resolve ${b.id}`} className="p-1.5 rounded-md text-success hover:bg-success/10 transition-colors"><CheckCircle2 className="w-3.5 h-3.5" /></button>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
+            {breaches.length === 0 && (
+              <tr><td colSpan={10} className="px-4 py-10 text-center text-sm text-muted-foreground">No breach events recorded.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
+
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.id ?? ""}
+        description="Breach event detail"
+        footer={
+          <>
+            {detail && !detail.resolved && (
+              <button onClick={() => setResolveTarget(detail)} className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90">Resolve</button>
+            )}
+            <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">Close</button>
+          </>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="Breach ID" value={<span className="font-mono text-brand">{detail.id}</span>} />
+            <DetailRow label="Zone" value={detail.zone} />
+            <DetailRow label="Sensor" value={<span className="font-mono">{detail.sensor}</span>} />
+            <DetailRow label="Type" value={detail.type} />
+            <DetailRow label="Reading" value={<span className="font-bold text-danger">{detail.reading}</span>} />
+            <DetailRow label="Threshold" value={detail.threshold} />
+            <DetailRow label="Duration" value={detail.duration} />
+            <DetailRow label="Detected" value={detail.detected} />
+            <DetailRow label="Status" value={<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${detail.resolved?"bg-success/10 text-success":"bg-danger/10 text-danger"}`}>{detail.resolved?"Resolved":"Active"}</span>} />
+          </div>
+        )}
+      </Drawer>
+
+      <ConfirmDialog
+        open={!!resolveTarget}
+        onOpenChange={(o) => !o && setResolveTarget(null)}
+        title="Mark this breach resolved?"
+        message={`${resolveTarget?.id} — ${resolveTarget?.type} in ${resolveTarget?.zone} (${resolveTarget?.reading}). Confirm corrective action has been completed.`}
+        confirmLabel="Mark Resolved"
+        cancelLabel="Not Yet"
+        tone="brand"
+        onConfirm={() => resolveTarget && resolve(resolveTarget)}
+      />
     </div>
   )
 }

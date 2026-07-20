@@ -6,22 +6,39 @@ import {
   Plus, Eye, MoreHorizontal, TrendingDown, TrendingUp, Droplets
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Modal, Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const zones = [
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type ColdZone = {
+  id: string; name: string; type: string; targetTemp: string; currentTemp: number
+  humidity: number; status: string; items: number; capacity: string; lastAlert: string
+}
+
+type ColdAlert = {
+  id: string; zone: string; type: string; value: string; threshold: string
+  time: string; severity: string; resolved: boolean
+}
+
+type TempLog = { zone: string; time: string; temp: number; humidity: number }
+
+const initialZones: ColdZone[] = [
   { id: "CCZ-01", name: "Cold Room 1", type: "Chilled", targetTemp: "2–8°C", currentTemp: 4.2, humidity: 72, status: "Normal", items: 145, capacity: "80%", lastAlert: "None" },
   { id: "CCZ-02", name: "Cold Room 2", type: "Chilled", targetTemp: "2–8°C", currentTemp: 8.9, humidity: 75, status: "High Temp Alert", items: 89, capacity: "55%", lastAlert: "30 min ago" },
   { id: "CCZ-03", name: "Frozen Chamber", type: "Frozen", targetTemp: "-18 to -22°C", currentTemp: -19.5, humidity: 40, status: "Normal", items: 62, capacity: "45%", lastAlert: "None" },
   { id: "CCZ-04", name: "Ambient Cool Zone", type: "Ambient", targetTemp: "15–25°C", currentTemp: 22.1, humidity: 58, status: "Normal", items: 210, capacity: "90%", lastAlert: "None" },
 ]
 
-const alerts = [
+const initialAlerts: ColdAlert[] = [
   { id: "ALT-089", zone: "Cold Room 2", type: "High Temperature", value: "8.9°C", threshold: "8°C", time: "30 min ago", severity: "Warning", resolved: false },
   { id: "ALT-088", zone: "Cold Room 1", type: "Power Fluctuation", value: "—", threshold: "—", time: "2 hours ago", severity: "Info", resolved: true },
   { id: "ALT-087", zone: "Frozen Chamber", type: "High Temperature", value: "-16.2°C", threshold: "-18°C", time: "Yesterday 11:30 PM", severity: "Critical", resolved: true },
   { id: "ALT-086", zone: "Cold Room 1", type: "High Humidity", value: "85%", threshold: "80%", time: "2 days ago", severity: "Warning", resolved: true },
 ]
 
-const logs = [
+const logs: TempLog[] = [
   { zone: "Cold Room 1", time: "16:00", temp: 4.2, humidity: 72 },
   { zone: "Cold Room 1", time: "15:00", temp: 4.0, humidity: 71 },
   { zone: "Cold Room 1", time: "14:00", temp: 4.5, humidity: 73 },
@@ -32,6 +49,22 @@ const logs = [
   { zone: "Cold Room 2", time: "14:00", temp: 6.5, humidity: 73 },
   { zone: "Cold Room 2", time: "13:00", temp: 5.9, humidity: 72 },
 ]
+
+/** Older readings surfaced by the "View Full History" drill-down. */
+const archivedLogs: TempLog[] = [
+  { zone: "Frozen Chamber", time: "Yesterday 23:00", temp: -16.2, humidity: 41 },
+  { zone: "Frozen Chamber", time: "Yesterday 22:00", temp: -19.1, humidity: 40 },
+  { zone: "Cold Room 1", time: "Yesterday 18:00", temp: 4.4, humidity: 74 },
+  { zone: "Cold Room 1", time: "Yesterday 12:00", temp: 3.9, humidity: 70 },
+  { zone: "Cold Room 2", time: "Yesterday 18:00", temp: 6.1, humidity: 73 },
+  { zone: "Ambient Cool Zone", time: "Yesterday 18:00", temp: 21.8, humidity: 57 },
+  { zone: "Ambient Cool Zone", time: "Yesterday 09:00", temp: 20.4, humidity: 55 },
+]
+
+const ZONE_TYPES = ["Chilled", "Frozen", "Ambient"] as const
+const TARGET_RANGES = ["2–8°C", "-18 to -22°C", "15–25°C", "0–4°C"] as const
+
+const emptyZoneForm = { name: "", type: "", targetTemp: "", currentTemp: "", humidity: "", items: "", capacity: "" }
 
 const statusConfig: Record<string, { color: string; bg: string; border: string }> = {
   Normal: { color: "text-success", bg: "bg-success/15", border: "border-success/30" },
@@ -70,7 +103,75 @@ function TempGauge({ current, min, max }: { current: number; min: number; max: n
 export default function ColdChainPage() {
   const [tab, setTab] = useState<"zones" | "alerts" | "logs">("zones")
 
+  const [zones, setZones] = useState<ColdZone[]>(initialZones)
+  const [alerts, setAlerts] = useState<ColdAlert[]>(initialAlerts)
+
+  const [createOpen, setCreateOpen] = useState(false)
+  const [form, setForm] = useState(emptyZoneForm)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const [zoneDetail, setZoneDetail] = useState<ColdZone | null>(null)
+  const [zoneDeleteTarget, setZoneDeleteTarget] = useState<ColdZone | null>(null)
+  const [historyOpen, setHistoryOpen] = useState(false)
+
   const activeAlerts = alerts.filter((a) => !a.resolved).length
+  const fullHistory = [...logs, ...archivedLogs]
+
+  function validate() {
+    const e: Record<string, string> = {}
+    if (!form.name.trim()) e.name = "Zone name is required"
+    else if (zones.some((z) => z.name.toLowerCase() === form.name.trim().toLowerCase())) e.name = "A zone with this name already exists"
+    if (!form.type) e.type = "Select a zone type"
+    if (!form.targetTemp) e.targetTemp = "Select a target range"
+    if (!form.currentTemp.trim()) e.currentTemp = "Current temperature is required"
+    else if (!/^-?\d+(\.\d+)?$/.test(form.currentTemp.trim())) e.currentTemp = "Enter a number, e.g. 4.2"
+    if (!form.humidity.trim()) e.humidity = "Humidity is required"
+    else if (!/^\d+$/.test(form.humidity) || Number(form.humidity) > 100) e.humidity = "Enter a whole number 0–100"
+    if (!form.items.trim()) e.items = "Item count is required"
+    else if (!/^\d+$/.test(form.items)) e.items = "Enter a whole number"
+    if (!form.capacity.trim()) e.capacity = "Capacity is required"
+    else if (!/^\d+$/.test(form.capacity) || Number(form.capacity) > 100) e.capacity = "Enter a whole number 0–100"
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  function createZone() {
+    if (!validate()) return
+    const temp = Number(form.currentTemp)
+    const inRange =
+      form.type === "Frozen" ? temp <= -18 :
+      form.type === "Ambient" ? temp >= 15 && temp <= 25 :
+      temp >= 2 && temp <= 8
+    const next: ColdZone = {
+      id: `CCZ-${String(zones.length + 1).padStart(2, "0")}`,
+      name: form.name.trim(),
+      type: form.type,
+      targetTemp: form.targetTemp,
+      currentTemp: temp,
+      humidity: Number(form.humidity),
+      status: inRange ? "Normal" : "High Temp Alert",
+      items: Number(form.items),
+      capacity: `${form.capacity}%`,
+      lastAlert: "None",
+    }
+    setZones((prev) => [...prev, next])
+    setCreateOpen(false)
+    setForm(emptyZoneForm)
+    setErrors({})
+    notify.success("Zone added", `${next.name} is now monitored at ${next.currentTemp}°C.`)
+  }
+
+  function acknowledge(a: ColdAlert) {
+    setAlerts((prev) => prev.map((x) => (x.id === a.id ? { ...x, resolved: true } : x)))
+    setZones((prev) => prev.map((z) => (z.name === a.zone ? { ...z, status: "Normal", lastAlert: a.time } : z)))
+    notify.success("Alert acknowledged", `${a.id} — ${a.type} in ${a.zone} marked resolved.`)
+  }
+
+  function deleteZone(z: ColdZone) {
+    setZones((prev) => prev.filter((x) => x.id !== z.id))
+    setZoneDetail(null)
+    notify.warning("Zone removed", `${z.name} is no longer monitored.`)
+  }
 
   return (
     <div className="h-full overflow-y-auto">
@@ -88,7 +189,7 @@ export default function ColdChainPage() {
                 {activeAlerts} Active Alert{activeAlerts > 1 ? "s" : ""}
               </div>
             )}
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
+            <button onClick={() => setCreateOpen(true)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
               <Plus className="w-4 h-4" /> Add Zone
             </button>
           </div>
@@ -141,7 +242,7 @@ export default function ColdChainPage() {
                     <span className={cn("px-2 py-1 rounded-full text-xs font-medium", statusConfig[zone.status]?.bg, statusConfig[zone.status]?.color)}>
                       {zone.status}
                     </span>
-                    <button className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                    <button onClick={() => setZoneDetail(zone)} title={`View ${zone.name} details`} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                       <MoreHorizontal className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -186,6 +287,11 @@ export default function ColdChainPage() {
                 </div>
               </div>
             ))}
+            {zones.length === 0 && (
+              <div className="col-span-full p-10 text-center text-sm text-muted-foreground rounded-2xl border border-border bg-card">
+                No zones are being monitored. Use “Add Zone” to start.
+              </div>
+            )}
           </div>
         )}
 
@@ -211,7 +317,7 @@ export default function ColdChainPage() {
                   <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1"><Clock className="w-3 h-3" /> {alert.time}</p>
                 </div>
                 {!alert.resolved && (
-                  <button className="px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand/90 transition-colors shrink-0">
+                  <button onClick={() => acknowledge(alert)} title={`Acknowledge ${alert.id}`} className="px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand/90 transition-colors shrink-0">
                     Acknowledge
                   </button>
                 )}
@@ -224,7 +330,7 @@ export default function ColdChainPage() {
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">Temperature Logs — Today</h2>
-              <button className="flex items-center gap-1.5 text-xs text-brand hover:underline">
+              <button onClick={() => setHistoryOpen(true)} title="View full temperature history" className="flex items-center gap-1.5 text-xs text-brand hover:underline">
                 <Eye className="w-3.5 h-3.5" /> View Full History
               </button>
             </div>
@@ -265,6 +371,119 @@ export default function ColdChainPage() {
           </div>
         )}
       </div>
+
+      {/* Add zone */}
+      <Modal
+        open={createOpen}
+        onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyZoneForm); setErrors({}) } }}
+        title="Add Cold Chain Zone"
+        description="Register a temperature-controlled zone for monitoring"
+        footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createZone} submitLabel="Add Zone" />}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Zone Name" required error={errors.name}>
+            <TextInput value={form.name} invalid={!!errors.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Cold Room 3" />
+          </Field>
+          <Field label="Zone Type" required error={errors.type}>
+            <Select value={form.type} invalid={!!errors.type} onChange={(e) => setForm({ ...form, type: e.target.value })} options={ZONE_TYPES} placeholder="Select Type" />
+          </Field>
+          <Field label="Target Range" required error={errors.targetTemp}>
+            <Select value={form.targetTemp} invalid={!!errors.targetTemp} onChange={(e) => setForm({ ...form, targetTemp: e.target.value })} options={TARGET_RANGES} placeholder="Select Range" />
+          </Field>
+          <Field label="Current Temp (°C)" required error={errors.currentTemp}>
+            <TextInput value={form.currentTemp} invalid={!!errors.currentTemp} onChange={(e) => setForm({ ...form, currentTemp: e.target.value })} placeholder="e.g. 4.2" />
+          </Field>
+          <Field label="Humidity (%)" required error={errors.humidity}>
+            <TextInput value={form.humidity} invalid={!!errors.humidity} onChange={(e) => setForm({ ...form, humidity: e.target.value })} placeholder="e.g. 70" inputMode="numeric" />
+          </Field>
+          <Field label="Items Stored" required error={errors.items}>
+            <TextInput value={form.items} invalid={!!errors.items} onChange={(e) => setForm({ ...form, items: e.target.value })} placeholder="e.g. 120" inputMode="numeric" />
+          </Field>
+          <Field label="Capacity Used (%)" required error={errors.capacity}>
+            <TextInput value={form.capacity} invalid={!!errors.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value })} placeholder="e.g. 60" inputMode="numeric" />
+          </Field>
+        </div>
+      </Modal>
+
+      {/* Zone detail */}
+      <Drawer
+        open={!!zoneDetail}
+        onOpenChange={(o) => !o && setZoneDetail(null)}
+        title={zoneDetail?.name ?? ""}
+        description="Cold chain zone detail"
+        footer={
+          <>
+            <button onClick={() => zoneDetail && setZoneDeleteTarget(zoneDetail)} className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-danger/90">
+              Remove Zone
+            </button>
+            <button onClick={() => setZoneDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+              Close
+            </button>
+          </>
+        }
+      >
+        {zoneDetail && (
+          <div className="space-y-1">
+            <DetailRow label="Zone ID" value={<span className="font-mono text-brand">{zoneDetail.id}</span>} />
+            <DetailRow label="Name" value={zoneDetail.name} />
+            <DetailRow label="Type" value={zoneDetail.type} />
+            <DetailRow label="Target Range" value={zoneDetail.targetTemp} />
+            <DetailRow label="Current Temp" value={`${zoneDetail.currentTemp > 0 ? "+" : ""}${zoneDetail.currentTemp}°C`} />
+            <DetailRow label="Humidity" value={`${zoneDetail.humidity}%`} />
+            <DetailRow label="Items" value={zoneDetail.items} />
+            <DetailRow label="Capacity Used" value={zoneDetail.capacity} />
+            <DetailRow label="Last Alert" value={zoneDetail.lastAlert} />
+            <DetailRow label="Status" value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusConfig[zoneDetail.status]?.bg, statusConfig[zoneDetail.status]?.color)}>{zoneDetail.status}</span>} />
+          </div>
+        )}
+      </Drawer>
+
+      {/* Full temperature history */}
+      <Modal
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        title="Full Temperature History"
+        description={`${fullHistory.length} readings across all monitored zones`}
+        size="lg"
+        footer={
+          <button onClick={() => setHistoryOpen(false)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">Close</button>
+        }
+      >
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              {["Zone", "Time", "Temperature", "Humidity"].map((h) => (
+                <th key={h} className="pb-2 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {fullHistory.map((log, i) => {
+              const zone = zones.find((z) => z.name === log.zone)
+              const isHighTemp = !!zone && log.temp > (zone.type === "Frozen" ? -18 : zone.type === "Ambient" ? 25 : 8)
+              return (
+                <tr key={i}>
+                  <td className="py-2.5 text-foreground">{log.zone}</td>
+                  <td className="py-2.5 text-muted-foreground text-xs">{log.time}</td>
+                  <td className={cn("py-2.5 font-bold tabular-nums", isHighTemp ? "text-danger" : "text-success")}>{log.temp > 0 ? "+" : ""}{log.temp}°C</td>
+                  <td className="py-2.5 text-muted-foreground">{log.humidity}%</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </Modal>
+
+      {/* Remove zone confirmation */}
+      <ConfirmDialog
+        open={!!zoneDeleteTarget}
+        onOpenChange={(o) => !o && setZoneDeleteTarget(null)}
+        title="Remove this zone from monitoring?"
+        message={`${zoneDeleteTarget?.name} currently holds ${zoneDeleteTarget?.items ?? 0} items. Temperature alerts for this zone will stop immediately.`}
+        confirmLabel="Remove Zone"
+        cancelLabel="Keep Monitoring"
+        onConfirm={() => zoneDeleteTarget && deleteZone(zoneDeleteTarget)}
+      />
     </div>
   )
 }

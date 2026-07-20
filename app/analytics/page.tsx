@@ -6,6 +6,7 @@ import {
   Truck, DollarSign, Users, Calendar
 } from "lucide-react"
 import { ExportButton } from "@/components/wms/export-button"
+import { Modal } from "@/components/ui/modal"
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -68,8 +69,33 @@ const kpis = [
 
 const periods = ["This Week", "This Month", "Last 3 Months", "This Year"]
 
+// `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
+type SkuMovement = {
+  sku: string; name: string; client: string
+  inbound: number; outbound: number; stock: number; turns: string
+}
+
+/** Full movement ledger — the dashboard table shows the top 5, "View All" shows every row. */
+const skuMovement: SkuMovement[] = [
+  { sku: "SKU-001239", name: "Iodized Salt 1kg", client: "Salt Works", inbound: 3200, outbound: 2900, stock: 2800, turns: "8.2x" },
+  { sku: "SKU-001234", name: "Basmati Rice 5kg", client: "Acme Foods", inbound: 2100, outbound: 1950, stock: 1250, turns: "6.4x" },
+  { sku: "SKU-001237", name: "Chickpea Lentils 25kg", client: "Agro Corp", inbound: 800, outbound: 680, stock: 320, turns: "4.8x" },
+  { sku: "SKU-001240", name: "Tomato Puree 400g", client: "Fresh Farms", inbound: 560, outbound: 490, stock: 156, turns: "3.9x" },
+  { sku: "SKU-001236", name: "Sunflower Oil 5L", client: "Global Oils", inbound: 150, outbound: 142, stock: 8, turns: "2.1x" },
+  { sku: "SKU-001241", name: "Wheat Flour 10kg", client: "Sweet Mills", inbound: 1400, outbound: 1310, stock: 640, turns: "5.6x" },
+  { sku: "SKU-001242", name: "Turmeric Powder 500g", client: "Agro Corp", inbound: 720, outbound: 655, stock: 288, turns: "4.1x" },
+  { sku: "SKU-001243", name: "Mustard Oil 2L", client: "Global Oils", inbound: 480, outbound: 402, stock: 190, turns: "3.4x" },
+  { sku: "SKU-001244", name: "Toor Dal 25kg", client: "Agro Corp", inbound: 540, outbound: 512, stock: 96, turns: "5.1x" },
+  { sku: "SKU-001245", name: "Rock Salt 2kg", client: "Salt Works", inbound: 980, outbound: 890, stock: 410, turns: "6.9x" },
+  { sku: "SKU-001246", name: "Ghee 1L", client: "Fresh Farms", inbound: 260, outbound: 231, stock: 74, turns: "3.1x" },
+  { sku: "SKU-001247", name: "Poha 5kg", client: "Sweet Mills", inbound: 340, outbound: 298, stock: 120, turns: "2.8x" },
+]
+
+const topSkus = skuMovement.slice(0, 5)
+
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState("This Month")
+  const [allSkusOpen, setAllSkusOpen] = useState(false)
 
   return (
     <div className="h-full overflow-y-auto">
@@ -227,7 +253,9 @@ export default function AnalyticsPage() {
                 <Tooltip
                   contentStyle={{ background: "var(--color-popover)", border: "1px solid var(--color-border)", borderRadius: 12, fontSize: 12 }}
                   labelStyle={{ color: "var(--color-foreground)", fontWeight: 600 }}
-                  formatter={(v: number) => [v.toLocaleString(), "Units"]}
+                  // Recharts types the value as `ValueType | undefined`, so widen the
+                  // parameter and coerce rather than assuming `number`.
+                  formatter={(v) => [typeof v === "number" ? v.toLocaleString() : String(v ?? ""), "Units"]}
                 />
                 <Area type="monotone" dataKey="value" stroke={CHART_COLORS[0]} strokeWidth={2} fill="url(#invGrad)" name="Inventory" dot={{ fill: CHART_COLORS[0], r: 4 }} />
               </AreaChart>
@@ -239,7 +267,7 @@ export default function AnalyticsPage() {
         <div className="p-5 rounded-2xl border border-border bg-card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-sm text-foreground">Top 5 SKUs by Movement</h3>
-            <button className="text-xs text-brand hover:underline">View All</button>
+            <button onClick={() => setAllSkusOpen(true)} title="View all SKU movement" className="text-xs text-brand hover:underline">View All</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -251,13 +279,7 @@ export default function AnalyticsPage() {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  { sku: "SKU-001239", name: "Iodized Salt 1kg", client: "Salt Works", inbound: 3200, outbound: 2900, stock: 2800, turns: "8.2x" },
-                  { sku: "SKU-001234", name: "Basmati Rice 5kg", client: "Acme Foods", inbound: 2100, outbound: 1950, stock: 1250, turns: "6.4x" },
-                  { sku: "SKU-001237", name: "Chickpea Lentils 25kg", client: "Agro Corp", inbound: 800, outbound: 680, stock: 320, turns: "4.8x" },
-                  { sku: "SKU-001240", name: "Tomato Puree 400g", client: "Fresh Farms", inbound: 560, outbound: 490, stock: 156, turns: "3.9x" },
-                  { sku: "SKU-001236", name: "Sunflower Oil 5L", client: "Global Oils", inbound: 150, outbound: 142, stock: 8, turns: "2.1x" },
-                ].map((row, i) => (
+                {topSkus.map((row, i) => (
                   <tr key={row.sku} className={cn("border-b border-border/50 last:border-0", i % 2 === 1 ? "bg-muted/10" : "")}>
                     <td className="py-3 pr-6 text-brand text-xs font-mono whitespace-nowrap">{row.sku}</td>
                     <td className="py-3 pr-6 font-medium text-foreground max-w-40 truncate">{row.name}</td>
@@ -275,6 +297,46 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </div>
+
+      {/* All SKU movement */}
+      <Modal
+        open={allSkusOpen}
+        onOpenChange={setAllSkusOpen}
+        title="All SKUs by Movement"
+        description={`${skuMovement.length} SKUs — ${period.toLowerCase()}`}
+        size="xl"
+        footer={
+          <>
+            <ExportButton data={skuMovement} filename="sku-movement" label="Export All" />
+            <button onClick={() => setAllSkusOpen(false)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">Close</button>
+          </>
+        }
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                {["SKU", "Product", "Client", "Inbound", "Outbound", "Stock", "Turns"].map((h) => (
+                  <th key={h} className="pb-2 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap pr-6">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {skuMovement.map((row, i) => (
+                <tr key={row.sku} className={cn("border-b border-border/50 last:border-0", i % 2 === 1 ? "bg-muted/10" : "")}>
+                  <td className="py-2.5 pr-6 text-brand text-xs font-mono whitespace-nowrap">{row.sku}</td>
+                  <td className="py-2.5 pr-6 font-medium text-foreground">{row.name}</td>
+                  <td className="py-2.5 pr-6 text-muted-foreground whitespace-nowrap text-xs">{row.client}</td>
+                  <td className="py-2.5 pr-6 text-foreground font-semibold whitespace-nowrap">{row.inbound.toLocaleString()}</td>
+                  <td className="py-2.5 pr-6 text-foreground whitespace-nowrap">{row.outbound.toLocaleString()}</td>
+                  <td className="py-2.5 pr-6 text-foreground whitespace-nowrap">{row.stock.toLocaleString()}</td>
+                  <td className="py-2.5 pr-6 whitespace-nowrap"><span className="font-bold text-brand">{row.turns}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Modal>
     </div>
   )
 }

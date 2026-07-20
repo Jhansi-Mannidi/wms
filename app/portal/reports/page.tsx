@@ -1,12 +1,20 @@
 "use client"
 
 import { useState } from "react"
-import { FileText, Download, BarChart2, Package, Truck, DollarSign, Clock, ChevronRight, Search, Filter } from "lucide-react"
+import { FileText, Download, BarChart2, Package, Truck, DollarSign, Clock, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Drawer } from "@/components/ui/modal"
+import { DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
 const reportCategories = ["All", "Inventory", "Inbound", "Outbound", "Billing", "VAS"]
 
-const reports = [
+type Report = {
+  id: string; name: string; category: string; desc: string
+  format: string; generated: string; icon: React.ReactNode
+}
+
+const reports: Report[] = [
   { id: "RPT-INV-01", name: "Stock Ledger Report", category: "Inventory", desc: "Complete SKU-wise stock movement ledger with opening, receipts, issues, and closing balance", format: "XLSX", generated: "Jul 20, 09:00 AM", icon: <Package className="w-4 h-4" /> },
   { id: "RPT-INV-02", name: "Ageing Report", category: "Inventory", desc: "Stock ageing by days in warehouse — highlights slow-moving and near-expiry items", format: "XLSX", generated: "Jul 20, 09:00 AM", icon: <Clock className="w-4 h-4" /> },
   { id: "RPT-INV-03", name: "Zone Utilisation Report", category: "Inventory", desc: "Space utilisation by zone, rack, and tier with occupancy percentages", format: "PDF", generated: "Jul 20, 09:00 AM", icon: <BarChart2 className="w-4 h-4" /> },
@@ -31,12 +39,32 @@ export default function PortalReportsPage() {
   const [category, setCategory] = useState("All")
   const [period, setPeriod] = useState("Last 30 Days")
   const [search, setSearch] = useState("")
+  const [detail, setDetail] = useState<Report | null>(null)
+  const [downloaded, setDownloaded] = useState<string[]>([])
 
   const filtered = reports.filter(r => {
     const matchCat = category === "All" || r.category === category
     const matchSearch = !search || r.name.toLowerCase().includes(search.toLowerCase()) || r.desc.toLowerCase().includes(search.toLowerCase())
     return matchCat && matchSearch
   })
+
+  function download(r: Report) {
+    setDownloaded(prev => prev.includes(r.id) ? prev : [...prev, r.id])
+    notify.success("Report downloaded", `${r.name} (${r.format}) for ${period} saved to your downloads.`)
+  }
+
+  function downloadAll() {
+    if (filtered.length === 0) {
+      notify.warning("Nothing to download", "No reports match your current filters.")
+      return
+    }
+    setDownloaded(prev => Array.from(new Set([...prev, ...filtered.map(r => r.id)])))
+    notify.success("Bundle downloaded", `${filtered.length} report${filtered.length === 1 ? "" : "s"} for ${period} packaged as a ZIP.`)
+  }
+
+  function runSchedule(name: string, dest: string) {
+    notify.info("Schedule triggered", `${name} is being generated now and will be emailed to ${dest}.`)
+  }
 
   return (
     <div className="p-4 sm:p-6 space-y-5 w-full">
@@ -54,7 +82,11 @@ export default function PortalReportsPage() {
           >
             {periodOptions.map(p => <option key={p}>{p}</option>)}
           </select>
-          <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity">
+          <button
+            onClick={downloadAll}
+            title="Download all listed reports"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity"
+          >
             <Download className="w-3.5 h-3.5" /> Download All
           </button>
         </div>
@@ -99,7 +131,7 @@ export default function PortalReportsPage() {
       {/* Report grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {filtered.map(r => (
-          <div key={r.id} className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card p-4 hover:border-[#1E3A5F]/30 dark:hover:border-brand/30 transition-all group cursor-pointer">
+          <div key={r.id} onClick={() => setDetail(r)} className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card p-4 hover:border-[#1E3A5F]/30 dark:hover:border-brand/30 transition-all group cursor-pointer">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#1E3A5F]/10 dark:bg-brand/15 flex items-center justify-center text-[#1E3A5F] dark:text-brand shrink-0 group-hover:bg-[#1E3A5F]/20 dark:group-hover:bg-brand/25 transition-colors">
                 {r.icon}
@@ -112,8 +144,12 @@ export default function PortalReportsPage() {
                 <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{r.desc}</p>
                 <div className="flex items-center justify-between mt-3">
                   <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" /> {r.generated}</p>
-                  <button className="flex items-center gap-1 text-xs text-[#1E3A5F] dark:text-brand font-medium hover:underline">
-                    <Download className="w-3 h-3" /> Download
+                  <button
+                    onClick={(e) => { e.stopPropagation(); download(r) }}
+                    title={`Download ${r.name}`}
+                    className="flex items-center gap-1 text-xs text-[#1E3A5F] dark:text-brand font-medium hover:underline"
+                  >
+                    <Download className="w-3 h-3" /> {downloaded.includes(r.id) ? "Downloaded" : "Download"}
                   </button>
                 </div>
               </div>
@@ -142,11 +178,53 @@ export default function PortalReportsPage() {
                   <p className="text-[10px] text-muted-foreground">{s.freq} · {s.dest}</p>
                 </div>
               </div>
-              <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0", formatStyle[s.format] ?? "bg-muted text-muted-foreground")}>{s.format}</span>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => runSchedule(s.name, s.dest)}
+                  title={`Run ${s.name} now`}
+                  className="text-[10px] font-semibold text-[#1E3A5F] dark:text-brand hover:underline"
+                >
+                  Run now
+                </button>
+                <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded", formatStyle[s.format] ?? "bg-muted text-muted-foreground")}>{s.format}</span>
+              </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Report detail drawer */}
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.name ?? ""}
+        description="Report detail"
+        footer={
+          <>
+            <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+              Close
+            </button>
+            {detail && (
+              <button onClick={() => download(detail)} className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90">
+                Download {detail.format}
+              </button>
+            )}
+          </>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="Report ID" value={<span className="font-mono text-brand">{detail.id}</span>} />
+            <DetailRow label="Name" value={detail.name} />
+            <DetailRow label="Category" value={detail.category} />
+            <DetailRow label="Description" value={detail.desc} />
+            <DetailRow label="Format" value={<span className={cn("px-1.5 py-0.5 rounded text-xs font-semibold", formatStyle[detail.format] ?? "bg-muted text-muted-foreground")}>{detail.format}</span>} />
+            <DetailRow label="Last Generated" value={detail.generated} />
+            <DetailRow label="Reporting Period" value={period} />
+            <DetailRow label="Downloaded" value={downloaded.includes(detail.id) ? "Yes — this session" : "Not yet"} />
+          </div>
+        )}
+      </Drawer>
     </div>
   )
 }

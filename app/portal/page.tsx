@@ -5,9 +5,15 @@ import Link from "next/link"
 import {
   Package, Inbox, Truck, Wrench, DollarSign, FileText,
   AlertTriangle, CheckCircle2, Clock, TrendingUp, ArrowRight,
-  ShoppingCart, Box, RefreshCw
+  ShoppingCart, Box, RefreshCw, X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Drawer } from "@/components/ui/modal"
+import { DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
+
+type RecentOrder = { id: string; sku: string; desc: string; status: string; date: string; eta: string }
+type Alert = { type: string; msg: string; time: string }
 
 const kpis = [
   { label: "SKUs in Stock", value: "342", sub: "across 4 zones", icon: <Package className="w-5 h-5" />, color: "text-brand", bg: "bg-brand/15" },
@@ -16,7 +22,7 @@ const kpis = [
   { label: "Open Invoices", value: "3", sub: "₹2.4L outstanding", icon: <DollarSign className="w-5 h-5" />, color: "text-danger", bg: "bg-danger/15" },
 ]
 
-const recentOrders = [
+const initialOrders: RecentOrder[] = [
   { id: "SO-3841", sku: "APX-7712", desc: "Paracetamol 500mg x 200", status: "Dispatched", date: "Jul 19", eta: "Jul 21" },
   { id: "SO-3840", sku: "APX-4421", desc: "Syringes 5ml x 500", status: "Packing", date: "Jul 19", eta: "Jul 20" },
   { id: "SO-3835", sku: "APX-2209", desc: "IV Drip Set x 100", status: "Picking", date: "Jul 18", eta: "Jul 20" },
@@ -24,7 +30,7 @@ const recentOrders = [
   { id: "SO-3825", sku: "APX-0091", desc: "Alcohol Swabs x 2000", status: "Delivered", date: "Jul 16", eta: "Jul 17" },
 ]
 
-const alerts = [
+const initialAlerts: Alert[] = [
   { type: "warning", msg: "APX-7790 stock below reorder level (48 units remaining)", time: "2h ago" },
   { type: "info", msg: "ASN-2241 received and putaway complete — 240 cartons", time: "4h ago" },
   { type: "danger", msg: "Invoice INV-0441 overdue by 3 days", time: "1d ago" },
@@ -47,12 +53,41 @@ const quickLinks = [
 ]
 
 export default function PortalHomePage() {
+  const [recentOrders] = useState<RecentOrder[]>(initialOrders)
+  const [alerts, setAlerts] = useState<Alert[]>(initialAlerts)
+  const [detail, setDetail] = useState<RecentOrder | null>(null)
+  const [syncedAt, setSyncedAt] = useState<string | null>(null)
+
+  function refresh() {
+    const stamp = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })
+    setSyncedAt(stamp)
+    notify.info("Snapshot refreshed", `Inventory, orders and alerts re-synced at ${stamp}.`)
+  }
+
+  function dismissAlert(i: number) {
+    const a = alerts[i]
+    setAlerts(prev => prev.filter((_, idx) => idx !== i))
+    notify.success("Alert dismissed", a.msg)
+  }
+
   return (
     <div className="p-4 sm:p-6 space-y-6 w-full">
       {/* Welcome */}
-      <div>
-        <h1 className="text-2xl font-bold text-[#1E3A5F] dark:text-foreground">Welcome, Apex Pharma Ltd</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Your warehousing snapshot for today, {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-[#1E3A5F] dark:text-foreground">Welcome, Apex Pharma Ltd</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Your warehousing snapshot for today, {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+            {syncedAt && ` · synced ${syncedAt}`}
+          </p>
+        </div>
+        <button
+          onClick={refresh}
+          title="Refresh snapshot"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card text-xs font-medium text-[#1E3A5F] dark:text-foreground hover:bg-[#E4E9F0] dark:hover:bg-muted transition-colors"
+        >
+          <RefreshCw className="w-3.5 h-3.5" /> Refresh
+        </button>
       </div>
 
       {/* KPI strip */}
@@ -99,7 +134,12 @@ export default function PortalHomePage() {
           </div>
           <div className="divide-y divide-[#E4E9F0] dark:divide-border">
             {recentOrders.map((o) => (
-              <div key={o.id} className="flex items-center gap-3 px-4 py-3">
+              <button
+                key={o.id}
+                onClick={() => setDetail(o)}
+                title={`View ${o.id}`}
+                className="w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-[#F7F9FC] dark:hover:bg-muted/20 transition-colors"
+              >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-[#1E3A5F] dark:text-foreground">{o.id}</span>
@@ -111,7 +151,7 @@ export default function PortalHomePage() {
                   <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", statusColor[o.status] ?? "bg-muted text-muted-foreground")}>{o.status}</span>
                   <p className="text-[10px] text-muted-foreground mt-0.5">ETA {o.eta}</p>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -132,8 +172,18 @@ export default function PortalHomePage() {
                   <p className="text-xs text-[#1E3A5F] dark:text-foreground/90 leading-relaxed">{a.msg}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1"><Clock className="w-3 h-3" />{a.time}</p>
                 </div>
+                <button
+                  onClick={() => dismissAlert(i)}
+                  title="Dismiss alert"
+                  className="w-6 h-6 shrink-0 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-[#E4E9F0] dark:hover:bg-muted hover:text-[#1E3A5F] dark:hover:text-foreground transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
             ))}
+            {alerts.length === 0 && (
+              <p className="px-4 py-8 text-center text-xs text-muted-foreground">All caught up — no open alerts.</p>
+            )}
           </div>
           <div className="px-4 py-3 border-t border-[#E4E9F0] dark:border-border">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -170,6 +220,30 @@ export default function PortalHomePage() {
           ))}
         </div>
       </div>
+
+      {/* Recent order detail drawer */}
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.id ?? ""}
+        description="Recent order detail"
+        footer={
+          <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="Order ID" value={<span className="font-mono text-brand">{detail.id}</span>} />
+            <DetailRow label="SKU" value={<span className="font-mono">{detail.sku}</span>} />
+            <DetailRow label="Description" value={detail.desc} />
+            <DetailRow label="Placed" value={detail.date} />
+            <DetailRow label="ETA" value={detail.eta} />
+            <DetailRow label="Status" value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusColor[detail.status] ?? "bg-muted text-muted-foreground")}>{detail.status}</span>} />
+          </div>
+        )}
+      </Drawer>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { isValidElement } from "react"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -110,12 +111,103 @@ export function ModalActions({
   )
 }
 
-/** Label/value row used inside detail drawers. */
-export function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+/** Values the seed data uses to mean "nothing recorded yet". */
+const EMPTY_TOKENS = new Set(["", "-", "—", "–", "N/A", "n/a", "null", "undefined"])
+
+function isEmptyValue(v: React.ReactNode): boolean {
+  if (v === null || v === undefined || v === false) return true
+  if (typeof v === "string") return EMPTY_TOKENS.has(v.trim())
+  if (typeof v === "number") return false
+  // Pages often wrap a placeholder dash in markup (e.g. <span className="...">—</span>),
+  // so unwrap single-child elements to catch those too.
+  if (isValidElement(v)) {
+    const child = (v.props as { children?: React.ReactNode })?.children
+    if (child !== undefined) return isEmptyValue(child as React.ReactNode)
+  }
+  return false
+}
+
+/**
+ * Label/value row used inside detail drawers.
+ * Renders a placeholder for empty values so records don't read as broken.
+ */
+export function DetailRow({
+  label, value, mono, icon,
+}: {
+  label: string
+  value: React.ReactNode
+  /** Render the value in a tabular monospace face — good for IDs, codes, refs. */
+  mono?: boolean
+  icon?: React.ReactNode
+}) {
+  const empty = isEmptyValue(value)
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-border py-2.5 last:border-0">
-      <span className="text-xs text-muted-foreground shrink-0">{label}</span>
-      <span className="text-sm text-foreground text-right min-w-0 break-words">{value}</span>
+    <div className="group grid grid-cols-[minmax(6rem,0.8fr)_minmax(0,1.2fr)] items-baseline gap-4 border-b border-border/50 px-2.5 py-2.5 transition-colors last:border-0 hover:bg-muted/40">
+      <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {icon && <span className="text-muted-foreground/70 shrink-0">{icon}</span>}
+        <span className="truncate">{label}</span>
+      </span>
+      <span
+        className={cn(
+          "min-w-0 break-words text-right text-sm",
+          empty
+            ? "italic text-muted-foreground/60"
+            : "font-semibold text-foreground",
+          mono && !empty && "font-mono text-[13px] tracking-tight",
+        )}
+      >
+        {empty ? "Not recorded" : value}
+      </span>
+    </div>
+  )
+}
+
+/**
+ * Groups DetailRows under a heading inside a drawer.
+ * Optional — bare DetailRows still work unchanged.
+ */
+export function DetailSection({
+  title, children, className,
+}: {
+  title?: string
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <section className={cn("min-w-0", className)}>
+      {title && (
+        <h3 className="mb-1 px-2.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+          {title}
+        </h3>
+      )}
+      <div className="overflow-hidden rounded-xl border border-border bg-background/40 px-1.5 py-1">
+        {children}
+      </div>
+    </section>
+  )
+}
+
+/** Prominent stat tiles for the top of a detail drawer. */
+export function DetailStats({
+  items,
+}: {
+  items: { label: string; value: React.ReactNode; tone?: "default" | "success" | "warning" | "danger" | "brand" }[]
+}) {
+  const tones = {
+    default: "text-foreground",
+    success: "text-success",
+    warning: "text-warning",
+    danger: "text-danger",
+    brand: "text-brand",
+  }
+  return (
+    <div className={cn("grid gap-2", items.length >= 3 ? "grid-cols-3" : "grid-cols-2")}>
+      {items.map((s, i) => (
+        <div key={i} className="rounded-xl border border-border bg-background/40 px-3 py-2.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground truncate">{s.label}</p>
+          <p className={cn("mt-0.5 text-lg font-bold leading-tight", tones[s.tone ?? "default"])}>{s.value}</p>
+        </div>
+      ))}
     </div>
   )
 }

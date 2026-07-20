@@ -1,14 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Trash2, Camera, Upload, Package, Calculator, ArrowRight } from "lucide-react"
+import { Plus, Trash2, Camera, Upload, Package, Calculator, ArrowRight, Check, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Modal, Drawer } from "@/components/ui/modal"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Field, TextInput, ModalActions, DetailRow } from "@/components/ui/form"
+import { notify } from "@/components/ui/toast"
 
-const clients = ["Apex Pharma Ltd", "Sunrise Electronics", "GlobalTex Fabrics", "FreshFarm Organics", "MediSupply Corp"]
+const initialClients = ["Apex Pharma Ltd", "Sunrise Electronics", "GlobalTex Fabrics", "FreshFarm Organics", "MediSupply Corp"]
 const ports = ["INNSA – Nhava Sheva", "INMUN – Mundra", "INCKP – Chennai", "INBLR – Bangalore ICD", "INHYD – Hyderabad ICD"]
 const services = ["FCL", "LCL-Standard", "LCL-Express", "Break Bulk"]
 
-interface CargoPiece {
+// `type` (not `interface`) so rows stay assignable to Record<string, unknown> consumers
+type CargoPiece = {
   id: number
   pieces: string
   weight: string
@@ -19,21 +24,43 @@ interface CargoPiece {
   hsCode: string
 }
 
+type CapturedReceipt = {
+  id: string; shipper: string; pod: string; service: string; awb: string
+  pieces: number; weight: number; cbm: number; docs: string; capturedAt: string; location: string
+}
+
+const DOC_TYPES = ["Commercial Invoice", "Packing List", "Photo Capture"] as const
+
 function calcCBM(l: string, w: string, h: string, pcs: string): number {
   const cbm = (parseFloat(l) || 0) * (parseFloat(w) || 0) * (parseFloat(h) || 0) / 1_000_000
   return cbm * (parseFloat(pcs) || 1)
 }
 
+const emptyLines: CargoPiece[] = [{ id: 1, pieces: "", weight: "", length: "", width: "", height: "", marks: "", hsCode: "" }]
+
 export default function CargoReceiptPage() {
+  const [clients, setClients] = useState<string[]>(initialClients)
   const [shipper, setShipper] = useState("")
   const [shipperSearch, setShipperSearch] = useState("")
   const [showClientDrop, setShowClientDrop] = useState(false)
   const [pod, setPod] = useState("")
   const [service, setService] = useState("LCL-Standard")
   const [awb, setAwb] = useState("")
-  const [pieces, setPieces] = useState<CargoPiece[]>([
-    { id: 1, pieces: "", weight: "", length: "", width: "", height: "", marks: "", hsCode: "" }
-  ])
+  const [pieces, setPieces] = useState<CargoPiece[]>(emptyLines)
+  const [attached, setAttached] = useState<Record<string, string>>({})
+  const [captured, setCaptured] = useState<CapturedReceipt[]>([])
+  const [formError, setFormError] = useState("")
+
+  const [newShipperOpen, setNewShipperOpen] = useState(false)
+  const [newShipperName, setNewShipperName] = useState("")
+  const [newShipperError, setNewShipperError] = useState("")
+
+  const [docTarget, setDocTarget] = useState<string | null>(null)
+  const [docRef, setDocRef] = useState("")
+  const [docError, setDocError] = useState("")
+
+  const [removeLineTarget, setRemoveLineTarget] = useState<CargoPiece | null>(null)
+  const [detail, setDetail] = useState<CapturedReceipt | null>(null)
 
   const totalPieces = pieces.reduce((s, p) => s + (parseFloat(p.pieces) || 0), 0)
   const totalCBM = pieces.reduce((s, p) => s + calcCBM(p.length, p.width, p.height, p.pieces), 0)
@@ -43,6 +70,62 @@ export default function CargoReceiptPage() {
   const removePiece = (id: number) => setPieces(prev => prev.filter(p => p.id !== id))
   const updatePiece = (id: number, field: keyof CargoPiece, val: string) =>
     setPieces(prev => prev.map(p => p.id === id ? { ...p, [field]: val } : p))
+
+  function addShipper() {
+    const name = newShipperName.trim()
+    if (!name) { setNewShipperError("Shipper name is required"); return }
+    if (clients.some(c => c.toLowerCase() === name.toLowerCase())) { setNewShipperError("That shipper already exists"); return }
+    setClients(prev => [name, ...prev])
+    setShipper(name)
+    setShipperSearch(name)
+    setShowClientDrop(false)
+    setNewShipperOpen(false)
+    setNewShipperName("")
+    setNewShipperError("")
+    notify.success("Shipper added", `${name} is now available as an owner party.`)
+  }
+
+  function attachDoc() {
+    const ref = docRef.trim()
+    if (!ref) { setDocError(docTarget === "Photo Capture" ? "Photo reference is required" : "Document reference is required"); return }
+    const key = docTarget as string
+    setAttached(prev => ({ ...prev, [key]: ref }))
+    setDocTarget(null)
+    setDocRef("")
+    setDocError("")
+    notify.success(`${key} attached`, `Reference ${ref} linked to this cargo receipt.`)
+  }
+
+  function receiveCargo() {
+    if (!shipper) { setFormError("Select a shipper / owner party before receiving cargo."); notify.error("Cannot receive cargo", "Select a shipper / owner party first."); return }
+    if (!pod) { setFormError("Select a destination port (POD)."); notify.error("Cannot receive cargo", "Select a destination port (POD)."); return }
+    if (totalPieces <= 0) { setFormError("Enter at least one cargo line with a piece count."); notify.error("Cannot receive cargo", "Enter at least one cargo line with a piece count."); return }
+    if (totalCBM <= 0) { setFormError("Enter dimensions so a CBM can be calculated."); notify.error("Cannot receive cargo", "Enter L × W × H so a CBM can be calculated."); return }
+
+    const next: CapturedReceipt = {
+      id: `CR-${String(2451 + captured.length)}`,
+      shipper,
+      pod,
+      service,
+      awb: awb.trim() || "—",
+      pieces: totalPieces,
+      weight: Number(totalWeight.toFixed(2)),
+      cbm: Number(totalCBM.toFixed(4)),
+      docs: Object.keys(attached).length ? Object.keys(attached).join(", ") : "None attached",
+      capturedAt: new Date().toLocaleString(),
+      location: `CFS-${String.fromCharCode(65 + (captured.length % 4))}-${String(11 + captured.length).padStart(2, "0")}`,
+    }
+    setCaptured(prev => [next, ...prev])
+    setShipper("")
+    setShipperSearch("")
+    setPod("")
+    setService("LCL-Standard")
+    setAwb("")
+    setPieces([{ id: Date.now(), pieces: "", weight: "", length: "", width: "", height: "", marks: "", hsCode: "" }])
+    setAttached({})
+    setFormError("")
+    notify.success("Cargo received", `${next.id} — ${next.pieces} pcs / ${next.cbm.toFixed(3)} m³ held at ${next.location}.`)
+  }
 
   return (
     <div className="p-6 w-full">
@@ -72,13 +155,16 @@ export default function CargoReceiptPage() {
               {showClientDrop && (
                 <div className="absolute top-full left-0 right-0 mt-1 z-10 rounded-lg border border-border bg-popover shadow-xl overflow-hidden">
                   {clients.filter(c => c.toLowerCase().includes(shipperSearch.toLowerCase())).map(c => (
-                    <button key={c} onClick={() => { setShipper(c); setShipperSearch(c); setShowClientDrop(false) }}
+                    <button key={c} onClick={() => { setShipper(c); setShipperSearch(c); setShowClientDrop(false); setFormError("") }}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors text-left">
                       <div className="w-7 h-7 rounded-full bg-brand/20 flex items-center justify-center text-brand text-[10px] font-bold">{c.slice(0,2).toUpperCase()}</div>
                       {c}
                     </button>
                   ))}
-                  <button className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-brand hover:bg-brand/10 border-t border-border">
+                  <button
+                    onClick={() => { setNewShipperName(shipperSearch.trim()); setNewShipperError(""); setShowClientDrop(false); setNewShipperOpen(true) }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-brand hover:bg-brand/10 border-t border-border"
+                  >
                     <Plus className="w-4 h-4" /> New Shipper
                   </button>
                 </div>
@@ -109,7 +195,7 @@ export default function CargoReceiptPage() {
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-semibold text-muted-foreground">Lot / Line {i + 1}</span>
                       {pieces.length > 1 && (
-                        <button onClick={() => removePiece(p.id)} className="text-danger hover:text-danger/80 transition-colors">
+                        <button onClick={() => setRemoveLineTarget(p)} title="Remove this lot" className="text-danger hover:text-danger/80 transition-colors">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       )}
@@ -170,7 +256,7 @@ export default function CargoReceiptPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Destination Port (POD)</label>
-                <select value={pod} onChange={e => setPod(e.target.value)}
+                <select value={pod} onChange={e => { setPod(e.target.value); setFormError("") }}
                   className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm outline-none focus:border-brand">
                   <option value="">Select POD...</option>
                   {ports.map(p => <option key={p} value={p}>{p}</option>)}
@@ -198,13 +284,23 @@ export default function CargoReceiptPage() {
               Documents & Photos
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {["Commercial Invoice", "Packing List", "Photo Capture"].map(doc => (
-                <button key={doc} className={cn("flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed transition-all hover:border-brand/60 hover:bg-brand/5",
-                  doc === "Photo Capture" ? "border-brand/30 text-brand" : "border-border/60 text-muted-foreground")}>
-                  {doc === "Photo Capture" ? <Camera className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
-                  <span className="text-[11px] font-medium text-center leading-tight">{doc}</span>
-                </button>
-              ))}
+              {DOC_TYPES.map(doc => {
+                const isAttached = !!attached[doc]
+                return (
+                  <button
+                    key={doc}
+                    onClick={() => { setDocTarget(doc); setDocRef(attached[doc] ?? ""); setDocError("") }}
+                    title={isAttached ? `${doc} attached — click to replace` : `Attach ${doc}`}
+                    className={cn("flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed transition-all hover:border-brand/60 hover:bg-brand/5",
+                      isAttached ? "border-success/50 text-success bg-success/5"
+                        : doc === "Photo Capture" ? "border-brand/30 text-brand" : "border-border/60 text-muted-foreground")}
+                  >
+                    {isAttached ? <Check className="w-5 h-5" /> : doc === "Photo Capture" ? <Camera className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
+                    <span className="text-[11px] font-medium text-center leading-tight">{doc}</span>
+                    {isAttached && <span className="text-[10px] text-muted-foreground truncate max-w-full">{attached[doc]}</span>}
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
@@ -242,13 +338,125 @@ export default function CargoReceiptPage() {
               </div>
             )}
 
-            <button className="w-full mt-5 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#F7941D] text-white text-sm font-bold hover:bg-[#F7941D]/90 transition-colors shadow-lg shadow-[#F7941D]/20">
+            {formError && (
+              <p className="mt-4 text-xs text-danger">{formError}</p>
+            )}
+
+            <button onClick={receiveCargo} className="w-full mt-5 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#F7941D] text-white text-sm font-bold hover:bg-[#F7941D]/90 transition-colors shadow-lg shadow-[#F7941D]/20">
               <Package className="w-4 h-4" /> Receive Cargo
             </button>
             <p className="text-[10px] text-muted-foreground text-center mt-2">Assigns CFS hold location + prints receipt/QR</p>
           </div>
+
+          {captured.length > 0 && (
+            <div className="rounded-xl border border-border bg-card p-5">
+              <h3 className="text-sm font-bold text-foreground mb-3">Captured This Session</h3>
+              <div className="space-y-2">
+                {captured.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => setDetail(c)}
+                    title={`View ${c.id}`}
+                    className="w-full text-left p-3 rounded-lg border border-border/60 bg-background/40 hover:border-brand/40 transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-foreground font-mono">{c.id}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-success/15 text-success font-semibold flex items-center gap-1">
+                        <Eye className="w-2.5 h-2.5" /> {c.location}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground truncate">{c.shipper} · {c.pieces} pcs · {c.cbm.toFixed(3)} m³</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* New shipper */}
+      <Modal
+        open={newShipperOpen}
+        onOpenChange={(o) => { setNewShipperOpen(o); if (!o) { setNewShipperName(""); setNewShipperError("") } }}
+        title="New Shipper"
+        description="Add an owner party to the client list"
+        size="sm"
+        footer={<ModalActions onCancel={() => setNewShipperOpen(false)} onSubmit={addShipper} submitLabel="Add Shipper" />}
+      >
+        <Field label="Shipper Name" required error={newShipperError}>
+          <TextInput value={newShipperName} invalid={!!newShipperError} onChange={e => setNewShipperName(e.target.value)} placeholder="e.g. Northwind Traders Pvt Ltd" />
+        </Field>
+      </Modal>
+
+      {/* Attach document */}
+      <Modal
+        open={!!docTarget}
+        onOpenChange={(o) => { if (!o) { setDocTarget(null); setDocRef(""); setDocError("") } }}
+        title={docTarget ?? ""}
+        description={docTarget === "Photo Capture" ? "Record a photo reference for this cargo" : "Attach a document reference to this cargo receipt"}
+        size="sm"
+        footer={<ModalActions onCancel={() => setDocTarget(null)} onSubmit={attachDoc} submitLabel="Attach" />}
+      >
+        <Field
+          label={docTarget === "Photo Capture" ? "Photo Reference" : "Document Reference"}
+          required
+          error={docError}
+          hint="Stored against the receipt for audit — e.g. an invoice number or file name."
+        >
+          <TextInput
+            value={docRef}
+            invalid={!!docError}
+            onChange={e => setDocRef(e.target.value)}
+            placeholder={docTarget === "Photo Capture" ? "e.g. IMG-CFS-0451.jpg" : "e.g. INV-2024-8891.pdf"}
+          />
+        </Field>
+      </Modal>
+
+      {/* Captured receipt detail */}
+      <Drawer
+        open={!!detail}
+        onOpenChange={(o) => !o && setDetail(null)}
+        title={detail?.id ?? ""}
+        description="Captured cargo receipt detail"
+        footer={
+          <button onClick={() => setDetail(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {detail && (
+          <div className="space-y-1">
+            <DetailRow label="Receipt ID" value={<span className="font-mono text-brand">{detail.id}</span>} />
+            <DetailRow label="Shipper" value={detail.shipper} />
+            <DetailRow label="Destination (POD)" value={detail.pod} />
+            <DetailRow label="Service" value={detail.service} />
+            <DetailRow label="Booking / AWB" value={<span className="font-mono">{detail.awb}</span>} />
+            <DetailRow label="Pieces" value={`${detail.pieces}`} />
+            <DetailRow label="Weight" value={`${detail.weight.toFixed(2)} kg`} />
+            <DetailRow label="Volume" value={`${detail.cbm.toFixed(4)} m³`} />
+            <DetailRow label="Chargeable" value={`${Math.max(detail.weight, detail.cbm * 250).toFixed(2)} kg`} />
+            <DetailRow label="Documents" value={detail.docs} />
+            <DetailRow label="CFS Hold Location" value={<span className="font-mono">{detail.location}</span>} />
+            <DetailRow label="Captured" value={detail.capturedAt} />
+          </div>
+        )}
+      </Drawer>
+
+      {/* Remove lot confirmation */}
+      <ConfirmDialog
+        open={!!removeLineTarget}
+        onOpenChange={(o) => !o && setRemoveLineTarget(null)}
+        title="Remove this cargo lot?"
+        message="The lot line and its dimensions will be discarded from this capture."
+        confirmLabel="Remove Lot"
+        cancelLabel="Keep It"
+        onConfirm={() => {
+          if (removeLineTarget) {
+            removePiece(removeLineTarget.id)
+            notify.warning("Lot removed", "The cargo lot line was discarded.")
+          }
+        }}
+      />
     </div>
   )
 }
