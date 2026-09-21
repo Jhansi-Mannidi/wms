@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Inbox, Plus, Search, FileText, Clock, CheckCircle2, AlertTriangle, Truck, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { EmptyState } from "@/components/wms/empty-state"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, TextArea, DetailRow } from "@/components/ui/form"
@@ -293,8 +294,22 @@ export default function PortalASNPage() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-4 py-10 text-center text-muted-foreground">
-                    {tab === "Draft" ? "No draft ASNs — start one with “New ASN” and choose Save Draft." : "No ASNs match your filters."}
+                  <td colSpan={9}>
+                    {tab === "Draft" ? (
+                      <EmptyState
+                        icon={FileText}
+                        title="No draft ASNs"
+                        description="Start one with “New ASN” and choose Save Draft."
+                        action={{ label: "New ASN", icon: Plus, onClick: () => { setForm(emptyForm); setErrors({}); setCreateOpen(true) } }}
+                      />
+                    ) : (
+                      <EmptyState
+                        icon={Search}
+                        title="No ASNs match your filters"
+                        description="Try a different search term or switch tabs."
+                        action={{ label: "Clear Filters", onClick: () => { setSearch(""); setTab("All ASNs") } }}
+                      />
+                    )}
                   </td>
                 </tr>
               )}

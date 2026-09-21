@@ -30,8 +30,8 @@ const initialConsolidations: Consolidation[] = LCL_DASHBOARD_CONSOLS.map(c => ({
   cutoff: c.cutoff,
   cbmUsed: c.cbm,
   cbmMax: c.cbmMax,
-  kgUsed: Math.round(c.cbm * 520),
-  kgMax: Math.round(c.cbmMax * 520),
+  kgUsed: c.kg,
+  kgMax: c.kgMax,
   status: c.status === "Closed" ? "Building" : c.status,
 }))
 

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Package, Search, Filter, ChevronDown, RefreshCw, AlertTriangle, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ExportButton } from "@/components/wms/export-button"
+import { EmptyState } from "@/components/wms/empty-state"
 import { Drawer } from "@/components/ui/modal"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
@@ -21,11 +22,11 @@ const initialInventory: StockItem[] = [
   { sku: "APX-7712", desc: "Paracetamol 500mg Tablets", category: "Pharma", zone: "Zone A", batch: "BT-2024-441", qty: 4800, uom: "Units", reorder: 1000, expiry: "2026-03-31", status: "OK" },
   { sku: "APX-4421", desc: "Syringes 5ml Disposable", category: "Pharma", zone: "Zone A", batch: "BT-2024-328", qty: 2200, uom: "Units", reorder: 500, expiry: "2027-01-15", status: "OK" },
   { sku: "APX-2209", desc: "IV Drip Set Standard", category: "Pharma", zone: "Zone B", batch: "BT-2024-291", qty: 850, uom: "Sets", reorder: 200, expiry: "2026-06-30", status: "OK" },
-  { sku: "APX-7790", desc: "Amoxicillin 250mg Capsules", category: "Pharma", zone: "Zone A", batch: "BT-2024-112", qty: 48, uom: "Units", reorder: 500, expiry: "2025-09-30", status: "Low" },
+  { sku: "APX-7790", desc: "Amoxicillin 250mg Capsules", category: "Pharma", zone: "Zone A", batch: "BT-2024-112", qty: 48, uom: "Units", reorder: 500, expiry: "2026-09-30", status: "Low" },
   { sku: "APX-1102", desc: "Nitrile Gloves Large (Box)", category: "OTC", zone: "Zone B", batch: "BT-2024-501", qty: 320, uom: "Boxes", reorder: 100, expiry: "2028-12-31", status: "OK" },
   { sku: "APX-0091", desc: "Isopropyl Alcohol Swabs", category: "OTC", zone: "Zone B", batch: "BT-2024-488", qty: 6500, uom: "Pcs", reorder: 2000, expiry: "2026-11-30", status: "OK" },
-  { sku: "APX-3301", desc: "Insulin Glargine 100U/mL", category: "Cold Chain", zone: "Zone C", batch: "BT-2024-771", qty: 240, uom: "Vials", reorder: 100, expiry: "2025-08-15", status: "Near Expiry" },
-  { sku: "APX-3302", desc: "Adalimumab Injection 40mg", category: "Cold Chain", zone: "Zone C", batch: "BT-2024-772", qty: 90, uom: "Pens", reorder: 50, expiry: "2025-10-01", status: "OK" },
+  { sku: "APX-3301", desc: "Insulin Glargine 100U/mL", category: "Cold Chain", zone: "Zone C", batch: "BT-2024-771", qty: 240, uom: "Vials", reorder: 100, expiry: "2026-08-15", status: "Near Expiry" },
+  { sku: "APX-3302", desc: "Adalimumab Injection 40mg", category: "Cold Chain", zone: "Zone C", batch: "BT-2024-772", qty: 90, uom: "Pens", reorder: 50, expiry: "2026-10-01", status: "OK" },
   { sku: "APX-6601", desc: "Glucose Saline 500mL Bags", category: "Bulk", zone: "Zone D", batch: "BT-2024-321", qty: 1800, uom: "Bags", reorder: 500, expiry: "2026-04-30", status: "OK" },
   { sku: "APX-6610", desc: "Normal Saline 1000mL Bags", category: "Bulk", zone: "Zone D", batch: "BT-2024-322", qty: 420, uom: "Bags", reorder: 500, expiry: "2026-05-31", status: "Low" },
   { sku: "APX-7715", desc: "Paracetamol 650mg Tablets", category: "Pharma", zone: "Zone A", batch: "BT-2024-452", qty: 3600, uom: "Units", reorder: 1000, expiry: "2026-08-31", status: "OK" },
@@ -35,19 +36,19 @@ const initialInventory: StockItem[] = [
   { sku: "APX-4455", desc: "Surgical Blades No. 15", category: "Pharma", zone: "Zone A", batch: "BT-2024-341", qty: 4200, uom: "Pcs", reorder: 1200, expiry: "2028-06-30", status: "OK" },
   { sku: "APX-2215", desc: "IV Cannula 20G", category: "Pharma", zone: "Zone B", batch: "BT-2024-298", qty: 1450, uom: "Pcs", reorder: 400, expiry: "2026-09-30", status: "OK" },
   { sku: "APX-2230", desc: "Urine Bag 2000mL", category: "Pharma", zone: "Zone B", batch: "BT-2024-305", qty: 380, uom: "Pcs", reorder: 400, expiry: "2027-05-31", status: "Low" },
-  { sku: "APX-7845", desc: "Metformin 500mg Tablets", category: "Pharma", zone: "Zone B", batch: "BT-2024-133", qty: 5200, uom: "Units", reorder: 1500, expiry: "2025-09-15", status: "Near Expiry" },
+  { sku: "APX-7845", desc: "Metformin 500mg Tablets", category: "Pharma", zone: "Zone B", batch: "BT-2024-133", qty: 5200, uom: "Units", reorder: 1500, expiry: "2026-09-15", status: "Near Expiry" },
   { sku: "APX-1110", desc: "Nitrile Gloves Medium (Box)", category: "OTC", zone: "Zone B", batch: "BT-2024-509", qty: 260, uom: "Boxes", reorder: 100, expiry: "2028-10-31", status: "OK" },
   { sku: "APX-1125", desc: "Latex Examination Gloves (Box)", category: "OTC", zone: "Zone B", batch: "BT-2024-514", qty: 85, uom: "Boxes", reorder: 120, expiry: "2027-11-30", status: "Low" },
   { sku: "APX-0098", desc: "Cotton Gauze Rolls 10cm", category: "OTC", zone: "Zone B", batch: "BT-2024-492", qty: 2400, uom: "Rolls", reorder: 600, expiry: "2027-02-28", status: "OK" },
   { sku: "APX-0105", desc: "Adhesive Bandages Assorted", category: "OTC", zone: "Zone B", batch: "BT-2024-497", qty: 7800, uom: "Pcs", reorder: 2000, expiry: "2026-12-31", status: "OK" },
-  { sku: "APX-0112", desc: "Hand Sanitiser 500mL", category: "OTC", zone: "Zone B", batch: "BT-2024-503", qty: 940, uom: "Bottles", reorder: 300, expiry: "2025-09-20", status: "Near Expiry" },
+  { sku: "APX-0112", desc: "Hand Sanitiser 500mL", category: "OTC", zone: "Zone B", batch: "BT-2024-503", qty: 940, uom: "Bottles", reorder: 300, expiry: "2026-09-20", status: "Near Expiry" },
   { sku: "APX-3310", desc: "Human Albumin 20% 50mL", category: "Cold Chain", zone: "Zone C", batch: "BT-2024-778", qty: 160, uom: "Vials", reorder: 60, expiry: "2026-01-31", status: "OK" },
   { sku: "APX-3318", desc: "Rabies Vaccine 1mL", category: "Cold Chain", zone: "Zone C", batch: "BT-2024-784", qty: 44, uom: "Vials", reorder: 50, expiry: "2026-03-31", status: "Low" },
-  { sku: "APX-3325", desc: "Enoxaparin 60mg Syringe", category: "Cold Chain", zone: "Zone C", batch: "BT-2024-790", qty: 310, uom: "Syringes", reorder: 120, expiry: "2025-09-10", status: "Near Expiry" },
+  { sku: "APX-3325", desc: "Enoxaparin 60mg Syringe", category: "Cold Chain", zone: "Zone C", batch: "BT-2024-790", qty: 310, uom: "Syringes", reorder: 120, expiry: "2026-09-10", status: "Near Expiry" },
   { sku: "APX-3331", desc: "Influenza Vaccine Quadrivalent", category: "Cold Chain", zone: "Zone C", batch: "BT-2024-796", qty: 520, uom: "Vials", reorder: 200, expiry: "2026-07-31", status: "OK" },
   { sku: "APX-6620", desc: "Ringer Lactate 500mL Bags", category: "Bulk", zone: "Zone D", batch: "BT-2024-330", qty: 1350, uom: "Bags", reorder: 400, expiry: "2026-08-31", status: "OK" },
   { sku: "APX-6635", desc: "Dextrose 5% 1000mL Bags", category: "Bulk", zone: "Zone D", batch: "BT-2024-338", qty: 2100, uom: "Bags", reorder: 600, expiry: "2026-10-31", status: "OK" },
-  { sku: "APX-6648", desc: "Sterile Water for Injection 10mL", category: "Bulk", zone: "Zone D", batch: "BT-2024-345", qty: 8600, uom: "Ampoules", reorder: 2500, expiry: "2025-09-30", status: "Near Expiry" },
+  { sku: "APX-6648", desc: "Sterile Water for Injection 10mL", category: "Bulk", zone: "Zone D", batch: "BT-2024-345", qty: 8600, uom: "Ampoules", reorder: 2500, expiry: "2026-09-30", status: "Near Expiry" },
 ]
 
 const statusStyle: Record<string, string> = {
@@ -204,7 +205,14 @@ export default function PortalInventoryPage() {
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">No SKUs match your filters.</td></tr>
+                <tr><td colSpan={8}>
+                  <EmptyState
+                    icon={Search}
+                    title="No SKUs match your filters"
+                    description="Try a different search term or clear the active filters."
+                    action={{ label: "Clear Filters", onClick: () => { setSearch(""); setCategory("All"); setZone("All Zones") } }}
+                  />
+                </td></tr>
               )}
             </tbody>
           </table>

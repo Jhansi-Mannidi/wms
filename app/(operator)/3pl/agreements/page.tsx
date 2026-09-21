@@ -15,6 +15,7 @@ import { RowActions } from "@/components/ui/row-actions"
 type Agreement = {
   id: string; client: string; type: string; startDate: string; endDate: string
   status: string; billingFreq: string; value: string; autoRenew: boolean; daysLeft: number
+  zone?: string; allocatedSqft?: number; slaProfile?: string; rateCardId?: string; deposit?: string
 }
 
 type RateCard = {
@@ -85,6 +86,8 @@ const BILLING_FREQS = ["Monthly", "Quarterly", "Annually"] as const
 const AUTO_RENEW = ["Yes", "No"] as const
 const SERVICES = ["Storage", "Handling", "VAS", "Ancillary"] as const
 const UOMS = ["pallet-day", "piece", "unit", "month", "sqft-month"] as const
+const ZONES = ["Zone A", "Zone B", "Zone C", "Zone D", "Cold Room A"] as const
+const SLA_PROFILES = ["Standard SLA — 24h turnaround", "Premium SLA — 12h turnaround", "Custom SLA — per addendum"] as const
 
 const tabs = ["All Agreements", "Active", "Renewal Due", "Expired", "Rate Cards"] as const
 type Tab = typeof tabs[number]
@@ -95,8 +98,15 @@ const statusConfig: Record<string, { label: string; bg: string; text: string; ic
   expired: { label: "Expired",      bg: "bg-danger/15",  text: "text-danger",   icon: <Clock className="w-3 h-3" /> },
 }
 
-const emptyForm = { client: "", type: "", startDate: "", endDate: "", billingFreq: "", value: "", autoRenew: "" }
+const emptyForm = {
+  client: "", type: "", startDate: "", endDate: "", billingFreq: "", value: "", autoRenew: "",
+  zone: "", allocatedSqft: "", slaProfile: "", rateCardId: "", deposit: "",
+}
 const emptyRateForm = { name: "", service: "", uom: "", rate: "", appliesTo: "" }
+
+function rateCardLabel(r: RateCard) {
+  return `${r.name} (${r.id}) — ₹${r.rate}/${r.uom}`
+}
 
 function daysBetween(from: string, to: string) {
   const ms = new Date(to).getTime() - new Date(from).getTime()
@@ -136,6 +146,12 @@ export default function AgreementsPage() {
   const filteredRates = rateCards.filter(r =>
     r.name.toLowerCase().includes(search.toLowerCase()) || r.service.toLowerCase().includes(search.toLowerCase())
   )
+
+  const eligibleRateCards = rateCards.filter(r => !form.type || r.appliesTo === form.type)
+  const selectedRateCard = rateCards.find(r => rateCardLabel(r) === form.rateCardId)
+  const estimatedMonthly = selectedRateCard && form.allocatedSqft && selectedRateCard.uom === "sqft-month"
+    ? selectedRateCard.rate * Number(form.allocatedSqft)
+    : null
 
   const kpis = [
     { label: "Active Agreements", value: String(agreements.filter(a => a.status === "active").length), color: "text-success" },
@@ -179,16 +195,24 @@ export default function AgreementsPage() {
       value: form.value.trim(),
       autoRenew: form.autoRenew === "Yes",
       daysLeft: left,
+      zone: form.zone || undefined,
+      allocatedSqft: form.allocatedSqft ? Number(form.allocatedSqft) : undefined,
+      slaProfile: form.slaProfile || undefined,
+      rateCardId: selectedRateCard?.id,
+      deposit: form.deposit.trim() || undefined,
     }
     setAgreements(prev => [next, ...prev])
     setCreateOpen(false)
     setForm(emptyForm)
     setErrors({})
-    notify.success("Agreement created", `${next.id} — ${next.client} (${next.type})`)
+    notify.success("Agreement activated", `${next.id} — ${next.client} (${next.type})`)
   }
 
   function openEdit(a: Agreement) {
-    setForm({ client: a.client, type: a.type, startDate: a.startDate, endDate: a.endDate, billingFreq: a.billingFreq, value: a.value, autoRenew: a.autoRenew ? "Yes" : "No" })
+    setForm({
+      client: a.client, type: a.type, startDate: a.startDate, endDate: a.endDate, billingFreq: a.billingFreq, value: a.value, autoRenew: a.autoRenew ? "Yes" : "No",
+      zone: a.zone ?? "", allocatedSqft: a.allocatedSqft ? String(a.allocatedSqft) : "", slaProfile: a.slaProfile ?? "", rateCardId: a.rateCardId ?? "", deposit: a.deposit ?? "",
+    })
     setErrors({})
     setEditTarget(a)
   }
@@ -201,6 +225,11 @@ export default function AgreementsPage() {
       client: form.client.trim(), type: form.type, startDate: form.startDate, endDate: form.endDate,
       billingFreq: form.billingFreq, value: form.value.trim(), autoRenew: form.autoRenew === "Yes",
       status, daysLeft: left,
+      zone: form.zone || undefined,
+      allocatedSqft: form.allocatedSqft ? Number(form.allocatedSqft) : undefined,
+      slaProfile: form.slaProfile || undefined,
+      rateCardId: form.rateCardId || undefined,
+      deposit: form.deposit.trim() || undefined,
     } : a))
     notify.success("Agreement updated", `${editTarget.id} saved.`)
     setEditTarget(null)
@@ -419,36 +448,80 @@ export default function AgreementsPage() {
         )}
       </div>
 
-      {/* Create agreement */}
+      {/* Create agreement — builder: terms, space allocation, SLA, rate card, deposit */}
       <Modal
         open={createOpen}
         onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setErrors({}) } }}
         title="New Agreement"
         description="Set up a 3PL contract for a client"
-        footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createAgreement} submitLabel="Create Agreement" />}
+        size="lg"
+        footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createAgreement} submitLabel="Activate Agreement" />}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Client" required error={errors.client}>
-            <TextInput value={form.client} invalid={!!errors.client} onChange={e => setForm({ ...form, client: e.target.value })} placeholder="e.g. Reliance Retail Ltd" />
-          </Field>
-          <Field label="Agreement Type" required error={errors.type}>
-            <Select value={form.type} invalid={!!errors.type} onChange={e => setForm({ ...form, type: e.target.value })} options={AGREEMENT_TYPES} placeholder="Select Type" />
-          </Field>
-          <Field label="Start Date" required error={errors.startDate} hint="YYYY-MM-DD">
-            <TextInput value={form.startDate} invalid={!!errors.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} placeholder="2025-01-01" />
-          </Field>
-          <Field label="End Date" required error={errors.endDate} hint="YYYY-MM-DD">
-            <TextInput value={form.endDate} invalid={!!errors.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} placeholder="2026-12-31" />
-          </Field>
-          <Field label="Billing Frequency" required error={errors.billingFreq}>
-            <Select value={form.billingFreq} invalid={!!errors.billingFreq} onChange={e => setForm({ ...form, billingFreq: e.target.value })} options={BILLING_FREQS} placeholder="Select Frequency" />
-          </Field>
-          <Field label="Contract Value" required error={errors.value}>
-            <TextInput value={form.value} invalid={!!errors.value} onChange={e => setForm({ ...form, value: e.target.value })} placeholder="e.g. ₹4.2L/mo" />
-          </Field>
-          <Field label="Auto-Renew" required error={errors.autoRenew}>
-            <Select value={form.autoRenew} invalid={!!errors.autoRenew} onChange={e => setForm({ ...form, autoRenew: e.target.value })} options={AUTO_RENEW} placeholder="Select" />
-          </Field>
+        <div className="space-y-5">
+          <div>
+            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5">Contract Terms</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Client" required error={errors.client}>
+                <TextInput value={form.client} invalid={!!errors.client} onChange={e => setForm({ ...form, client: e.target.value })} placeholder="e.g. Reliance Retail Ltd" />
+              </Field>
+              <Field label="Agreement Type" required error={errors.type}>
+                <Select value={form.type} invalid={!!errors.type} onChange={e => setForm({ ...form, type: e.target.value, rateCardId: "" })} options={AGREEMENT_TYPES} placeholder="Select Type" />
+              </Field>
+              <Field label="Start Date" required error={errors.startDate} hint="YYYY-MM-DD">
+                <TextInput value={form.startDate} invalid={!!errors.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} placeholder="2025-01-01" />
+              </Field>
+              <Field label="End Date" required error={errors.endDate} hint="YYYY-MM-DD">
+                <TextInput value={form.endDate} invalid={!!errors.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} placeholder="2026-12-31" />
+              </Field>
+              <Field label="Billing Frequency" required error={errors.billingFreq}>
+                <Select value={form.billingFreq} invalid={!!errors.billingFreq} onChange={e => setForm({ ...form, billingFreq: e.target.value })} options={BILLING_FREQS} placeholder="Select Frequency" />
+              </Field>
+              <Field label="Contract Value" required error={errors.value}>
+                <TextInput value={form.value} invalid={!!errors.value} onChange={e => setForm({ ...form, value: e.target.value })} placeholder="e.g. ₹4.2L/mo" />
+              </Field>
+              <Field label="Auto-Renew" required error={errors.autoRenew}>
+                <Select value={form.autoRenew} invalid={!!errors.autoRenew} onChange={e => setForm({ ...form, autoRenew: e.target.value })} options={AUTO_RENEW} placeholder="Select" />
+              </Field>
+              <Field label="Security Deposit">
+                <TextInput value={form.deposit} onChange={e => setForm({ ...form, deposit: e.target.value })} placeholder="e.g. ₹50,000" />
+              </Field>
+            </div>
+          </div>
+
+          <div className="pt-1 border-t border-border">
+            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 mt-4">Space Allocation</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Warehouse Zone">
+                <Select value={form.zone} onChange={e => setForm({ ...form, zone: e.target.value })} options={ZONES} placeholder="Select Zone" />
+              </Field>
+              <Field label="Allocated Area (sqft)">
+                <TextInput value={form.allocatedSqft} onChange={e => setForm({ ...form, allocatedSqft: e.target.value.replace(/\D/g, "") })} placeholder="e.g. 4500" inputMode="numeric" />
+              </Field>
+            </div>
+          </div>
+
+          <div className="pt-1 border-t border-border">
+            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 mt-4">SLA Profile & Rate Card</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="SLA Profile">
+                <Select value={form.slaProfile} onChange={e => setForm({ ...form, slaProfile: e.target.value })} options={SLA_PROFILES} placeholder="Select SLA Profile" />
+              </Field>
+              <Field label="Rate Card" hint={form.type ? undefined : "Select an agreement type to filter applicable rate cards"}>
+                <Select
+                  value={form.rateCardId}
+                  onChange={e => setForm({ ...form, rateCardId: e.target.value })}
+                  options={eligibleRateCards.map(rateCardLabel)}
+                  placeholder="Select Rate Card"
+                />
+              </Field>
+            </div>
+            {estimatedMonthly !== null && (
+              <div className="mt-3 flex items-center justify-between px-3 py-2 rounded-lg bg-brand/10 border border-brand/30">
+                <span className="text-xs font-medium text-foreground">Estimated storage cost ({form.allocatedSqft} sqft × ₹{selectedRateCard?.rate}/sqft-mo)</span>
+                <span className="text-sm font-bold text-brand">₹{estimatedMonthly.toLocaleString()}/mo</span>
+              </div>
+            )}
+          </div>
         </div>
       </Modal>
 
@@ -539,6 +612,11 @@ export default function AgreementsPage() {
             <DetailRow label="Billing Frequency" value={detail.billingFreq} />
             <DetailRow label="Contract Value" value={detail.value} />
             <DetailRow label="Auto-Renew" value={detail.autoRenew ? "Enabled" : "Disabled"} />
+            {detail.zone && <DetailRow label="Warehouse Zone" value={detail.zone} />}
+            {detail.allocatedSqft && <DetailRow label="Allocated Area" value={`${detail.allocatedSqft.toLocaleString()} sqft`} />}
+            {detail.slaProfile && <DetailRow label="SLA Profile" value={detail.slaProfile} />}
+            {detail.rateCardId && <DetailRow label="Rate Card" value={<span className="font-mono text-brand">{detail.rateCardId}</span>} />}
+            {detail.deposit && <DetailRow label="Security Deposit" value={detail.deposit} />}
           </div>
         )}
       </Drawer>

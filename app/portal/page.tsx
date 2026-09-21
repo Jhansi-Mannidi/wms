@@ -16,7 +16,7 @@ type RecentOrder = { id: string; sku: string; desc: string; status: string; date
 type Alert = { type: string; msg: string; time: string }
 
 const kpis = [
-  { label: "SKUs in Stock", value: "342", sub: "across 4 zones", icon: <Package className="w-5 h-5" />, color: "text-brand", bg: "bg-brand/15" },
+  { label: "SKUs in Stock", value: "234", sub: "across 4 zones", icon: <Package className="w-5 h-5" />, color: "text-brand", bg: "bg-brand/15" },
   { label: "Pending Inbound", value: "7", sub: "ASNs awaiting receipt", icon: <Inbox className="w-5 h-5" />, color: "text-warning", bg: "bg-warning/15" },
   { label: "Pending Ship-Out", value: "14", sub: "orders processing", icon: <Truck className="w-5 h-5" />, color: "text-orange-400", bg: "bg-orange-400/15" },
   { label: "Open Invoices", value: "3", sub: "₹2.4L outstanding", icon: <DollarSign className="w-5 h-5" />, color: "text-danger", bg: "bg-danger/15" },
@@ -48,7 +48,7 @@ const initialAlerts: Alert[] = [
   { type: "warning", msg: "APX-3301 Insulin Glargine within 60 days of expiry (240 vials)", time: "2d ago" },
   { type: "info", msg: "ASN-2238 received and putaway complete — 200 cartons", time: "3d ago" },
   { type: "danger", msg: "Zone C cold-chain utilisation at 91% — allocate additional pallet positions", time: "3d ago" },
-  { type: "info", msg: "Invoice INV-0445 issued for Jul 1–15, 2025 — payable by Jul 30", time: "4d ago" },
+  { type: "info", msg: "Invoice INV-0445 issued for Jul 1–15, 2026 — payable by Jul 30", time: "4d ago" },
   { type: "warning", msg: "APX-7822 Cefixime 200mg approaching reorder level (640 units)", time: "5d ago" },
 ]
 

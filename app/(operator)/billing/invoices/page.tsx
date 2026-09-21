@@ -16,34 +16,34 @@ type Invoice = {
 }
 
 const initialInvoices: Invoice[] = [
-  { id: "INV-2024-0441", client: "Acme Foods", period: "Jun 2024", storage: "₹18,400", handling: "₹6,200", vas: "₹1,500", total: "₹26,100", issued: "2024-07-01", due: "2024-07-31", status: "Unpaid" },
-  { id: "INV-2024-0440", client: "Global Oils", period: "Jun 2024", storage: "₹12,000", handling: "₹4,100", vas: "₹0", total: "₹16,100", issued: "2024-07-01", due: "2024-07-31", status: "Unpaid" },
-  { id: "INV-2024-0430", client: "Acme Foods", period: "May 2024", storage: "₹17,800", handling: "₹5,900", vas: "₹2,100", total: "₹25,800", issued: "2024-06-01", due: "2024-06-30", status: "Paid" },
-  { id: "INV-2024-0429", client: "Agro Corp", period: "May 2024", storage: "₹8,400", handling: "₹2,200", vas: "₹0", total: "₹10,600", issued: "2024-06-01", due: "2024-06-30", status: "Overdue" },
-  { id: "INV-2024-0420", client: "Sweet Mills", period: "Apr 2024", storage: "₹6,200", handling: "₹1,800", vas: "₹400", total: "₹8,400", issued: "2024-05-01", due: "2024-05-31", status: "Paid" },
-  { id: "INV-2024-0442", client: "Fresh Farms", period: "Jun 2024", storage: "₹21,600", handling: "₹7,400", vas: "₹2,800", total: "₹31,800", issued: "2024-07-01", due: "2024-07-31", status: "Unpaid" },
-  { id: "INV-2024-0443", client: "Salt Works", period: "Jun 2024", storage: "₹5,900", handling: "₹1,600", vas: "₹0", total: "₹7,500", issued: "2024-07-01", due: "2024-07-31", status: "Unpaid" },
-  { id: "INV-2024-0444", client: "Sweet Mills", period: "Jun 2024", storage: "₹6,800", handling: "₹2,000", vas: "₹600", total: "₹9,400", issued: "2024-07-01", due: "2024-07-31", status: "Paid" },
-  { id: "INV-2024-0445", client: "Agro Corp", period: "Jun 2024", storage: "₹9,100", handling: "₹2,500", vas: "₹300", total: "₹11,900", issued: "2024-07-01", due: "2024-07-31", status: "Unpaid" },
-  { id: "INV-2024-0431", client: "Global Oils", period: "May 2024", storage: "₹11,600", handling: "₹3,900", vas: "₹500", total: "₹16,000", issued: "2024-06-01", due: "2024-06-30", status: "Paid" },
-  { id: "INV-2024-0432", client: "Fresh Farms", period: "May 2024", storage: "₹20,400", handling: "₹6,900", vas: "₹2,400", total: "₹29,700", issued: "2024-06-01", due: "2024-06-30", status: "Paid" },
-  { id: "INV-2024-0433", client: "Salt Works", period: "May 2024", storage: "₹5,400", handling: "₹1,500", vas: "₹0", total: "₹6,900", issued: "2024-06-01", due: "2024-06-30", status: "Overdue" },
-  { id: "INV-2024-0434", client: "Sweet Mills", period: "May 2024", storage: "₹6,500", handling: "₹1,900", vas: "₹350", total: "₹8,750", issued: "2024-06-01", due: "2024-06-30", status: "Paid" },
-  { id: "INV-2024-0421", client: "Acme Foods", period: "Apr 2024", storage: "₹17,200", handling: "₹5,600", vas: "₹1,800", total: "₹24,600", issued: "2024-05-01", due: "2024-05-31", status: "Paid" },
-  { id: "INV-2024-0422", client: "Global Oils", period: "Apr 2024", storage: "₹11,200", handling: "₹3,700", vas: "₹0", total: "₹14,900", issued: "2024-05-01", due: "2024-05-31", status: "Paid" },
-  { id: "INV-2024-0423", client: "Agro Corp", period: "Apr 2024", storage: "₹8,100", handling: "₹2,100", vas: "₹250", total: "₹10,450", issued: "2024-05-01", due: "2024-05-31", status: "Overdue" },
-  { id: "INV-2024-0424", client: "Fresh Farms", period: "Apr 2024", storage: "₹19,800", handling: "₹6,400", vas: "₹2,200", total: "₹28,400", issued: "2024-05-01", due: "2024-05-31", status: "Paid" },
-  { id: "INV-2024-0425", client: "Salt Works", period: "Apr 2024", storage: "₹5,100", handling: "₹1,400", vas: "₹0", total: "₹6,500", issued: "2024-05-01", due: "2024-05-31", status: "Paid" },
-  { id: "INV-2024-0410", client: "Acme Foods", period: "Mar 2024", storage: "₹16,900", handling: "₹5,400", vas: "₹1,600", total: "₹23,900", issued: "2024-04-01", due: "2024-04-30", status: "Paid" },
-  { id: "INV-2024-0411", client: "Global Oils", period: "Mar 2024", storage: "₹10,800", handling: "₹3,500", vas: "₹450", total: "₹14,750", issued: "2024-04-01", due: "2024-04-30", status: "Paid" },
-  { id: "INV-2024-0412", client: "Agro Corp", period: "Mar 2024", storage: "₹7,900", handling: "₹2,000", vas: "₹0", total: "₹9,900", issued: "2024-04-01", due: "2024-04-30", status: "Paid" },
-  { id: "INV-2024-0413", client: "Sweet Mills", period: "Mar 2024", storage: "₹6,000", handling: "₹1,700", vas: "₹300", total: "₹8,000", issued: "2024-04-01", due: "2024-04-30", status: "Overdue" },
-  { id: "INV-2024-0414", client: "Fresh Farms", period: "Mar 2024", storage: "₹18,600", handling: "₹6,100", vas: "₹1,900", total: "₹26,600", issued: "2024-04-01", due: "2024-04-30", status: "Paid" },
-  { id: "INV-2024-0415", client: "Salt Works", period: "Mar 2024", storage: "₹4,800", handling: "₹1,300", vas: "₹0", total: "₹6,100", issued: "2024-04-01", due: "2024-04-30", status: "Paid" },
-  { id: "INV-2024-0400", client: "Acme Foods", period: "Feb 2024", storage: "₹16,400", handling: "₹5,200", vas: "₹1,400", total: "₹23,000", issued: "2024-03-01", due: "2024-03-31", status: "Paid" },
-  { id: "INV-2024-0401", client: "Global Oils", period: "Feb 2024", storage: "₹10,400", handling: "₹3,300", vas: "₹0", total: "₹13,700", issued: "2024-03-01", due: "2024-03-31", status: "Paid" },
-  { id: "INV-2024-0402", client: "Fresh Farms", period: "Feb 2024", storage: "₹17,900", handling: "₹5,800", vas: "₹1,700", total: "₹25,400", issued: "2024-03-01", due: "2024-03-31", status: "Overdue" },
-  { id: "INV-2024-0403", client: "Agro Corp", period: "Feb 2024", storage: "₹7,600", handling: "₹1,900", vas: "₹200", total: "₹9,700", issued: "2024-03-01", due: "2024-03-31", status: "Paid" },
+  { id: "INV-2026-0441", client: "Acme Foods", period: "Jun 2026", storage: "₹18,400", handling: "₹6,200", vas: "₹1,500", total: "₹26,100", issued: "2026-07-01", due: "2026-07-31", status: "Unpaid" },
+  { id: "INV-2026-0440", client: "Global Oils", period: "Jun 2026", storage: "₹12,000", handling: "₹4,100", vas: "₹0", total: "₹16,100", issued: "2026-07-01", due: "2026-07-31", status: "Unpaid" },
+  { id: "INV-2026-0430", client: "Acme Foods", period: "May 2026", storage: "₹17,800", handling: "₹5,900", vas: "₹2,100", total: "₹25,800", issued: "2026-06-01", due: "2026-06-30", status: "Paid" },
+  { id: "INV-2026-0429", client: "Agro Corp", period: "May 2026", storage: "₹8,400", handling: "₹2,200", vas: "₹0", total: "₹10,600", issued: "2026-06-01", due: "2026-06-30", status: "Overdue" },
+  { id: "INV-2026-0420", client: "Sweet Mills", period: "Apr 2026", storage: "₹6,200", handling: "₹1,800", vas: "₹400", total: "₹8,400", issued: "2026-05-01", due: "2026-05-31", status: "Paid" },
+  { id: "INV-2026-0442", client: "Fresh Farms", period: "Jun 2026", storage: "₹21,600", handling: "₹7,400", vas: "₹2,800", total: "₹31,800", issued: "2026-07-01", due: "2026-07-31", status: "Unpaid" },
+  { id: "INV-2026-0443", client: "Salt Works", period: "Jun 2026", storage: "₹5,900", handling: "₹1,600", vas: "₹0", total: "₹7,500", issued: "2026-07-01", due: "2026-07-31", status: "Unpaid" },
+  { id: "INV-2026-0444", client: "Sweet Mills", period: "Jun 2026", storage: "₹6,800", handling: "₹2,000", vas: "₹600", total: "₹9,400", issued: "2026-07-01", due: "2026-07-31", status: "Paid" },
+  { id: "INV-2026-0445", client: "Agro Corp", period: "Jun 2026", storage: "₹9,100", handling: "₹2,500", vas: "₹300", total: "₹11,900", issued: "2026-07-01", due: "2026-07-31", status: "Unpaid" },
+  { id: "INV-2026-0431", client: "Global Oils", period: "May 2026", storage: "₹11,600", handling: "₹3,900", vas: "₹500", total: "₹16,000", issued: "2026-06-01", due: "2026-06-30", status: "Paid" },
+  { id: "INV-2026-0432", client: "Fresh Farms", period: "May 2026", storage: "₹20,400", handling: "₹6,900", vas: "₹2,400", total: "₹29,700", issued: "2026-06-01", due: "2026-06-30", status: "Paid" },
+  { id: "INV-2026-0433", client: "Salt Works", period: "May 2026", storage: "₹5,400", handling: "₹1,500", vas: "₹0", total: "₹6,900", issued: "2026-06-01", due: "2026-06-30", status: "Overdue" },
+  { id: "INV-2026-0434", client: "Sweet Mills", period: "May 2026", storage: "₹6,500", handling: "₹1,900", vas: "₹350", total: "₹8,750", issued: "2026-06-01", due: "2026-06-30", status: "Paid" },
+  { id: "INV-2026-0421", client: "Acme Foods", period: "Apr 2026", storage: "₹17,200", handling: "₹5,600", vas: "₹1,800", total: "₹24,600", issued: "2026-05-01", due: "2026-05-31", status: "Paid" },
+  { id: "INV-2026-0422", client: "Global Oils", period: "Apr 2026", storage: "₹11,200", handling: "₹3,700", vas: "₹0", total: "₹14,900", issued: "2026-05-01", due: "2026-05-31", status: "Paid" },
+  { id: "INV-2026-0423", client: "Agro Corp", period: "Apr 2026", storage: "₹8,100", handling: "₹2,100", vas: "₹250", total: "₹10,450", issued: "2026-05-01", due: "2026-05-31", status: "Overdue" },
+  { id: "INV-2026-0424", client: "Fresh Farms", period: "Apr 2026", storage: "₹19,800", handling: "₹6,400", vas: "₹2,200", total: "₹28,400", issued: "2026-05-01", due: "2026-05-31", status: "Paid" },
+  { id: "INV-2026-0425", client: "Salt Works", period: "Apr 2026", storage: "₹5,100", handling: "₹1,400", vas: "₹0", total: "₹6,500", issued: "2026-05-01", due: "2026-05-31", status: "Paid" },
+  { id: "INV-2026-0410", client: "Acme Foods", period: "Mar 2026", storage: "₹16,900", handling: "₹5,400", vas: "₹1,600", total: "₹23,900", issued: "2026-04-01", due: "2026-04-30", status: "Paid" },
+  { id: "INV-2026-0411", client: "Global Oils", period: "Mar 2026", storage: "₹10,800", handling: "₹3,500", vas: "₹450", total: "₹14,750", issued: "2026-04-01", due: "2026-04-30", status: "Paid" },
+  { id: "INV-2026-0412", client: "Agro Corp", period: "Mar 2026", storage: "₹7,900", handling: "₹2,000", vas: "₹0", total: "₹9,900", issued: "2026-04-01", due: "2026-04-30", status: "Paid" },
+  { id: "INV-2026-0413", client: "Sweet Mills", period: "Mar 2026", storage: "₹6,000", handling: "₹1,700", vas: "₹300", total: "₹8,000", issued: "2026-04-01", due: "2026-04-30", status: "Overdue" },
+  { id: "INV-2026-0414", client: "Fresh Farms", period: "Mar 2026", storage: "₹18,600", handling: "₹6,100", vas: "₹1,900", total: "₹26,600", issued: "2026-04-01", due: "2026-04-30", status: "Paid" },
+  { id: "INV-2026-0415", client: "Salt Works", period: "Mar 2026", storage: "₹4,800", handling: "₹1,300", vas: "₹0", total: "₹6,100", issued: "2026-04-01", due: "2026-04-30", status: "Paid" },
+  { id: "INV-2026-0400", client: "Acme Foods", period: "Feb 2026", storage: "₹16,400", handling: "₹5,200", vas: "₹1,400", total: "₹23,000", issued: "2026-03-01", due: "2026-03-31", status: "Paid" },
+  { id: "INV-2026-0401", client: "Global Oils", period: "Feb 2026", storage: "₹10,400", handling: "₹3,300", vas: "₹0", total: "₹13,700", issued: "2026-03-01", due: "2026-03-31", status: "Paid" },
+  { id: "INV-2026-0402", client: "Fresh Farms", period: "Feb 2026", storage: "₹17,900", handling: "₹5,800", vas: "₹1,700", total: "₹25,400", issued: "2026-03-01", due: "2026-03-31", status: "Overdue" },
+  { id: "INV-2026-0403", client: "Agro Corp", period: "Feb 2026", storage: "₹7,600", handling: "₹1,900", vas: "₹200", total: "₹9,700", issued: "2026-03-01", due: "2026-03-31", status: "Paid" },
 ]
 
 const statusStyle: Record<string, string> = {
@@ -111,9 +111,9 @@ export default function BillingInvoicesPage() {
     const storage = Number(form.storage)
     const handling = Number(form.handling)
     const vas = form.vas.trim() ? Number(form.vas) : 0
-    const seq = 442 + invoices.filter(i => i.id.startsWith("INV-2024-04")).length - 5
+    const seq = 442 + invoices.filter(i => i.id.startsWith("INV-2026-04")).length - 5
     const next: Invoice = {
-      id: `INV-2024-0${seq}`,
+      id: `INV-2026-0${seq}`,
       client: form.client,
       period: form.period.trim(),
       storage: formatAmount(storage),
@@ -214,7 +214,7 @@ export default function BillingInvoicesPage() {
             <Select value={form.client} invalid={!!errors.client} onChange={e => setForm({ ...form, client: e.target.value })} options={CLIENTS} placeholder="Select Client" />
           </Field>
           <Field label="Billing Period" required error={errors.period}>
-            <TextInput value={form.period} invalid={!!errors.period} onChange={e => setForm({ ...form, period: e.target.value })} placeholder="e.g. Jul 2024" />
+            <TextInput value={form.period} invalid={!!errors.period} onChange={e => setForm({ ...form, period: e.target.value })} placeholder="e.g. Jul 2026" />
           </Field>
           <Field label="Storage Charge (₹)" required error={errors.storage}>
             <TextInput value={form.storage} invalid={!!errors.storage} onChange={e => setForm({ ...form, storage: e.target.value })} placeholder="e.g. 18400" inputMode="numeric" />
@@ -226,7 +226,7 @@ export default function BillingInvoicesPage() {
             <TextInput value={form.vas} invalid={!!errors.vas} onChange={e => setForm({ ...form, vas: e.target.value })} placeholder="e.g. 1500" inputMode="numeric" />
           </Field>
           <Field label="Due Date" required error={errors.due} hint="YYYY-MM-DD">
-            <TextInput value={form.due} invalid={!!errors.due} onChange={e => setForm({ ...form, due: e.target.value })} placeholder="2024-08-31" />
+            <TextInput value={form.due} invalid={!!errors.due} onChange={e => setForm({ ...form, due: e.target.value })} placeholder="2026-08-31" />
           </Field>
         </div>
       </Modal>

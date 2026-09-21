@@ -3,8 +3,6 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
-import { TopNav } from '@/components/layout/top-nav'
-import { StatusBar } from '@/components/layout/status-bar'
 import { ToastProvider } from '@/components/ui/toast'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -29,13 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased bg-background text-foreground">
         <ThemeProvider>
           <ToastProvider>
-            <div className="flex flex-col h-screen overflow-hidden">
-              <TopNav />
-              <div className="flex-1 overflow-hidden mt-14 mb-10">
-                {children}
-              </div>
-              <StatusBar />
-            </div>
+            {children}
           </ToastProvider>
         </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}

@@ -49,7 +49,8 @@ export type LclShipment = {
 }
 
 export type LclDashboardConsol = {
-  id: string; route: string; cbm: number; cbmMax: number; shippers: number; status: string; cutoff: string
+  id: string; route: string; cbm: number; cbmMax: number; kg: number; kgMax: number
+  shippers: number; status: string; cutoff: string
 }
 
 export type LclDashboardReceipt = { id: string; shipper: string; cbm: number; pieces: number; status: string; time: string }
@@ -183,25 +184,29 @@ export const LCL_LOAD_PLAN_TEMPLATES: LclLoadPlanTemplate[] = [
   { name: "Chennai → Shanghai", route: "INMAA → CNSHA", vessel: "EVER GIVEN", voyage: "2025W36", description: "South India feed into Shanghai hub" },
 ]
 
+// Excludes receipts already committed to a load-plan container (CR-0891/0892/0894/0896/0897/0899)
+// and receipts already sitting inside one of the initial consolidations below, so the same
+// cargo receipt never appears as "available" in the pool while already allocated.
 export const LCL_CONSOLIDATION_POOL: LclPoolReceipt[] = LCL_RECEIPT_POOL.filter(r =>
-  !["CR-0891", "CR-0892", "CR-0894", "CR-0896", "CR-0897", "CR-0899"].includes(r.id)
+  !["CR-0891", "CR-0892", "CR-0894", "CR-0896", "CR-0897", "CR-0899",
+    "CR-0898", "CR-0900", "CR-0903", "CR-0904", "CR-0905", "CR-0906"].includes(r.id)
 )
 
 export const LCL_INITIAL_CONSOLS: LclConsol[] = [
   {
     id: "CON-001", route: "INBOM → CNSHA", mode: "FCL 20'", cutoff: "2025-07-28",
     cbmMax: 25, kgMax: 18000, status: "Building",
-    items: poolSlice(["CR-0898", "CR-0905"]),
+    items: poolSlice(["CR-0897", "CR-0905"]),
   },
   {
     id: "CON-002", route: "INBOM → SGSIN", mode: "LCL", cutoff: "2025-08-04",
     cbmMax: 25, kgMax: 18000, status: "Confirmed",
-    items: poolSlice(["CR-0904", "CR-0908"]),
+    items: poolSlice(["CR-0904", "CR-0898"]),
   },
   {
     id: "CON-003", route: "INMAA → AEDXB", mode: "FCL 40'", cutoff: "2025-08-10",
     cbmMax: 55, kgMax: 26000, status: "Building",
-    items: poolSlice(["CR-0902"]),
+    items: poolSlice(["CR-0903"]),
   },
   {
     id: "CON-004", route: "INNSA → NLRTM", mode: "LCL", cutoff: "2025-07-20",
@@ -294,14 +299,14 @@ export const LCL_SHIPMENTS: LclShipment[] = [
 ]
 
 export const LCL_DASHBOARD_CONSOLS: LclDashboardConsol[] = [
-  { id: "CON-001", route: "INBOM → CNSHA", cbm: 14.2, cbmMax: 25, shippers: 4, status: "Building", cutoff: "8h" },
-  { id: "CON-002", route: "INBOM → SGSIN", cbm: 7.7, cbmMax: 25, shippers: 2, status: "Confirmed", cutoff: "23h" },
-  { id: "CON-003", route: "INMAA → AEDXB", cbm: 9.4, cbmMax: 55, shippers: 1, status: "Building", cutoff: "2d" },
-  { id: "CON-004", route: "INNSA → NLRTM", cbm: 3.7, cbmMax: 25, shippers: 2, status: "Closed", cutoff: "Done" },
-  { id: "CON-005", route: "INBOM → USNYC", cbm: 6.2, cbmMax: 25, shippers: 1, status: "Building", cutoff: "4d" },
-  { id: "CON-006", route: "INBOM → CNSHA", cbm: 22.4, cbmMax: 28, shippers: 5, status: "Confirmed", cutoff: "12h" },
-  { id: "CON-007", route: "INMAA → CNSHA", cbm: 11.8, cbmMax: 25, shippers: 3, status: "Building", cutoff: "3d" },
-  { id: "CON-008", route: "INNSA → SGSIN", cbm: 18.5, cbmMax: 25, shippers: 2, status: "Closed", cutoff: "Done" },
+  { id: "CON-001", route: "INBOM → CNSHA", cbm: 14.2, cbmMax: 25, kg: 11500, kgMax: 18000, shippers: 4, status: "Building", cutoff: "8h" },
+  { id: "CON-002", route: "INBOM → SGSIN", cbm: 7.7, cbmMax: 25, kg: 8200, kgMax: 18000, shippers: 2, status: "Confirmed", cutoff: "23h" },
+  { id: "CON-003", route: "INMAA → AEDXB", cbm: 9.4, cbmMax: 55, kg: 6800, kgMax: 26000, shippers: 1, status: "Building", cutoff: "2d" },
+  { id: "CON-004", route: "INNSA → NLRTM", cbm: 3.7, cbmMax: 25, kg: 5400, kgMax: 18000, shippers: 2, status: "Closed", cutoff: "Done" },
+  { id: "CON-005", route: "INBOM → USNYC", cbm: 6.2, cbmMax: 25, kg: 9100, kgMax: 18000, shippers: 1, status: "Building", cutoff: "4d" },
+  { id: "CON-006", route: "INBOM → CNSHA", cbm: 22.4, cbmMax: 28, kg: 15200, kgMax: 24000, shippers: 5, status: "Confirmed", cutoff: "12h" },
+  { id: "CON-007", route: "INMAA → CNSHA", cbm: 11.8, cbmMax: 25, kg: 12000, kgMax: 18000, shippers: 3, status: "Building", cutoff: "3d" },
+  { id: "CON-008", route: "INNSA → SGSIN", cbm: 18.5, cbmMax: 25, kg: 7900, kgMax: 18000, shippers: 2, status: "Closed", cutoff: "Done" },
 ]
 
 export const LCL_DASHBOARD_RECEIPTS: LclDashboardReceipt[] = [

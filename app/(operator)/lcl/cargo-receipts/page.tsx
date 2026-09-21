@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { EmptyState } from "@/components/wms/empty-state"
 import { LCL_CARGO_RECEIPTS } from "@/lib/fixtures/lcl"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
@@ -158,7 +159,14 @@ export default function LCLCargoReceiptsPage() {
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={9} className="px-4 py-10 text-center text-sm text-muted-foreground">No cargo receipts match your filters.</td></tr>
+              <tr><td colSpan={9}>
+                <EmptyState
+                  icon={Search}
+                  title="No cargo receipts match your filters"
+                  description="Try a different search term or clear the active filter."
+                  action={{ label: "Clear Filters", onClick: () => { setSearch(""); setFilter("All") } }}
+                />
+              </td></tr>
             )}
           </tbody>
         </table>

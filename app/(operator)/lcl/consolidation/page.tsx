@@ -49,9 +49,15 @@ export default function ConsolidationPlannerPage() {
   const consolidated = active?.items ?? []
   const locked = active?.status !== "Building"
 
+  const activeDestPod = active?.route.split("→")[1]?.trim() ?? ""
+
   const addToConsolidation = (item: PoolReceipt) => {
     if (locked) {
       notify.error("Consolidation locked", `${active.id} is already ${active.status.toLowerCase()} — open a new consolidation to add cargo.`)
+      return
+    }
+    if (item.pod !== activeDestPod) {
+      notify.error("Destination mismatch", `${item.id}'s POD (${item.pod}) does not match ${active.id}'s route (${activeDestPod}).`)
       return
     }
     setPoolItems(p => p.filter(r => r.id !== item.id))
@@ -142,7 +148,9 @@ export default function ConsolidationPlannerPage() {
             <span className="text-xs text-muted-foreground">{poolItems.length} available</span>
           </div>
           <div className="space-y-2">
-            {poolItems.map(r => (
+            {poolItems.map(r => {
+              const mismatch = r.pod !== activeDestPod
+              return (
               <div key={r.id} className="p-3 rounded-xl border border-border bg-card hover:border-brand/40 transition-all">
                 <div className="flex items-center gap-2 mb-2">
                   <div className={cn("w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0", r.shipperColor)}>{r.shipperInit}</div>
@@ -161,15 +169,25 @@ export default function ConsolidationPlannerPage() {
                   <span>·</span>
                   <span>{r.pieces} pcs</span>
                   <span>·</span>
-                  <span>{r.pod}</span>
+                  <span className={cn(mismatch && "text-danger font-semibold")}>{r.pod}</span>
                   <span className="ml-auto flex items-center gap-0.5"><Clock className="w-3 h-3" />{r.dwell}d</span>
                 </div>
-                <button onClick={() => addToConsolidation(r)}
-                  className="w-full flex items-center justify-center gap-1 py-1.5 rounded-lg bg-[#F7941D]/10 text-[#F7941D] text-xs font-semibold hover:bg-[#F7941D]/20 transition-colors border border-[#F7941D]/30">
-                  <Plus className="w-3.5 h-3.5" /> Add to Consolidation
+                <button
+                  onClick={() => addToConsolidation(r)}
+                  disabled={mismatch}
+                  title={mismatch ? `Destination mismatch — ${r.id} is bound for ${r.pod}, not ${activeDestPod}` : undefined}
+                  className={cn(
+                    "w-full flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-semibold transition-colors border",
+                    mismatch
+                      ? "bg-muted text-muted-foreground border-border cursor-not-allowed opacity-70"
+                      : "bg-[#F7941D]/10 text-[#F7941D] hover:bg-[#F7941D]/20 border-[#F7941D]/30"
+                  )}
+                >
+                  {mismatch ? <><AlertTriangle className="w-3.5 h-3.5" /> Destination mismatch</> : <><Plus className="w-3.5 h-3.5" /> Add to Consolidation</>}
                 </button>
               </div>
-            ))}
+              )
+            })}
             {poolItems.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 rounded-xl border border-dashed border-border text-muted-foreground">
                 <CheckCircle2 className="w-8 h-8 mb-2 text-success opacity-60" />

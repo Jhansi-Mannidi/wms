@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, AlertTriangle, Clock, Package, Truck, Plane, ArrowRight, RefreshCw } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { EmptyState } from "@/components/wms/empty-state"
 import { Drawer } from "@/components/ui/modal"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
@@ -244,7 +245,14 @@ export default function AirHandlingDashboardPage() {
                 </tr>
               ))}
               {packages.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">No packages received today.</td></tr>
+                <tr><td colSpan={7}>
+                  <EmptyState
+                    icon={Package}
+                    title="No packages received today"
+                    description="Capture an inbound package to see it appear here."
+                    action={{ label: "Receive Package", icon: Plus, onClick: () => router.push("/air-handling/capture") }}
+                  />
+                </td></tr>
               )}
             </tbody>
           </table>

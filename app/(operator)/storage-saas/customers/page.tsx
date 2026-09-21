@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { EmptyState } from "@/components/wms/empty-state"
 import { cn } from "@/lib/utils"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
@@ -307,7 +308,14 @@ export default function StorageCustomersPage() {
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">No customers match your search or filters.</td></tr>
+                  <tr><td colSpan={7}>
+                    <EmptyState
+                      icon={Search}
+                      title="No customers match your filters"
+                      description="Try a different search term or clear the active filters."
+                      action={{ label: "Clear Filters", onClick: () => { setSearch(""); setFilters(emptyFilters); setDraftFilters(emptyFilters) } }}
+                    />
+                  </td></tr>
                 )}
               </tbody>
             </table>
@@ -348,8 +356,13 @@ export default function StorageCustomersPage() {
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="sm:col-span-2 lg:col-span-3 p-10 rounded-xl border border-border bg-card text-center text-sm text-muted-foreground">
-              No customers match your search or filters.
+            <div className="sm:col-span-2 lg:col-span-3 rounded-xl border border-border bg-card">
+              <EmptyState
+                icon={Search}
+                title="No customers match your filters"
+                description="Try a different search term or clear the active filters."
+                action={{ label: "Clear Filters", onClick: () => { setSearch(""); setFilters(emptyFilters); setDraftFilters(emptyFilters) } }}
+              />
             </div>
           )}
         </div>

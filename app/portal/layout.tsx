@@ -47,8 +47,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const [signOutOpen, setSignOutOpen] = useState(false)
 
   return (
-    // Portal uses a LIGHT theme base — intentionally different from operator WMS
-    <div className="flex h-full bg-[#F7F9FC] dark:bg-background text-foreground">
+    // Portal uses a LIGHT theme base — intentionally different from operator WMS.
+    // It has no operator chrome (no TopNav/StatusBar) — this is the full-height root for /portal/*.
+    <div className="flex h-screen overflow-hidden bg-[#F7F9FC] dark:bg-background text-foreground">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
         {/* Brand header */}

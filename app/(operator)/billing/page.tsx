@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ExportButton } from "@/components/wms/export-button"
+import { EmptyState } from "@/components/wms/empty-state"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
@@ -22,33 +23,33 @@ type Invoice = {
 type ContractRate = { client: string; service: string; rate: string; uom: string }
 
 const initialInvoices: Invoice[] = [
-  { id: "INV-2024-112", client: "Acme Foods", period: "Dec 1–15, 2024", services: ["Storage", "Handling", "Transport"], amount: "₹1,24,500", due: "2024-12-30", status: "Pending", raised: "2024-12-16" },
-  { id: "INV-2024-111", client: "Global Oils", period: "Nov 16–30, 2024", services: ["Storage", "Palletization"], amount: "₹68,200", due: "2024-12-20", status: "Overdue", raised: "2024-12-01" },
-  { id: "INV-2024-110", client: "Agro Corp", period: "Nov 1–15, 2024", services: ["Storage", "Handling"], amount: "₹45,000", due: "2024-11-30", status: "Paid", raised: "2024-11-16" },
-  { id: "INV-2024-109", client: "Sweet Mills", period: "Oct 16–31, 2024", services: ["Transport", "Handling"], amount: "₹32,800", due: "2024-11-20", status: "Paid", raised: "2024-11-01" },
-  { id: "INV-2024-108", client: "Salt Works", period: "Oct 1–15, 2024", services: ["Storage"], amount: "₹18,600", due: "2024-10-30", status: "Paid", raised: "2024-10-16" },
-  { id: "INV-2024-107", client: "Fresh Farms", period: "Dec 1–15, 2024", services: ["Cold Storage", "Handling"], amount: "₹89,400", due: "2024-12-28", status: "Draft", raised: "2024-12-15" },
-  { id: "INV-2024-106", client: "Acme Foods", period: "Nov 16–30, 2024", services: ["Storage", "Handling"], amount: "₹1,12,300", due: "2024-12-15", status: "Paid", raised: "2024-12-01" },
-  { id: "INV-2024-105", client: "Global Oils", period: "Nov 1–15, 2024", services: ["Storage", "Transport"], amount: "₹74,850", due: "2024-11-30", status: "Paid", raised: "2024-11-16" },
-  { id: "INV-2024-104", client: "Fresh Farms", period: "Nov 16–30, 2024", services: ["Cold Storage", "Handling", "Transport"], amount: "₹96,700", due: "2024-12-18", status: "Pending", raised: "2024-12-02" },
-  { id: "INV-2024-103", client: "Sweet Mills", period: "Nov 1–15, 2024", services: ["Storage", "Palletization"], amount: "₹41,200", due: "2024-11-28", status: "Paid", raised: "2024-11-16" },
-  { id: "INV-2024-102", client: "Agro Corp", period: "Oct 16–31, 2024", services: ["Storage", "Handling", "Transport"], amount: "₹58,900", due: "2024-11-18", status: "Overdue", raised: "2024-11-01" },
-  { id: "INV-2024-101", client: "Salt Works", period: "Nov 1–15, 2024", services: ["Storage", "Handling"], amount: "₹22,400", due: "2024-11-30", status: "Paid", raised: "2024-11-16" },
-  { id: "INV-2024-100", client: "Acme Foods", period: "Nov 1–15, 2024", services: ["Storage", "Handling", "Palletization"], amount: "₹1,08,600", due: "2024-11-30", status: "Paid", raised: "2024-11-16" },
-  { id: "INV-2024-099", client: "Global Oils", period: "Oct 16–31, 2024", services: ["Storage", "Palletization"], amount: "₹66,400", due: "2024-11-15", status: "Paid", raised: "2024-11-01" },
-  { id: "INV-2024-098", client: "Fresh Farms", period: "Nov 1–15, 2024", services: ["Cold Storage"], amount: "₹78,200", due: "2024-11-30", status: "Paid", raised: "2024-11-16" },
-  { id: "INV-2024-097", client: "Sweet Mills", period: "Oct 16–31, 2024", services: ["Transport", "Handling"], amount: "₹35,600", due: "2024-11-15", status: "Overdue", raised: "2024-11-01" },
-  { id: "INV-2024-096", client: "Agro Corp", period: "Oct 1–15, 2024", services: ["Storage", "Handling"], amount: "₹47,300", due: "2024-10-30", status: "Paid", raised: "2024-10-16" },
-  { id: "INV-2024-095", client: "Salt Works", period: "Oct 16–31, 2024", services: ["Storage", "Transport"], amount: "₹26,800", due: "2024-11-15", status: "Paid", raised: "2024-11-01" },
-  { id: "INV-2024-094", client: "Acme Foods", period: "Oct 16–31, 2024", services: ["Storage", "Handling", "Transport"], amount: "₹1,18,900", due: "2024-11-15", status: "Paid", raised: "2024-11-01" },
-  { id: "INV-2024-093", client: "Global Oils", period: "Oct 1–15, 2024", services: ["Storage", "Handling"], amount: "₹71,500", due: "2024-10-30", status: "Paid", raised: "2024-10-16" },
-  { id: "INV-2024-092", client: "Fresh Farms", period: "Oct 16–31, 2024", services: ["Cold Storage", "Transport"], amount: "₹84,100", due: "2024-11-15", status: "Paid", raised: "2024-11-01" },
-  { id: "INV-2024-091", client: "Sweet Mills", period: "Dec 1–15, 2024", services: ["Storage", "Handling"], amount: "₹38,900", due: "2024-12-30", status: "Pending", raised: "2024-12-16" },
-  { id: "INV-2024-090", client: "Salt Works", period: "Dec 1–15, 2024", services: ["Storage"], amount: "₹21,300", due: "2024-12-30", status: "Draft", raised: "2024-12-16" },
-  { id: "INV-2024-089", client: "Agro Corp", period: "Dec 1–15, 2024", services: ["Storage", "Palletization"], amount: "₹52,700", due: "2024-12-30", status: "Pending", raised: "2024-12-16" },
-  { id: "INV-2024-088", client: "Global Oils", period: "Dec 1–15, 2024", services: ["Storage", "Handling", "Transport"], amount: "₹81,600", due: "2024-12-30", status: "Draft", raised: "2024-12-16" },
-  { id: "INV-2024-087", client: "Salt Works", period: "Sep 16–30, 2024", services: ["Storage", "Handling"], amount: "₹19,800", due: "2024-10-15", status: "Overdue", raised: "2024-10-01" },
-  { id: "INV-2024-086", client: "Acme Foods", period: "Oct 1–15, 2024", services: ["Storage", "Handling"], amount: "₹1,02,400", due: "2024-10-30", status: "Paid", raised: "2024-10-16" },
+  { id: "INV-2026-112", client: "Acme Foods", period: "Jul 1–15, 2026", services: ["Storage", "Handling", "Transport"], amount: "₹1,24,500", due: "2026-07-30", status: "Pending", raised: "2026-07-16" },
+  { id: "INV-2026-111", client: "Global Oils", period: "Jun 16–30, 2026", services: ["Storage", "Palletization"], amount: "₹68,200", due: "2026-07-19", status: "Overdue", raised: "2026-07-01" },
+  { id: "INV-2026-110", client: "Agro Corp", period: "Jun 1–15, 2026", services: ["Storage", "Handling"], amount: "₹45,000", due: "2026-06-30", status: "Paid", raised: "2026-06-16" },
+  { id: "INV-2026-109", client: "Sweet Mills", period: "May 16–31, 2026", services: ["Transport", "Handling"], amount: "₹32,800", due: "2026-06-20", status: "Paid", raised: "2026-06-01" },
+  { id: "INV-2026-108", client: "Salt Works", period: "May 1–15, 2026", services: ["Storage"], amount: "₹18,600", due: "2026-05-30", status: "Paid", raised: "2026-05-16" },
+  { id: "INV-2026-107", client: "Fresh Farms", period: "Jul 1–15, 2026", services: ["Cold Storage", "Handling"], amount: "₹89,400", due: "2026-07-28", status: "Draft", raised: "2026-07-15" },
+  { id: "INV-2026-106", client: "Acme Foods", period: "Jun 16–30, 2026", services: ["Storage", "Handling"], amount: "₹1,12,300", due: "2026-07-15", status: "Paid", raised: "2026-07-01" },
+  { id: "INV-2026-105", client: "Global Oils", period: "Jun 1–15, 2026", services: ["Storage", "Transport"], amount: "₹74,850", due: "2026-06-30", status: "Paid", raised: "2026-06-16" },
+  { id: "INV-2026-104", client: "Fresh Farms", period: "Jun 16–30, 2026", services: ["Cold Storage", "Handling", "Transport"], amount: "₹96,700", due: "2026-07-25", status: "Pending", raised: "2026-07-02" },
+  { id: "INV-2026-103", client: "Sweet Mills", period: "Jun 1–15, 2026", services: ["Storage", "Palletization"], amount: "₹41,200", due: "2026-06-28", status: "Paid", raised: "2026-06-16" },
+  { id: "INV-2026-102", client: "Agro Corp", period: "May 16–31, 2026", services: ["Storage", "Handling", "Transport"], amount: "₹58,900", due: "2026-06-18", status: "Overdue", raised: "2026-06-01" },
+  { id: "INV-2026-101", client: "Salt Works", period: "Jun 1–15, 2026", services: ["Storage", "Handling"], amount: "₹22,400", due: "2026-06-30", status: "Paid", raised: "2026-06-16" },
+  { id: "INV-2026-100", client: "Acme Foods", period: "Jun 1–15, 2026", services: ["Storage", "Handling", "Palletization"], amount: "₹1,08,600", due: "2026-06-30", status: "Paid", raised: "2026-06-16" },
+  { id: "INV-2026-099", client: "Global Oils", period: "May 16–31, 2026", services: ["Storage", "Palletization"], amount: "₹66,400", due: "2026-06-15", status: "Paid", raised: "2026-06-01" },
+  { id: "INV-2026-098", client: "Fresh Farms", period: "Jun 1–15, 2026", services: ["Cold Storage"], amount: "₹78,200", due: "2026-06-30", status: "Paid", raised: "2026-06-16" },
+  { id: "INV-2026-097", client: "Sweet Mills", period: "May 16–31, 2026", services: ["Transport", "Handling"], amount: "₹35,600", due: "2026-06-15", status: "Overdue", raised: "2026-06-01" },
+  { id: "INV-2026-096", client: "Agro Corp", period: "May 1–15, 2026", services: ["Storage", "Handling"], amount: "₹47,300", due: "2026-05-30", status: "Paid", raised: "2026-05-16" },
+  { id: "INV-2026-095", client: "Salt Works", period: "May 16–31, 2026", services: ["Storage", "Transport"], amount: "₹26,800", due: "2026-06-15", status: "Paid", raised: "2026-06-01" },
+  { id: "INV-2026-094", client: "Acme Foods", period: "May 16–31, 2026", services: ["Storage", "Handling", "Transport"], amount: "₹1,18,900", due: "2026-06-15", status: "Paid", raised: "2026-06-01" },
+  { id: "INV-2026-093", client: "Global Oils", period: "May 1–15, 2026", services: ["Storage", "Handling"], amount: "₹71,500", due: "2026-05-30", status: "Paid", raised: "2026-05-16" },
+  { id: "INV-2026-092", client: "Fresh Farms", period: "May 16–31, 2026", services: ["Cold Storage", "Transport"], amount: "₹84,100", due: "2026-06-15", status: "Paid", raised: "2026-06-01" },
+  { id: "INV-2026-091", client: "Sweet Mills", period: "Jul 1–15, 2026", services: ["Storage", "Handling"], amount: "₹38,900", due: "2026-07-30", status: "Pending", raised: "2026-07-16" },
+  { id: "INV-2026-090", client: "Salt Works", period: "Jul 1–15, 2026", services: ["Storage"], amount: "₹21,300", due: "2026-07-30", status: "Draft", raised: "2026-07-16" },
+  { id: "INV-2026-089", client: "Agro Corp", period: "Jul 1–15, 2026", services: ["Storage", "Palletization"], amount: "₹52,700", due: "2026-07-30", status: "Pending", raised: "2026-07-16" },
+  { id: "INV-2026-088", client: "Global Oils", period: "Jul 1–15, 2026", services: ["Storage", "Handling", "Transport"], amount: "₹81,600", due: "2026-07-30", status: "Draft", raised: "2026-07-16" },
+  { id: "INV-2026-087", client: "Salt Works", period: "Apr 16–30, 2026", services: ["Storage", "Handling"], amount: "₹19,800", due: "2026-05-15", status: "Overdue", raised: "2026-05-01" },
+  { id: "INV-2026-086", client: "Acme Foods", period: "May 1–15, 2026", services: ["Storage", "Handling"], amount: "₹1,02,400", due: "2026-05-30", status: "Paid", raised: "2026-05-16" },
 ]
 
 const statusConfig: Record<string, { color: string; bg: string }> = {
@@ -136,6 +137,7 @@ export default function BillingPage() {
   const [detail, setDetail] = useState<Invoice | null>(null)
   const [deleteInvoice, setDeleteInvoice] = useState<Invoice | null>(null)
   const [deleteRateIndex, setDeleteRateIndex] = useState<number | null>(null)
+  const [docsTarget, setDocsTarget] = useState<Invoice | null>(null)
 
   const filtered = invoices.filter((inv) => {
     const q = search.toLowerCase()
@@ -207,9 +209,9 @@ export default function BillingPage() {
       } : i)))
       notify.success("Invoice updated", `${editInvoice.id} has been saved.`)
     } else {
-      const nextNum = 113 + invoices.filter((i) => i.id.startsWith("INV-2024-1")).length - 6
+      const nextNum = 113 + invoices.filter((i) => i.id.startsWith("INV-2026-1")).length - 6
       const next: Invoice = {
-        id: `INV-2024-${nextNum}`,
+        id: `INV-2026-${nextNum}`,
         client: invoiceForm.client,
         period: invoiceForm.period.trim(),
         services: invoiceForm.services,
@@ -247,6 +249,10 @@ export default function BillingPage() {
     setInvoices((prev) => prev.filter((i) => i.id !== inv.id))
     setDetail(null)
     notify.warning("Invoice deleted", `${inv.id} has been removed.`)
+  }
+
+  function downloadDoc(inv: Invoice, doc: string) {
+    notify.success(`${doc} downloaded`, `${doc} for ${inv.id} (${inv.client}, ${inv.period}) generated as PDF.`)
   }
 
   /* ---------------- contract rates ---------------- */
@@ -426,6 +432,7 @@ export default function BillingPage() {
                             items={[
                               { label: "View", icon: <Eye />, onSelect: () => setDetail(inv) },
                               { label: "Send", icon: <Send />, onSelect: () => sendInvoice(inv) },
+                              { label: "Documents", icon: <Download />, onSelect: () => setDocsTarget(inv) },
                               { label: "Edit invoice", icon: <MoreHorizontal />, onSelect: () => openEditInvoice(inv) },
                             ]}
                           />
@@ -433,7 +440,14 @@ export default function BillingPage() {
                       </tr>
                     ))}
                     {paged.length === 0 && (
-                      <tr><td colSpan={9} className="px-4 py-10 text-center text-sm text-muted-foreground">No invoices match your filters.</td></tr>
+                      <tr><td colSpan={9}>
+                        <EmptyState
+                          icon={Search}
+                          title="No invoices match your filters"
+                          description="Try a different search term or clear the active filters."
+                          action={{ label: "Clear Filters", onClick: () => { setSearch(""); setStatusFilter("All Status"); setClientFilter("All Clients") } }}
+                        />
+                      </td></tr>
                     )}
                   </tbody>
                 </table>
@@ -533,13 +547,13 @@ export default function BillingPage() {
             <Select value={invoiceForm.client} invalid={!!invoiceErrors.client} onChange={(e) => setInvoiceForm({ ...invoiceForm, client: e.target.value })} options={CLIENTS} placeholder="Select Client" />
           </Field>
           <Field label="Billing Period" required error={invoiceErrors.period}>
-            <TextInput value={invoiceForm.period} invalid={!!invoiceErrors.period} onChange={(e) => setInvoiceForm({ ...invoiceForm, period: e.target.value })} placeholder="e.g. Dec 1–15, 2024" />
+            <TextInput value={invoiceForm.period} invalid={!!invoiceErrors.period} onChange={(e) => setInvoiceForm({ ...invoiceForm, period: e.target.value })} placeholder="e.g. Jul 1–15, 2026" />
           </Field>
           <Field label="Amount (₹)" required error={invoiceErrors.amount}>
             <TextInput value={invoiceForm.amount} invalid={!!invoiceErrors.amount} onChange={(e) => setInvoiceForm({ ...invoiceForm, amount: e.target.value })} placeholder="e.g. 124500" inputMode="numeric" />
           </Field>
           <Field label="Due Date" required error={invoiceErrors.due} hint="YYYY-MM-DD">
-            <TextInput value={invoiceForm.due} invalid={!!invoiceErrors.due} onChange={(e) => setInvoiceForm({ ...invoiceForm, due: e.target.value })} placeholder="2024-12-30" />
+            <TextInput value={invoiceForm.due} invalid={!!invoiceErrors.due} onChange={(e) => setInvoiceForm({ ...invoiceForm, due: e.target.value })} placeholder="2026-07-30" />
           </Field>
         </div>
         <div className="mt-4">
@@ -639,6 +653,48 @@ export default function BillingPage() {
           </div>
         )}
       </Drawer>
+
+      {/* Invoice documents — GST tax invoice, e-way bill, packing list */}
+      <Modal
+        open={!!docsTarget}
+        onOpenChange={(o) => !o && setDocsTarget(null)}
+        title={`Documents — ${docsTarget?.id ?? ""}`}
+        description={docsTarget ? `${docsTarget.client} · ${docsTarget.period}` : ""}
+        size="lg"
+        footer={
+          <button onClick={() => setDocsTarget(null)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
+            Close
+          </button>
+        }
+      >
+        {docsTarget && (
+          <div className="space-y-3">
+            {[
+              { name: "GST Tax Invoice", desc: `Invoice ${docsTarget.id} with HSN/SAC breakdown and GST split for ${docsTarget.client}.` },
+              { name: "E-Way Bill", desc: `Transport document for goods movement covering ${docsTarget.services.join(", ")}.` },
+              { name: "Packing List", desc: `Itemised packing list for the ${docsTarget.period} billing cycle.` },
+            ].map(doc => (
+              <div key={doc.name} className="flex items-center justify-between gap-3 p-4 rounded-xl border border-border bg-card">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-lg bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{doc.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{doc.desc}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => downloadDoc(docsTarget, doc.name)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand/10 text-brand text-xs font-semibold hover:bg-brand/20 transition-colors border border-brand/30 shrink-0"
+                >
+                  <Download className="w-3.5 h-3.5" /> Download
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </Modal>
 
       <ConfirmDialog
         open={!!deleteInvoice}

@@ -23,7 +23,7 @@ const initialClients: Client[] = [
   { id:"CLT-005",name:"Salt Works Industries",type:"Industrial",contact:"Ravi Kumar",email:"ravi@saltworks.in",zones:"Zone B",skus:52,status:"Active"},
   { id:"CLT-006",name:"Fresh Farms Produce",type:"Agriculture",contact:"Priya Sharma",email:"priya@freshfarms.in",zones:"Cold Room A",skus:176,status:"Active"},
   { id:"CLT-007",name:"Tropical Co Beverages",type:"FMCG",contact:"Suresh Yadav",email:"suresh@tropicalco.in",zones:"Zone A",skus:298,status:"Active"},
-  { id:"CLT-008",name:"Apex Pharma Labs",type:"Pharma",contact:"Kavitha Rao",email:"kavitha@apexpharma.in",zones:"Cold Room A",skus:233,status:"Active"},
+  { id:"CLT-008",name:"Apex Pharma Ltd",type:"Pharma",contact:"Kavitha Rao",email:"kavitha@apexpharma.in",zones:"Cold Room A",skus:234,status:"Active"},
   { id:"CLT-009",name:"Nilgiri Tea Traders",type:"Food",contact:"Arjun Nair",email:"arjun@nilgiritea.in",zones:"Zone C",skus:121,status:"Active"},
   { id:"CLT-010",name:"Deccan Retail Mart",type:"Retail",contact:"Vikram Sharma",email:"vikram@deccanretail.in",zones:"Zone B",skus:507,status:"Active"},
   { id:"CLT-011",name:"Sunrise Dairy Co",type:"Food",contact:"Anita Desai",email:"anita@sunrisedairy.in",zones:"Cold Room A",skus:94,status:"Active"},

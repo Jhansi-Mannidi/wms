@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils"
 import { RowActions } from "@/components/ui/row-actions"
 import { ExportButton } from "@/components/wms/export-button"
+import { EmptyState } from "@/components/wms/empty-state"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
@@ -286,7 +287,7 @@ export default function ThreePLPage() {
                     <td className="px-4 py-3">
                       {c.dues > 0 ? (
                         <span className="text-xs font-bold text-danger">₹{c.dues.toLocaleString()}</span>
-                      ) : <span className="text-xs text-success">Nil</span>}
+                      ) : <span className="text-xs text-success">—</span>}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
@@ -307,7 +308,14 @@ export default function ThreePLPage() {
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={9} className="px-4 py-10 text-center text-sm text-muted-foreground">No clients match your filters.</td></tr>
+                  <tr><td colSpan={9}>
+                    <EmptyState
+                      icon={Search}
+                      title="No clients match your filters"
+                      description="Try a different search term or clear the active filters."
+                      action={{ label: "Clear Filters", onClick: () => { setSearch(""); setActiveFilter("all"); setAgreementFilter("All"); setKamFilter("All"); setDraftFilter({ agreement: "All", kam: "All" }) } }}
+                    />
+                  </td></tr>
                 )}
               </tbody>
             </table>
@@ -349,7 +357,7 @@ export default function ThreePLPage() {
                 </div>
                 <div className="flex justify-between"><span>SKUs on Hand</span><span className="font-semibold text-foreground">{c.skus}</span></div>
                 <div className="flex justify-between"><span>Open Orders</span><span className="font-semibold text-brand">{c.openOrders}</span></div>
-                <div className="flex justify-between"><span>Dues</span><span className={cn("font-semibold", c.dues > 0 ? "text-danger" : "text-success")}>{c.dues > 0 ? `₹${c.dues.toLocaleString()}` : "Nil"}</span></div>
+                <div className="flex justify-between"><span>Dues</span><span className={cn("font-semibold", c.dues > 0 ? "text-danger" : "text-success")}>{c.dues > 0 ? `₹${c.dues.toLocaleString()}` : "—"}</span></div>
               </div>
               <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
@@ -361,7 +369,14 @@ export default function ThreePLPage() {
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="col-span-full py-10 text-center text-sm text-muted-foreground">No clients match your filters.</div>
+            <div className="col-span-full">
+              <EmptyState
+                icon={Search}
+                title="No clients match your filters"
+                description="Try a different search term or clear the active filters."
+                action={{ label: "Clear Filters", onClick: () => { setSearch(""); setActiveFilter("all"); setAgreementFilter("All"); setKamFilter("All"); setDraftFilter({ agreement: "All", kam: "All" }) } }}
+              />
+            </div>
           )}
         </div>
       )}
@@ -478,7 +493,7 @@ export default function ThreePLPage() {
             <DetailRow label="Space Used" value={`${detail.spaceUsed}%`} />
             <DetailRow label="SKUs on Hand" value={detail.skus.toLocaleString()} />
             <DetailRow label="Open Orders" value={String(detail.openOrders)} />
-            <DetailRow label="Outstanding Dues" value={detail.dues > 0 ? <span className="text-danger font-semibold">₹{detail.dues.toLocaleString()}</span> : <span className="text-success">Nil</span>} />
+            <DetailRow label="Outstanding Dues" value={detail.dues > 0 ? <span className="text-danger font-semibold">₹{detail.dues.toLocaleString()}</span> : <span className="text-success">—</span>} />
             <DetailRow label="Key Account Manager" value={detail.kam} />
             <DetailRow label="Last Activity" value={detail.lastActivity} />
           </div>

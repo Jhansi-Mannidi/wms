@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { DollarSign, Download, FileText, CheckCircle2, Clock, AlertTriangle, ChevronRight, CreditCard, Eye } from "lucide-react"
+import { DollarSign, Download, FileText, CheckCircle2, Clock, AlertTriangle, ChevronRight, CreditCard, Eye, Flag } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Modal, Drawer } from "@/components/ui/modal"
-import { Field, Select, ModalActions, DetailRow } from "@/components/ui/form"
+import { Field, Select, TextArea, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
 
@@ -14,35 +14,36 @@ const tabs = ["All", "Outstanding", "Paid", "Overdue"]
 type Invoice = {
   id: string; period: string; storage: number; handling: number; vas: number
   total: number; status: string; issued: string; due: string; paid: string
+  disputeStatus?: string; disputeReason?: string; disputeNotes?: string
 }
 
 const initialInvoices: Invoice[] = [
-  { id: "INV-0445", period: "Jul 1–15, 2025", storage: 18400, handling: 6200, vas: 2800, total: 27400, status: "Outstanding", issued: "Jul 16", due: "Jul 30", paid: "-" },
-  { id: "INV-0441", period: "Jun 16–30, 2025", storage: 17800, handling: 5900, vas: 0, total: 23700, status: "Overdue", issued: "Jul 1", due: "Jul 15", paid: "-" },
-  { id: "INV-0438", period: "Jun 1–15, 2025", storage: 17200, handling: 6100, vas: 1500, total: 24800, status: "Paid", issued: "Jun 16", due: "Jun 30", paid: "Jun 28" },
-  { id: "INV-0432", period: "May 16–31, 2025", storage: 16900, handling: 5700, vas: 3200, total: 25800, status: "Paid", issued: "Jun 1", due: "Jun 15", paid: "Jun 13" },
-  { id: "INV-0428", period: "May 1–15, 2025", storage: 16500, handling: 5400, vas: 900, total: 22800, status: "Paid", issued: "May 16", due: "May 30", paid: "May 28" },
-  { id: "INV-0424", period: "Apr 16–30, 2025", storage: 16200, handling: 5600, vas: 1800, total: 23600, status: "Outstanding", issued: "May 1", due: "May 15", paid: "-" },
-  { id: "INV-0419", period: "Apr 1–15, 2025", storage: 16100, handling: 5200, vas: 0, total: 21300, status: "Overdue", issued: "Apr 16", due: "Apr 30", paid: "-" },
-  { id: "INV-0415", period: "Mar 16–31, 2025", storage: 15900, handling: 5500, vas: 2400, total: 23800, status: "Paid", issued: "Apr 1", due: "Apr 15", paid: "Apr 12" },
-  { id: "INV-0411", period: "Mar 1–15, 2025", storage: 15700, handling: 5100, vas: 1100, total: 21900, status: "Paid", issued: "Mar 16", due: "Mar 30", paid: "Mar 27" },
-  { id: "INV-0407", period: "Feb 16–28, 2025", storage: 15400, handling: 4900, vas: 0, total: 20300, status: "Overdue", issued: "Mar 1", due: "Mar 15", paid: "-" },
-  { id: "INV-0402", period: "Feb 1–15, 2025", storage: 15200, handling: 5300, vas: 2600, total: 23100, status: "Paid", issued: "Feb 16", due: "Feb 28", paid: "Feb 26" },
-  { id: "INV-0398", period: "Jan 16–31, 2025", storage: 15000, handling: 5000, vas: 800, total: 20800, status: "Paid", issued: "Feb 1", due: "Feb 15", paid: "Feb 13" },
-  { id: "INV-0394", period: "Jan 1–15, 2025", storage: 14800, handling: 4700, vas: 1900, total: 21400, status: "Paid", issued: "Jan 16", due: "Jan 30", paid: "Jan 29" },
-  { id: "INV-0389", period: "Dec 16–31, 2024", storage: 14600, handling: 5400, vas: 3100, total: 23100, status: "Paid", issued: "Jan 1", due: "Jan 15", paid: "Jan 14" },
-  { id: "INV-0385", period: "Dec 1–15, 2024", storage: 14400, handling: 4600, vas: 0, total: 19000, status: "Paid", issued: "Dec 16", due: "Dec 30", paid: "Dec 27" },
-  { id: "INV-0381", period: "Nov 16–30, 2024", storage: 14200, handling: 4900, vas: 1300, total: 20400, status: "Outstanding", issued: "Dec 1", due: "Dec 15", paid: "-" },
-  { id: "INV-0376", period: "Nov 1–15, 2024", storage: 14000, handling: 4500, vas: 700, total: 19200, status: "Paid", issued: "Nov 16", due: "Nov 30", paid: "Nov 28" },
-  { id: "INV-0372", period: "Oct 16–31, 2024", storage: 13800, handling: 5100, vas: 2200, total: 21100, status: "Paid", issued: "Nov 1", due: "Nov 15", paid: "Nov 12" },
-  { id: "INV-0368", period: "Oct 1–15, 2024", storage: 13600, handling: 4400, vas: 0, total: 18000, status: "Paid", issued: "Oct 16", due: "Oct 30", paid: "Oct 29" },
-  { id: "INV-0363", period: "Sep 16–30, 2024", storage: 13400, handling: 4800, vas: 1600, total: 19800, status: "Overdue", issued: "Oct 1", due: "Oct 15", paid: "-" },
-  { id: "INV-0359", period: "Sep 1–15, 2024", storage: 13200, handling: 4300, vas: 900, total: 18400, status: "Paid", issued: "Sep 16", due: "Sep 30", paid: "Sep 26" },
-  { id: "INV-0355", period: "Aug 16–31, 2024", storage: 13000, handling: 4700, vas: 2800, total: 20500, status: "Paid", issued: "Sep 1", due: "Sep 15", paid: "Sep 13" },
-  { id: "INV-0350", period: "Aug 1–15, 2024", storage: 12800, handling: 4200, vas: 0, total: 17000, status: "Paid", issued: "Aug 16", due: "Aug 30", paid: "Aug 28" },
-  { id: "INV-0346", period: "Jul 16–31, 2024", storage: 12600, handling: 4600, vas: 1400, total: 18600, status: "Paid", issued: "Aug 1", due: "Aug 15", paid: "Aug 14" },
-  { id: "INV-0342", period: "Jul 1–15, 2024", storage: 12400, handling: 4100, vas: 600, total: 17100, status: "Paid", issued: "Jul 16", due: "Jul 30", paid: "Jul 29" },
-  { id: "INV-0338", period: "Jun 16–30, 2024", storage: 12200, handling: 4500, vas: 2000, total: 18700, status: "Paid", issued: "Jul 1", due: "Jul 15", paid: "Jul 11" },
+  { id: "INV-0445", period: "Jul 1–15, 2026", storage: 18400, handling: 6200, vas: 2800, total: 27400, status: "Outstanding", issued: "Jul 16", due: "Jul 30", paid: "-" },
+  { id: "INV-0441", period: "Jun 16–30, 2026", storage: 17800, handling: 5900, vas: 0, total: 23700, status: "Overdue", issued: "Jul 1", due: "Jul 15", paid: "-" },
+  { id: "INV-0438", period: "Jun 1–15, 2026", storage: 17200, handling: 6100, vas: 1500, total: 24800, status: "Paid", issued: "Jun 16", due: "Jun 30", paid: "Jun 28" },
+  { id: "INV-0432", period: "May 16–31, 2026", storage: 16900, handling: 5700, vas: 3200, total: 25800, status: "Paid", issued: "Jun 1", due: "Jun 15", paid: "Jun 13" },
+  { id: "INV-0428", period: "May 1–15, 2026", storage: 16500, handling: 5400, vas: 900, total: 22800, status: "Paid", issued: "May 16", due: "May 30", paid: "May 28" },
+  { id: "INV-0424", period: "Apr 16–30, 2026", storage: 16200, handling: 5600, vas: 1800, total: 23600, status: "Outstanding", issued: "May 1", due: "May 15", paid: "-" },
+  { id: "INV-0419", period: "Apr 1–15, 2026", storage: 16100, handling: 5200, vas: 0, total: 21300, status: "Overdue", issued: "Apr 16", due: "Apr 30", paid: "-" },
+  { id: "INV-0415", period: "Mar 16–31, 2026", storage: 15900, handling: 5500, vas: 2400, total: 23800, status: "Paid", issued: "Apr 1", due: "Apr 15", paid: "Apr 12" },
+  { id: "INV-0411", period: "Mar 1–15, 2026", storage: 15700, handling: 5100, vas: 1100, total: 21900, status: "Paid", issued: "Mar 16", due: "Mar 30", paid: "Mar 27" },
+  { id: "INV-0407", period: "Feb 16–28, 2026", storage: 15400, handling: 4900, vas: 0, total: 20300, status: "Overdue", issued: "Mar 1", due: "Mar 15", paid: "-" },
+  { id: "INV-0402", period: "Feb 1–15, 2026", storage: 15200, handling: 5300, vas: 2600, total: 23100, status: "Paid", issued: "Feb 16", due: "Feb 28", paid: "Feb 26" },
+  { id: "INV-0398", period: "Jan 16–31, 2026", storage: 15000, handling: 5000, vas: 800, total: 20800, status: "Paid", issued: "Feb 1", due: "Feb 15", paid: "Feb 13" },
+  { id: "INV-0394", period: "Jan 1–15, 2026", storage: 14800, handling: 4700, vas: 1900, total: 21400, status: "Paid", issued: "Jan 16", due: "Jan 30", paid: "Jan 29" },
+  { id: "INV-0389", period: "Dec 16–31, 2025", storage: 14600, handling: 5400, vas: 3100, total: 23100, status: "Paid", issued: "Jan 1", due: "Jan 15", paid: "Jan 14" },
+  { id: "INV-0385", period: "Dec 1–15, 2025", storage: 14400, handling: 4600, vas: 0, total: 19000, status: "Paid", issued: "Dec 16", due: "Dec 30", paid: "Dec 27" },
+  { id: "INV-0381", period: "Nov 16–30, 2025", storage: 14200, handling: 4900, vas: 1300, total: 20400, status: "Outstanding", issued: "Dec 1", due: "Dec 15", paid: "-" },
+  { id: "INV-0376", period: "Nov 1–15, 2025", storage: 14000, handling: 4500, vas: 700, total: 19200, status: "Paid", issued: "Nov 16", due: "Nov 30", paid: "Nov 28" },
+  { id: "INV-0372", period: "Oct 16–31, 2025", storage: 13800, handling: 5100, vas: 2200, total: 21100, status: "Paid", issued: "Nov 1", due: "Nov 15", paid: "Nov 12" },
+  { id: "INV-0368", period: "Oct 1–15, 2025", storage: 13600, handling: 4400, vas: 0, total: 18000, status: "Paid", issued: "Oct 16", due: "Oct 30", paid: "Oct 29" },
+  { id: "INV-0363", period: "Sep 16–30, 2025", storage: 13400, handling: 4800, vas: 1600, total: 19800, status: "Overdue", issued: "Oct 1", due: "Oct 15", paid: "-" },
+  { id: "INV-0359", period: "Sep 1–15, 2025", storage: 13200, handling: 4300, vas: 900, total: 18400, status: "Paid", issued: "Sep 16", due: "Sep 30", paid: "Sep 26" },
+  { id: "INV-0355", period: "Aug 16–31, 2025", storage: 13000, handling: 4700, vas: 2800, total: 20500, status: "Paid", issued: "Sep 1", due: "Sep 15", paid: "Sep 13" },
+  { id: "INV-0350", period: "Aug 1–15, 2025", storage: 12800, handling: 4200, vas: 0, total: 17000, status: "Paid", issued: "Aug 16", due: "Aug 30", paid: "Aug 28" },
+  { id: "INV-0346", period: "Jul 16–31, 2025", storage: 12600, handling: 4600, vas: 1400, total: 18600, status: "Paid", issued: "Aug 1", due: "Aug 15", paid: "Aug 14" },
+  { id: "INV-0342", period: "Jul 1–15, 2025", storage: 12400, handling: 4100, vas: 600, total: 17100, status: "Paid", issued: "Jul 16", due: "Jul 30", paid: "Jul 29" },
+  { id: "INV-0338", period: "Jun 16–30, 2025", storage: 12200, handling: 4500, vas: 2000, total: 18700, status: "Paid", issued: "Jul 1", due: "Jul 15", paid: "Jul 11" },
 ]
 
 const statusStyle: Record<string, string> = {
@@ -58,6 +59,13 @@ const statusIcon: Record<string, React.ReactNode> = {
 }
 
 const PAYMENT_METHODS = ["NEFT / RTGS", "UPI", "Corporate Credit Card", "Cheque"] as const
+const DISPUTE_REASONS = ["Incorrect quantity / rate", "Duplicate charge", "Service not rendered", "Damaged / short goods", "Other"] as const
+
+const disputeStyle: Record<string, string> = {
+  Raised: "bg-warning/15 text-warning",
+  "Under Review": "bg-brand/15 text-brand",
+  Resolved: "bg-success/15 text-success",
+}
 
 const rateCard = [
   { item: "Ambient storage", basis: "per unit / month", rate: "₹4.20" },
@@ -80,6 +88,10 @@ export default function PortalBillingPage() {
   const [payError, setPayError] = useState("")
   const [detail, setDetail] = useState<Invoice | null>(null)
   const [rateCardOpen, setRateCardOpen] = useState(false)
+  const [disputeTarget, setDisputeTarget] = useState<Invoice | null>(null)
+  const [disputeReason, setDisputeReason] = useState("")
+  const [disputeNotes, setDisputeNotes] = useState("")
+  const [disputeErrors, setDisputeErrors] = useState<Record<string, string>>({})
 
   const filtered = invoices.filter(inv => tab === "All" || inv.status === tab)
   const unpaid = invoices.filter(i => i.status === "Outstanding" || i.status === "Overdue")
@@ -111,6 +123,30 @@ export default function PortalBillingPage() {
 
   function download(inv: Invoice) {
     notify.success("Invoice downloaded", `${inv.id} (${inv.period}) saved as PDF to your downloads.`)
+  }
+
+  function openDispute(inv: Invoice) {
+    setDisputeTarget(inv)
+    setDisputeReason("")
+    setDisputeNotes("")
+    setDisputeErrors({})
+  }
+
+  function submitDispute() {
+    if (!disputeTarget) return
+    const e: Record<string, string> = {}
+    if (!disputeReason) e.reason = "Select a reason"
+    if (!disputeNotes.trim()) e.notes = "Add a short note describing the issue"
+    setDisputeErrors(e)
+    if (Object.keys(e).length > 0) return
+    setInvoices(prev => prev.map(i => i.id === disputeTarget.id
+      ? { ...i, disputeStatus: "Raised", disputeReason, disputeNotes: disputeNotes.trim() }
+      : i))
+    notify.success("Dispute raised", `${disputeTarget.id} flagged for review — the billing team will respond within 2 business days.`)
+    setDisputeTarget(null)
+    setDisputeReason("")
+    setDisputeNotes("")
+    setDisputeErrors({})
   }
 
   return (
@@ -176,6 +212,11 @@ export default function PortalBillingPage() {
                     <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full", statusStyle[inv.status])}>
                       {statusIcon[inv.status]} {inv.status}
                     </span>
+                    {inv.disputeStatus && (
+                      <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full", disputeStyle[inv.disputeStatus])}>
+                        <Flag className="w-3 h-3" /> {inv.disputeStatus}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground">{inv.period}</p>
                 </div>
@@ -195,6 +236,9 @@ export default function PortalBillingPage() {
                   items={[
                     { label: "View invoice details", icon: <Eye />, onSelect: () => setDetail(inv) },
                     { label: "Download invoice PDF", icon: <Download />, onSelect: () => download(inv) },
+                    ...(!inv.disputeStatus
+                      ? [{ label: "Raise a dispute", icon: <Flag />, onSelect: () => openDispute(inv) }]
+                      : []),
                   ]}
                 />
               </div>
@@ -284,6 +328,11 @@ export default function PortalBillingPage() {
                 Pay {fmt(detail.total)}
               </button>
             )}
+            {detail && !detail.disputeStatus && (
+              <button onClick={() => { const inv = detail; setDetail(null); openDispute(inv) }} className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-2 text-sm font-medium text-warning transition-colors hover:bg-warning/20">
+                Raise a Dispute
+              </button>
+            )}
           </>
         }
       >
@@ -299,6 +348,13 @@ export default function PortalBillingPage() {
             <DetailRow label="Due" value={detail.due} />
             <DetailRow label="Paid On" value={detail.paid} />
             <DetailRow label="Status" value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusStyle[detail.status])}>{detail.status}</span>} />
+            {detail.disputeStatus && (
+              <>
+                <DetailRow label="Dispute Status" value={<span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", disputeStyle[detail.disputeStatus])}>{detail.disputeStatus}</span>} />
+                <DetailRow label="Dispute Reason" value={detail.disputeReason} />
+                <DetailRow label="Dispute Notes" value={detail.disputeNotes} />
+              </>
+            )}
           </div>
         )}
       </Drawer>
@@ -308,7 +364,7 @@ export default function PortalBillingPage() {
         open={rateCardOpen}
         onOpenChange={setRateCardOpen}
         title="Rate Card — Apex Pharma Ltd"
-        description="Contracted rates effective 1 Jan 2025"
+        description="Contracted rates effective 1 Jan 2026"
         footer={
           <button onClick={() => setRateCardOpen(false)} className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted">
             Close
@@ -323,6 +379,24 @@ export default function PortalBillingPage() {
           <DetailRow label="Late Payment" value="1.5% per month on overdue balances" />
         </div>
       </Drawer>
+
+      {/* Raise a dispute */}
+      <Modal
+        open={!!disputeTarget}
+        onOpenChange={(o) => !o && setDisputeTarget(null)}
+        title={`Raise a Dispute — ${disputeTarget?.id ?? ""}`}
+        description="The billing team will review and respond within 2 business days"
+        footer={<ModalActions onCancel={() => setDisputeTarget(null)} onSubmit={submitDispute} submitLabel="Submit Dispute" tone="danger" />}
+      >
+        <div className="space-y-4">
+          <Field label="Reason" required error={disputeErrors.reason}>
+            <Select value={disputeReason} invalid={!!disputeErrors.reason} onChange={e => setDisputeReason(e.target.value)} options={DISPUTE_REASONS} placeholder="Select a reason" />
+          </Field>
+          <Field label="Notes" required error={disputeErrors.notes} hint="Describe what looks incorrect on this invoice">
+            <TextArea rows={4} value={disputeNotes} invalid={!!disputeErrors.notes} onChange={e => setDisputeNotes(e.target.value)} placeholder="e.g. Handling charge for ASN-2238 was billed twice." />
+          </Field>
+        </div>
+      </Modal>
     </div>
   )
 }

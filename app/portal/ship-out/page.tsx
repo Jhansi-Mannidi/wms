@@ -1,12 +1,28 @@
 "use client"
 
 import { useState } from "react"
-import { Truck, Plus, Search, Package, Clock, CheckCircle2, ChevronRight } from "lucide-react"
+import { Truck, Plus, Search, Package, Clock, CheckCircle2, ChevronRight, ChevronLeft, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Field, TextInput, TextArea, ModalActions, DetailRow } from "@/components/ui/form"
+import { Field, TextInput, Select, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+
+// Apex Pharma Ltd's own on-hand stock — Ship-Out Items step only allows picking from this list,
+// matching the "own stock only" rule (a client can never dispatch inventory it doesn't hold).
+const OWN_STOCK = [
+  { sku: "APX-7712", desc: "Paracetamol 500mg Tablets", onHand: 4800, uom: "Units" },
+  { sku: "APX-4421", desc: "Syringes 5ml Disposable", onHand: 2200, uom: "Units" },
+  { sku: "APX-2209", desc: "IV Drip Set Standard", onHand: 850, uom: "Sets" },
+  { sku: "APX-7790", desc: "Amoxicillin 250mg Capsules", onHand: 48, uom: "Units" },
+  { sku: "APX-1102", desc: "Nitrile Gloves Large (Box)", onHand: 320, uom: "Boxes" },
+  { sku: "APX-0091", desc: "Isopropyl Alcohol Swabs", onHand: 6500, uom: "Pcs" },
+  { sku: "APX-3301", desc: "Insulin Glargine 100U/mL", onHand: 240, uom: "Vials" },
+  { sku: "APX-6601", desc: "Glucose Saline 500mL Bags", onHand: 1800, uom: "Bags" },
+  { sku: "APX-6610", desc: "Normal Saline 1000mL Bags", onHand: 420, uom: "Bags" },
+] as const
+
+const STEPS = ["Items", "Ship-To", "Service & Mode", "Review"] as const
 
 const tabs = ["All Orders", "Pending", "Processing", "Dispatched", "Delivered"]
 
@@ -65,17 +81,23 @@ const priorityStyle: Record<string, string> = {
 // Order lifecycle used by the "Advance" action in the detail drawer.
 const flow = ["Pending", "Picking", "Packing", "Dispatched", "Delivered"]
 
-const emptyForm = { dest: "", contact: "", phone: "", date: "", priority: "", ref: "", items: "" }
+const emptyForm = { dest: "", contact: "", phone: "", date: "", priority: "", channel: "", ref: "" }
+const emptyQty: Record<string, string> = {}
 
 export default function PortalShipOutPage() {
   const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [tab, setTab] = useState("All Orders")
   const [search, setSearch] = useState("")
   const [createOpen, setCreateOpen] = useState(false)
+  const [step, setStep] = useState(0)
   const [form, setForm] = useState(emptyForm)
+  const [qty, setQty] = useState<Record<string, string>>(emptyQty)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [detail, setDetail] = useState<Order | null>(null)
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null)
+
+  const selectedLines = OWN_STOCK.filter(s => Number(qty[s.sku]) > 0)
+    .map(s => ({ ...s, qty: Number(qty[s.sku]) }))
 
   const filtered = orders.filter(o => {
     const matchTab = tab === "All Orders" || o.status === tab || (tab === "Processing" && (o.status === "Picking" || o.status === "Packing"))
@@ -87,33 +109,52 @@ export default function PortalShipOutPage() {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
-  function validate() {
+  function validateStep(s: number) {
     const e: Record<string, string> = {}
-    if (!form.dest.trim()) e.dest = "Delivery address is required"
-    if (!form.contact.trim()) e.contact = "Contact person is required"
-    if (!form.phone.trim()) e.phone = "Contact phone is required"
-    else if (form.phone.replace(/\D/g, "").length < 10) e.phone = "Enter a valid phone number"
-    if (!form.date.trim()) e.date = "Requested delivery date is required"
-    else if (!/^\d{4}-\d{2}-\d{2}$/.test(form.date.trim())) e.date = "Use the format YYYY-MM-DD"
-    if (!form.priority.trim()) e.priority = "Priority is required"
-    else if (!/^(standard|express)$/i.test(form.priority.trim())) e.priority = "Enter Standard or Express"
-    if (!form.items.trim()) e.items = "List at least one SKU and quantity"
+    if (s === 0) {
+      if (selectedLines.length === 0) e.items = "Select at least one SKU from your own stock and enter a quantity"
+      for (const line of selectedLines) {
+        if (line.qty > line.onHand) e.items = `${line.sku}: only ${line.onHand} ${line.uom} on hand — reduce the quantity`
+      }
+    }
+    if (s === 1) {
+      if (!form.dest.trim()) e.dest = "Delivery address is required"
+      if (!form.contact.trim()) e.contact = "Contact person is required"
+      if (!form.phone.trim()) e.phone = "Contact phone is required"
+      else if (form.phone.replace(/\D/g, "").length < 10) e.phone = "Enter a valid phone number"
+      if (!form.date.trim()) e.date = "Requested delivery date is required"
+      else if (!/^\d{4}-\d{2}-\d{2}$/.test(form.date.trim())) e.date = "Use the format YYYY-MM-DD"
+    }
+    if (s === 2) {
+      if (!form.priority) e.priority = "Priority is required"
+      if (!form.channel) e.channel = "Dispatch mode is required"
+    }
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
+  function goNext() {
+    if (!validateStep(step)) return
+    setStep(s => Math.min(s + 1, STEPS.length - 1))
+  }
+
+  function goBack() {
+    setErrors({})
+    setStep(s => Math.max(s - 1, 0))
+  }
+
   function createOrder() {
-    if (!validate()) return
+    if (!validateStep(0) || !validateStep(1) || !validateStep(2)) return
     const max = orders.reduce((m, o) => Math.max(m, Number(o.id.replace("SO-", "")) || 0), 3841)
-    const lines = form.items.split("\n").filter(l => l.trim()).length
-    const priority = /express/i.test(form.priority) ? "Express" : "Standard"
+    const lines = selectedLines.length
+    const priority = form.priority as "Standard" | "Express"
     const slaDate = new Date(form.date.trim())
     const next: Order = {
       id: `SO-${max + 1}`,
-      channel: "B2B",
+      channel: form.channel,
       dest: form.dest.trim(),
       lines,
-      cartons: lines * 4,
+      cartons: selectedLines.reduce((s, l) => s + Math.max(1, Math.ceil(l.qty / 20)), 0),
       kg: lines * 9,
       priority,
       status: "Pending",
@@ -123,11 +164,13 @@ export default function PortalShipOutPage() {
       contact: form.contact.trim(),
       phone: form.phone.trim(),
       ref: form.ref.trim() || "-",
-      items: form.items.trim(),
+      items: selectedLines.map(l => `${l.sku} — ${l.qty} ${l.uom}`).join("\n"),
     }
     setOrders(prev => [next, ...prev])
     setCreateOpen(false)
     setForm(emptyForm)
+    setQty(emptyQty)
+    setStep(0)
     setErrors({})
     setTab("Pending")
     notify.success("Ship-out order placed", `${next.id} — ${lines} line${lines === 1 ? "" : "s"} to ${next.dest}.`)
@@ -149,15 +192,6 @@ export default function PortalShipOutPage() {
     notify.warning("Order cancelled", `${o.id} to ${o.dest} has been cancelled.`)
   }
 
-  const fields = [
-    { key: "dest" as const, label: "Delivery Address", placeholder: "Hospital / store name & city", required: true },
-    { key: "contact" as const, label: "Contact Person", placeholder: "Receiving contact", required: true },
-    { key: "phone" as const, label: "Contact Phone", placeholder: "+91 XXXXX XXXXX", required: true },
-    { key: "date" as const, label: "Requested Delivery Date", placeholder: "YYYY-MM-DD", required: true },
-    { key: "priority" as const, label: "Priority", placeholder: "Standard / Express", required: true },
-    { key: "ref" as const, label: "Reference / PO No.", placeholder: "e.g. PO-8822", required: false },
-  ]
-
   return (
     <div className="p-4 sm:p-6 space-y-5 w-full">
       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -165,7 +199,7 @@ export default function PortalShipOutPage() {
           <h1 className="text-xl font-bold text-[#1E3A5F] dark:text-foreground">Ship-Out Orders</h1>
           <p className="text-sm text-muted-foreground">Place and track outbound dispatch requests</p>
         </div>
-        <button type="button" onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
+        <button type="button" onClick={() => { setForm(emptyForm); setQty(emptyQty); setStep(0); setErrors({}); setCreateOpen(true) }} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
           <Plus className="w-4 h-4" /> New Ship-Out Order
         </button>
       </div>
@@ -190,24 +224,148 @@ export default function PortalShipOutPage() {
 
       <Modal
         open={createOpen}
-        onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setErrors({}) } }}
+        onOpenChange={(o) => { setCreateOpen(o); if (!o) { setForm(emptyForm); setQty(emptyQty); setStep(0); setErrors({}) } }}
         title="New Ship-Out Request"
         description="Outbound dispatch request to the warehouse"
         size="lg"
-        footer={<ModalActions onCancel={() => setCreateOpen(false)} onSubmit={createOrder} submitLabel="Submit Order" />}
+        footer={
+          <div className="flex w-full items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={step === 0 ? () => setCreateOpen(false) : goBack}
+              className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            >
+              {step === 0 ? "Cancel" : (<span className="flex items-center gap-1"><ChevronLeft className="w-4 h-4" /> Back</span>)}
+            </button>
+            {step < STEPS.length - 1 ? (
+              <button type="button" onClick={goNext} className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90">
+                Next
+              </button>
+            ) : (
+              <button type="button" onClick={createOrder} className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90">
+                Submit Order
+              </button>
+            )}
+          </div>
+        }
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {fields.map(f => (
-            <Field key={f.key} label={f.label} required={f.required} error={errors[f.key]}>
-              <TextInput value={form[f.key]} invalid={!!errors[f.key]} onChange={e => set(f.key, e.target.value)} placeholder={f.placeholder} />
-            </Field>
+        {/* Step indicator */}
+        <div className="flex items-center gap-1 mb-5">
+          {STEPS.map((label, i) => (
+            <div key={label} className="flex items-center flex-1 last:flex-none">
+              <div className="flex items-center gap-2">
+                <div className={cn(
+                  "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors",
+                  i < step ? "bg-brand text-white" : i === step ? "bg-brand/15 text-brand border-2 border-brand" : "bg-muted text-muted-foreground"
+                )}>
+                  {i < step ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                </div>
+                <span className={cn("text-xs font-medium whitespace-nowrap", i === step ? "text-foreground" : "text-muted-foreground")}>{label}</span>
+              </div>
+              {i < STEPS.length - 1 && <div className={cn("h-px flex-1 mx-2", i < step ? "bg-brand" : "bg-border")} />}
+            </div>
           ))}
         </div>
-        <div className="mt-4">
-          <Field label="Items to dispatch (SKU — Qty)" required error={errors.items}>
-            <TextArea rows={3} value={form.items} invalid={!!errors.items} onChange={e => set("items", e.target.value)} placeholder={"APX-7712 — 200 units\nAPX-4421 — 50 units"} />
-          </Field>
-        </div>
+
+        {/* Step 1 — Items (own stock only) */}
+        {step === 0 && (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground mb-2">Select SKUs from your own on-hand stock. You can only dispatch inventory you currently hold.</p>
+            {OWN_STOCK.map(item => {
+              const checked = Number(qty[item.sku]) > 0
+              return (
+                <div key={item.sku} className={cn("flex items-center gap-3 p-2.5 rounded-lg border transition-colors", checked ? "border-brand/40 bg-brand/5" : "border-border")}>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={e => setQty(prev => ({ ...prev, [item.sku]: e.target.checked ? "1" : "" }))}
+                    className="w-4 h-4 accent-brand shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground truncate">{item.desc}</p>
+                    <p className="text-[10px] text-muted-foreground font-mono">{item.sku} · {item.onHand} {item.uom} on hand</p>
+                  </div>
+                  <input
+                    type="number"
+                    min={1}
+                    max={item.onHand}
+                    disabled={!checked}
+                    value={qty[item.sku] || ""}
+                    onChange={e => setQty(prev => ({ ...prev, [item.sku]: e.target.value }))}
+                    className="w-20 px-2 py-1.5 rounded-lg border border-border bg-background text-sm text-foreground text-right disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-brand/30"
+                  />
+                </div>
+              )
+            })}
+            {errors.items && <p className="text-xs text-danger mt-1">{errors.items}</p>}
+          </div>
+        )}
+
+        {/* Step 2 — Ship-To */}
+        {step === 1 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Delivery Address" required error={errors.dest}>
+              <TextInput value={form.dest} invalid={!!errors.dest} onChange={e => set("dest", e.target.value)} placeholder="Hospital / store name & city" />
+            </Field>
+            <Field label="Requested Delivery Date" required error={errors.date}>
+              <TextInput value={form.date} invalid={!!errors.date} onChange={e => set("date", e.target.value)} placeholder="YYYY-MM-DD" />
+            </Field>
+            <Field label="Contact Person" required error={errors.contact}>
+              <TextInput value={form.contact} invalid={!!errors.contact} onChange={e => set("contact", e.target.value)} placeholder="Receiving contact" />
+            </Field>
+            <Field label="Contact Phone" required error={errors.phone}>
+              <TextInput value={form.phone} invalid={!!errors.phone} onChange={e => set("phone", e.target.value)} placeholder="+91 XXXXX XXXXX" />
+            </Field>
+            <Field label="Reference / PO No.">
+              <TextInput value={form.ref} onChange={e => set("ref", e.target.value)} placeholder="e.g. PO-8822" />
+            </Field>
+          </div>
+        )}
+
+        {/* Step 3 — Service & dispatch mode */}
+        {step === 2 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Priority" required error={errors.priority}>
+              <Select value={form.priority} invalid={!!errors.priority} onChange={e => set("priority", e.target.value)} options={["Standard", "Express"]} placeholder="Select priority" />
+            </Field>
+            <Field label="Dispatch Channel" required error={errors.channel}>
+              <Select value={form.channel} invalid={!!errors.channel} onChange={e => set("channel", e.target.value)} options={["B2B", "B2C"]} placeholder="Select channel" />
+            </Field>
+          </div>
+        )}
+
+        {/* Step 4 — Review & submit */}
+        {step === 3 && (
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Items</p>
+              <div className="rounded-lg border border-border divide-y divide-border">
+                {selectedLines.map(l => (
+                  <div key={l.sku} className="flex items-center justify-between px-3 py-1.5 text-sm">
+                    <span className="text-foreground">{l.desc}</span>
+                    <span className="font-mono text-muted-foreground">{l.qty} {l.uom}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Ship-To</p>
+              <div className="space-y-1">
+                <DetailRow label="Address" value={form.dest} />
+                <DetailRow label="Contact" value={`${form.contact} · ${form.phone}`} />
+                <DetailRow label="Requested Date" value={form.date} />
+                {form.ref && <DetailRow label="Reference" value={form.ref} />}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Service & Mode</p>
+              <div className="space-y-1">
+                <DetailRow label="Priority" value={form.priority} />
+                <DetailRow label="Channel" value={form.channel} />
+              </div>
+            </div>
+          </div>
+        )}
       </Modal>
 
       {/* Tabs + search */}
