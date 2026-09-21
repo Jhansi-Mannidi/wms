@@ -11,16 +11,12 @@ import { cn } from "@/lib/utils"
 import { Drawer } from "@/components/ui/modal"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { getClientByName } from "@/lib/mock-data"
+
+const apexPharma = getClientByName("Apex Pharma Ltd")
 
 type RecentOrder = { id: string; sku: string; desc: string; status: string; date: string; eta: string }
 type Alert = { type: string; msg: string; time: string }
-
-const kpis = [
-  { label: "SKUs in Stock", value: "234", sub: "across 4 zones", icon: <Package className="w-5 h-5" />, color: "text-brand", bg: "bg-brand/15" },
-  { label: "Pending Inbound", value: "7", sub: "ASNs awaiting receipt", icon: <Inbox className="w-5 h-5" />, color: "text-warning", bg: "bg-warning/15" },
-  { label: "Pending Ship-Out", value: "14", sub: "orders processing", icon: <Truck className="w-5 h-5" />, color: "text-orange-400", bg: "bg-orange-400/15" },
-  { label: "Open Invoices", value: "3", sub: "₹2.4L outstanding", icon: <DollarSign className="w-5 h-5" />, color: "text-danger", bg: "bg-danger/15" },
-]
 
 const initialOrders: RecentOrder[] = [
   { id: "SO-3841", sku: "APX-7712", desc: "Paracetamol 500mg x 200", status: "Dispatched", date: "Jul 19", eta: "Jul 21" },
@@ -35,6 +31,16 @@ const initialOrders: RecentOrder[] = [
   { id: "SO-3805", sku: "APX-6610", desc: "Normal Saline 1000mL x 250", status: "Delivered", date: "Jul 15", eta: "Jul 16" },
   { id: "SO-3801", sku: "APX-7712", desc: "Paracetamol 500mg x 600", status: "Delivered", date: "Jul 15", eta: "Jul 16" },
   { id: "SO-3796", sku: "APX-4421", desc: "Syringes 5ml x 800", status: "Delivered", date: "Jul 14", eta: "Jul 15" },
+]
+
+// Derived from the Recent Orders list above so the KPI strip never drifts from what's actually shown on this page.
+const pendingShipOutCount = initialOrders.filter(o => o.status === "Picking" || o.status === "Packing").length
+
+const kpis = [
+  { label: "SKUs in Stock", value: String(apexPharma?.skus ?? 0), sub: "across 4 zones", icon: <Package className="w-5 h-5" />, color: "text-brand", bg: "bg-brand/15" },
+  { label: "Pending Inbound", value: "7", sub: "ASNs awaiting receipt", icon: <Inbox className="w-5 h-5" />, color: "text-warning", bg: "bg-warning/15" },
+  { label: "Pending Ship-Out", value: String(pendingShipOutCount), sub: "orders processing", icon: <Truck className="w-5 h-5" />, color: "text-orange-400", bg: "bg-orange-400/15" },
+  { label: "Open Invoices", value: "3", sub: "₹1,565 outstanding", icon: <DollarSign className="w-5 h-5" />, color: "text-danger", bg: "bg-danger/15" },
 ]
 
 const initialAlerts: Alert[] = [
