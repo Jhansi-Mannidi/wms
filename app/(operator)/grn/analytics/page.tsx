@@ -32,7 +32,7 @@ export default function GRNAnalyticsPage() {
           { label: "Avg Processing Time", value: "29m", icon: <Clock className="w-4 h-4 text-amber-500" /> },
           { label: "Discrepancy Rate", value: "6.2%", icon: <AlertTriangle className="w-4 h-4 text-danger" /> },
         ].map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3 flex items-center gap-2">
             <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">{s.icon}</div>
             <div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-xl font-bold text-foreground">{s.value}</p></div>
           </div>

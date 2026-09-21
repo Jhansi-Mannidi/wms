@@ -174,7 +174,7 @@ export default function CycleCountsPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3 flex items-center gap-2">
             <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">{s.icon}</div>
             <div>
               <p className="text-xs text-muted-foreground">{s.label}</p>

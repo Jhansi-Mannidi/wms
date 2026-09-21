@@ -72,7 +72,7 @@ export default function SchedulerSLAPage() {
           { label:"Avg Compliance",value:`${avgCompliance}%`,icon:<Target className="w-5 h-5 text-brand"/> },
           { label:"Breaches This Month",value:String(breachCount),icon:<AlertTriangle className="w-5 h-5 text-danger"/> },
         ].map(s=>(
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4 flex items-center gap-4"><div>{s.icon}</div><div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold text-foreground">{s.value}</p></div></div>
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3 flex items-center gap-3"><div>{s.icon}</div><div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold text-foreground">{s.value}</p></div></div>
         ))}
       </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">

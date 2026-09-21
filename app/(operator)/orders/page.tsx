@@ -359,7 +359,7 @@ export default function OrdersPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {stats.map((s, i) => (
-          <div key={i} className="p-4 rounded-2xl border border-border bg-card">
+          <div key={i} className="p-3 rounded-2xl border border-border bg-card">
             <div className="flex items-start justify-between mb-2">
               <span className="text-xs text-muted-foreground leading-tight">{s.label}</span>
               <span className={cn(i === 4 ? "text-danger" : "text-brand")}>{s.icon}</span>

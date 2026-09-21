@@ -165,7 +165,7 @@ export default function AttendancePage() {
 
       <div className="grid grid-cols-4 gap-4">
         {kpis.map(kpi => (
-          <div key={kpi.label} className="bg-card border border-border rounded-xl p-4 flex items-start justify-between">
+          <div key={kpi.label} className="bg-card border border-border rounded-xl p-3 flex items-start justify-between">
             <div>
               <p className="text-sm text-muted-foreground">{kpi.label}</p>
               <p className={cn("text-2xl font-bold mt-1", kpi.color)}>{kpi.value}</p>

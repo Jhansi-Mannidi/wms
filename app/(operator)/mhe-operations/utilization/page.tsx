@@ -115,7 +115,7 @@ export default function MHEUtilizationPage() {
       </div>
       <div className="grid grid-cols-4 gap-4">
         {stats.map(s=>(
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4"><div className="mb-2">{s.icon}</div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold text-foreground">{s.value}</p><p className="text-xs text-muted-foreground">{s.sub}</p></div>
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3"><div className="mb-2">{s.icon}</div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold text-foreground">{s.value}</p><p className="text-xs text-muted-foreground">{s.sub}</p></div>
         ))}
       </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">

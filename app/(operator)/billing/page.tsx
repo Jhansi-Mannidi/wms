@@ -343,7 +343,7 @@ export default function BillingPage() {
             { label: "Overdue Amount", value: formatAmount(overdueTotal), sub: `${overdueInvoices.length} invoice${overdueInvoices.length === 1 ? "" : "s"} overdue`, icon: <AlertTriangle className="w-5 h-5" />, subColor: "text-danger" },
             { label: "Collected", value: formatAmount(collectedTotal), sub: "Settled to date", icon: <CheckCircle2 className="w-5 h-5" />, subColor: "text-success" },
           ].map((stat, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className={cn(i === 2 ? "text-danger" : "text-brand")}>{stat.icon}</span>

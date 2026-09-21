@@ -21,8 +21,10 @@ import {
   MapPin,
   Check,
 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "@/components/theme-provider"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { AnimatedDropdown } from "@/components/ui/animated-dropdown"
 import { notify } from "@/components/ui/toast"
 
 const WAREHOUSES = [
@@ -137,11 +139,9 @@ export function TopNav() {
             ⌘K
           </kbd>
         </div>
-        {searchOpen && searchQuery && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-xl p-2 z-50">
-            <p className="text-xs text-muted-foreground px-2 py-1">No results for &quot;{searchQuery}&quot;</p>
-          </div>
-        )}
+        <AnimatedDropdown open={searchOpen && !!searchQuery} align="left" className="left-0 right-0 mt-1 rounded-lg p-2">
+          <p className="text-xs text-muted-foreground px-2 py-1">No results for &quot;{searchQuery}&quot;</p>
+        </AnimatedDropdown>
       </div>
 
       {/* Right actions */}
@@ -149,9 +149,11 @@ export function TopNav() {
 
         {/* Warehouse selector */}
         <div className="relative mr-1" ref={warehouseRef}>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => setWarehouseOpen(!warehouseOpen)}
-            className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-sidebar-border bg-sidebar-accent/40 hover:bg-sidebar-accent hover:border-brand/30 transition-all duration-150 group"
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-sidebar-border bg-sidebar-accent/40 hover:bg-sidebar-accent hover:border-brand/30 transition-colors group"
           >
             <span className="relative flex shrink-0">
               <span className="w-2 h-2 rounded-full bg-emerald-500 block" />
@@ -161,202 +163,212 @@ export function TopNav() {
               <span className="text-xs font-semibold text-sidebar-foreground whitespace-nowrap">{selectedWarehouse.city}</span>
               <span className="text-[10px] text-sidebar-foreground/50 whitespace-nowrap">{selectedWarehouse.name} · {selectedWarehouse.zone}</span>
             </div>
-            <ChevronRight className="w-3 h-3 text-sidebar-foreground/40 shrink-0 group-hover:text-sidebar-foreground/70 transition-colors" />
-          </button>
+            <motion.span animate={{ rotate: warehouseOpen ? 90 : 0 }} transition={{ duration: 0.15 }}>
+              <ChevronRight className="w-3 h-3 text-sidebar-foreground/40 shrink-0 group-hover:text-sidebar-foreground/70 transition-colors" />
+            </motion.span>
+          </motion.button>
 
-          {warehouseOpen && (
-            <div className="absolute right-0 top-full mt-2 w-72 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
-              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-brand" />
-                <span className="text-sm font-semibold text-foreground">Select Warehouse</span>
-              </div>
-              <div className="p-1.5">
-                {WAREHOUSES.map((wh) => {
-                  const isSelected = wh.id === selectedWarehouse.id
-                  return (
-                    <button
-                      key={wh.id}
-                      onClick={() => { setSelectedWarehouse(wh); setWarehouseOpen(false) }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left ${isSelected ? "bg-brand/10 text-brand" : "hover:bg-muted text-foreground"}`}
-                    >
-                      <span className={`w-2 h-2 rounded-full shrink-0 ${isSelected ? "bg-emerald-500" : "bg-muted-foreground/30"}`} />
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium truncate ${isSelected ? "text-brand" : "text-foreground"}`}>{wh.city}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">{wh.name} · {wh.zone}</p>
-                      </div>
-                      {isSelected && <Check className="w-4 h-4 text-brand shrink-0" />}
-                    </button>
-                  )
-                })}
-              </div>
+          <AnimatedDropdown open={warehouseOpen} className="w-72">
+            <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+              <MapPin className="w-3.5 h-3.5 text-brand" />
+              <span className="text-sm font-semibold text-foreground">Select Warehouse</span>
             </div>
-          )}
+            <div className="p-1.5">
+              {WAREHOUSES.map((wh) => {
+                const isSelected = wh.id === selectedWarehouse.id
+                return (
+                  <button
+                    key={wh.id}
+                    onClick={() => { setSelectedWarehouse(wh); setWarehouseOpen(false) }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left ${isSelected ? "bg-brand/10 text-brand" : "hover:bg-muted text-foreground"}`}
+                  >
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${isSelected ? "bg-emerald-500" : "bg-muted-foreground/30"}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium truncate ${isSelected ? "text-brand" : "text-foreground"}`}>{wh.city}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{wh.name} · {wh.zone}</p>
+                    </div>
+                    {isSelected && <Check className="w-4 h-4 text-brand shrink-0" />}
+                  </button>
+                )
+              })}
+            </div>
+          </AnimatedDropdown>
         </div>
 
         {/* Quick action */}
         <div className="relative" ref={quickRef}>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.9 }}
             title="Quick actions"
             onClick={() => setQuickOpen(!quickOpen)}
             className="w-8 h-8 flex items-center justify-center rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
           >
             <Zap className="w-4 h-4" />
-          </button>
-          {quickOpen && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden p-1">
-              <p className="px-3 pt-2 pb-1 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Quick Actions</p>
-              {QUICK_ACTIONS.map((a) => (
-                <button
-                  key={a.href}
-                  onClick={() => { router.push(a.href); setQuickOpen(false) }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-                >
-                  <Zap className="w-3.5 h-3.5 text-brand" /> {a.label}
-                </button>
-              ))}
-            </div>
-          )}
+          </motion.button>
+          <AnimatedDropdown open={quickOpen} className="w-48 p-1">
+            <p className="px-3 pt-2 pb-1 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Quick Actions</p>
+            {QUICK_ACTIONS.map((a) => (
+              <button
+                key={a.href}
+                onClick={() => { router.push(a.href); setQuickOpen(false) }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+              >
+                <Zap className="w-3.5 h-3.5 text-brand" /> {a.label}
+              </button>
+            ))}
+          </AnimatedDropdown>
         </div>
 
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => setNotifOpen(!notifOpen)}
             className="w-8 h-8 flex items-center justify-center rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors relative"
           >
             <Bell className="w-4 h-4" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-brand text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-          {notifOpen && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
-              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                <span className="font-semibold text-sm text-foreground">Notifications</span>
-                <button
-                  onClick={() => {
-                    if (unreadCount === 0) return
-                    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
-                    notify.success("Notifications cleared", `${unreadCount} notification${unreadCount === 1 ? "" : "s"} marked as read.`)
-                  }}
-                  disabled={unreadCount === 0}
-                  className="text-xs text-brand hover:underline disabled:opacity-40 disabled:no-underline disabled:cursor-default"
+            <AnimatePresence>
+              {unreadCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                  className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-brand text-white text-[10px] font-bold rounded-full flex items-center justify-center"
                 >
-                  Mark all read
-                </button>
-              </div>
-              <div className="max-h-72 overflow-y-auto">
-                {notifications.map((n) => (
-                  <div key={n.id} className={`px-4 py-3 flex items-start gap-3 hover:bg-muted/50 transition-colors border-b border-border/50 last:border-0 ${n.unread ? "bg-brand/5" : ""}`}>
-                    <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.unread ? "bg-brand" : "bg-transparent"}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-foreground leading-relaxed">{n.text}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{n.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  {unreadCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+          <AnimatedDropdown open={notifOpen} className="w-80">
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+              <span className="font-semibold text-sm text-foreground">Notifications</span>
+              <button
+                onClick={() => {
+                  if (unreadCount === 0) return
+                  setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
+                  notify.success("Notifications cleared", `${unreadCount} notification${unreadCount === 1 ? "" : "s"} marked as read.`)
+                }}
+                disabled={unreadCount === 0}
+                className="text-xs text-brand hover:underline disabled:opacity-40 disabled:no-underline disabled:cursor-default"
+              >
+                Mark all read
+              </button>
             </div>
-          )}
+            <div className="max-h-72 overflow-y-auto">
+              {notifications.map((n) => (
+                <div key={n.id} className={`px-4 py-3 flex items-start gap-3 hover:bg-muted/50 transition-colors border-b border-border/50 last:border-0 ${n.unread ? "bg-brand/5" : ""}`}>
+                  <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.unread ? "bg-brand" : "bg-transparent"}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-foreground leading-relaxed">{n.text}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{n.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </AnimatedDropdown>
         </div>
 
         {/* Messages */}
         <div className="relative" ref={msgRef}>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.9 }}
             title="Messages"
             onClick={() => setMsgOpen(!msgOpen)}
             className="w-8 h-8 flex items-center justify-center rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
           >
             <MessageSquare className="w-4 h-4" />
-          </button>
-          {msgOpen && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
-              <div className="px-4 py-3 border-b border-border">
-                <span className="font-semibold text-sm text-foreground">Messages</span>
-              </div>
-              <div className="max-h-72 overflow-y-auto">
-                {MESSAGES.map((m) => (
-                  <div key={m.id} className="px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border/50 last:border-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-semibold text-foreground">{m.from}</p>
-                      <p className="text-[10px] text-muted-foreground shrink-0">{m.time}</p>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{m.text}</p>
-                  </div>
-                ))}
-              </div>
+          </motion.button>
+          <AnimatedDropdown open={msgOpen} className="w-80">
+            <div className="px-4 py-3 border-b border-border">
+              <span className="font-semibold text-sm text-foreground">Messages</span>
             </div>
-          )}
+            <div className="max-h-72 overflow-y-auto">
+              {MESSAGES.map((m) => (
+                <div key={m.id} className="px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border/50 last:border-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-semibold text-foreground">{m.from}</p>
+                    <p className="text-[10px] text-muted-foreground shrink-0">{m.time}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{m.text}</p>
+                </div>
+              ))}
+            </div>
+          </AnimatedDropdown>
         </div>
 
         {/* User */}
         <div className="relative" ref={userRef}>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => setUserOpen(!userOpen)}
             className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-md hover:bg-sidebar-accent transition-colors"
           >
             <div className="w-7 h-7 rounded-full bg-brand flex items-center justify-center text-white text-xs font-bold shrink-0">VJ</div>
-            <ChevronDown className="w-3 h-3 text-sidebar-foreground/50 hidden sm:block" />
-          </button>
-          {userOpen && (
-            <div className="absolute right-0 top-full mt-2 w-52 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
-              <div className="px-4 py-3 border-b border-border">
-                <p className="font-semibold text-sm text-foreground">Vijay Kumar</p>
-                <p className="text-xs text-muted-foreground">Warehouse Manager</p>
-                <p className="text-xs text-muted-foreground">Acme Logistics</p>
-              </div>
-              <div className="p-1">
-                <button
-                  onClick={() => { router.push("/portal/profile"); setUserOpen(false) }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-                >
-                  <User className="w-4 h-4 text-muted-foreground" /> Profile
-                </button>
-                <button
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
-                  onClick={() => { router.push("/settings"); setUserOpen(false) }}
-                >
-                  <Settings className="w-4 h-4 text-muted-foreground" /> Settings
-                </button>
-                <button
-                  onClick={() => { setSignOutOpen(true); setUserOpen(false) }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-danger hover:bg-danger/10 transition-colors mt-1 border-t border-border"
-                >
-                  <LogOut className="w-4 h-4" /> Sign out
-                </button>
-              </div>
+            <motion.span animate={{ rotate: userOpen ? 180 : 0 }} transition={{ duration: 0.15 }} className="hidden sm:block">
+              <ChevronDown className="w-3 h-3 text-sidebar-foreground/50" />
+            </motion.span>
+          </motion.button>
+          <AnimatedDropdown open={userOpen} className="w-52">
+            <div className="px-4 py-3 border-b border-border">
+              <p className="font-semibold text-sm text-foreground">Vijay Kumar</p>
+              <p className="text-xs text-muted-foreground">Warehouse Manager</p>
+              <p className="text-xs text-muted-foreground">Acme Logistics</p>
             </div>
-          )}
+            <div className="p-1">
+              <button
+                onClick={() => { router.push("/portal/profile"); setUserOpen(false) }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+              >
+                <User className="w-4 h-4 text-muted-foreground" /> Profile
+              </button>
+              <button
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted transition-colors"
+                onClick={() => { router.push("/settings"); setUserOpen(false) }}
+              >
+                <Settings className="w-4 h-4 text-muted-foreground" /> Settings
+              </button>
+              <button
+                onClick={() => { setSignOutOpen(true); setUserOpen(false) }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-danger hover:bg-danger/10 transition-colors mt-1 border-t border-border"
+              >
+                <LogOut className="w-4 h-4" /> Sign out
+              </button>
+            </div>
+          </AnimatedDropdown>
         </div>
 
         {/* Theme toggle — far right */}
         <div className="relative" ref={themeRef}>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.08, rotate: 15 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => setThemeOpen(!themeOpen)}
             className="w-8 h-8 flex items-center justify-center rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
           >
             {themeIcon}
-          </button>
-          {themeOpen && (
-            <div className="absolute right-0 top-full mt-2 w-40 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden p-1">
-              {[
-                { val: "light" as const, label: "Light", icon: <Sun className="w-4 h-4" /> },
-                { val: "dark" as const, label: "Dark", icon: <Moon className="w-4 h-4" /> },
-                { val: "system" as const, label: "System", icon: <Monitor className="w-4 h-4" /> },
-              ].map((opt) => (
-                <button
-                  key={opt.val}
-                  onClick={() => { setTheme(opt.val); setThemeOpen(false) }}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${theme === opt.val ? "bg-brand text-white" : "text-foreground hover:bg-muted"}`}
-                >
-                  {opt.icon}
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          )}
+          </motion.button>
+          <AnimatedDropdown open={themeOpen} className="w-40 p-1">
+            {[
+              { val: "light" as const, label: "Light", icon: <Sun className="w-4 h-4" /> },
+              { val: "dark" as const, label: "Dark", icon: <Moon className="w-4 h-4" /> },
+              { val: "system" as const, label: "System", icon: <Monitor className="w-4 h-4" /> },
+            ].map((opt) => (
+              <button
+                key={opt.val}
+                onClick={() => { setTheme(opt.val); setThemeOpen(false) }}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${theme === opt.val ? "bg-brand text-white" : "text-foreground hover:bg-muted"}`}
+              >
+                {opt.icon}
+                {opt.label}
+              </button>
+            ))}
+          </AnimatedDropdown>
         </div>
       </div>
 

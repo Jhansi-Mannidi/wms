@@ -185,7 +185,7 @@ export default function SpaceManagementPage() {
             { label: "Overall Utilization", value: `${overallUtil}%`, sub: `${totalPallets} pallets stored`, icon: <TrendingUp className="w-5 h-5" /> },
             { label: "Active Tenants", value: activeTenants.toString(), sub: "Client contracts", icon: <Users className="w-5 h-5" /> },
           ].map((stat, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className={cn(i === 2 && overallUtil >= 85 ? "text-warning" : "text-brand")}>{stat.icon}</span>

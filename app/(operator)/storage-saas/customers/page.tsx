@@ -219,7 +219,7 @@ export default function StorageCustomersPage() {
           { label: "Revenue MTD", value: `₹${(totalRevenue / 1000).toFixed(1)}K`, sub: "Accrued charges", color: "text-success" },
           { label: "Overdue Accounts", value: overdue, sub: "Requires attention", color: "text-danger" },
         ].map(k => (
-          <div key={k.label} className="p-4 rounded-xl border border-border bg-card">
+          <div key={k.label} className="p-3 rounded-xl border border-border bg-card">
             <p className="text-xs text-muted-foreground mb-1">{k.label}</p>
             <p className={cn("text-2xl font-bold", k.color)}>{k.value}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">{k.sub}</p>

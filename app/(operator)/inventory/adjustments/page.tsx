@@ -189,7 +189,7 @@ export default function StockAdjustmentsPage() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4">
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3">
             <p className="text-xs text-muted-foreground">{s.label}</p>
             <p className={cn("text-2xl font-bold mt-1", s.neg ? "text-danger" : s.pos ? "text-success" : s.warn ? "text-amber-600" : "text-foreground")}>{s.value}</p>
           </div>

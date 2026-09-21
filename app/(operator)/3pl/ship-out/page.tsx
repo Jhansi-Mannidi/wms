@@ -145,7 +145,7 @@ export default function ShipOutQueuePage() {
     <div className="p-6 h-full overflow-y-auto">
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
         {kpis.map(k => (
-          <div key={k.label} className="p-3 rounded-xl border border-border bg-card text-center">
+          <div key={k.label} className="p-2.5 rounded-xl border border-border bg-card text-center">
             <p className={cn("text-2xl font-bold", k.color)}>{k.value}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">{k.label}</p>
           </div>

@@ -189,7 +189,7 @@ export default function DashboardPage() {
             { label: "Pick Accuracy", value: "99.2%", change: "Excellent", icon: <CheckCircle2 className="w-5 h-5" /> },
             { label: "Active Workers", value: "45", change: "On shift now", icon: <Users className="w-5 h-5" /> },
           ].map((stat, i) => (
-            <div key={i} className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card">
+            <div key={i} className="flex items-center gap-2 p-3 rounded-xl border border-border bg-card">
               <div className="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center text-brand shrink-0">{stat.icon}</div>
               <div>
                 <p className="text-xs text-muted-foreground">{stat.label}</p>

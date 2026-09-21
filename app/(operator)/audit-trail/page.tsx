@@ -176,7 +176,7 @@ export default function AuditTrailPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <Shield className={cn("w-5 h-5", i === 3 ? "text-danger" : "text-brand")} />

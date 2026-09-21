@@ -215,7 +215,7 @@ export default function ProductivityPage() {
 
       <div className="grid grid-cols-4 gap-4">
         {kpis.map(kpi => (
-          <div key={kpi.label} className="bg-card border border-border rounded-xl p-4 flex items-start justify-between">
+          <div key={kpi.label} className="bg-card border border-border rounded-xl p-3 flex items-start justify-between">
             <div>
               <p className="text-sm text-muted-foreground">{kpi.label}</p>
               <p className="text-2xl font-bold text-foreground mt-1">{kpi.value}</p>
@@ -353,15 +353,15 @@ export default function ProductivityPage() {
       >
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-muted/30 border border-border rounded-xl p-3">
+            <div className="bg-muted/30 border border-border rounded-xl p-2.5">
               <p className="text-xs text-muted-foreground">Avg Efficiency</p>
               <p className="text-xl font-bold text-foreground mt-1">{avgEfficiency}%</p>
             </div>
-            <div className="bg-muted/30 border border-border rounded-xl p-3">
+            <div className="bg-muted/30 border border-border rounded-xl p-2.5">
               <p className="text-xs text-muted-foreground">Tasks Completed</p>
               <p className="text-xl font-bold text-foreground mt-1">{tasksDone}</p>
             </div>
-            <div className="bg-muted/30 border border-border rounded-xl p-3">
+            <div className="bg-muted/30 border border-border rounded-xl p-2.5">
               <p className="text-xs text-muted-foreground">Top Performer</p>
               <p className="text-xl font-bold text-foreground mt-1">{shortName(topPerformer?.name)}</p>
             </div>

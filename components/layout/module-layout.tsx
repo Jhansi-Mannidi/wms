@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   ChevronLeft, ChevronRight, Home, Building2, Search,
   Package, Truck, FileText, BarChart3, Settings, Users,
@@ -17,6 +18,13 @@ export interface NavItem {
   icon?: React.ReactNode
   badge?: number | string
   badgeVariant?: "brand" | "warning" | "danger" | "success"
+}
+
+interface RailItem {
+  label: string
+  href: string
+  icon: React.ReactNode
+  badge?: number | string
 }
 
 export interface NavSection {
@@ -34,28 +42,28 @@ interface ModuleLayoutProps {
   headerActions?: React.ReactNode
 }
 
-const moduleRail = [
-  { label: "Home", href: "/home", icon: <Home className="w-4 h-4" /> },
-  { label: "Inventory", href: "/inventory", icon: <Package className="w-4 h-4" /> },
-  { label: "Orders", href: "/orders", icon: <FileText className="w-4 h-4" /> },
-  { label: "GRN", href: "/grn", icon: <ClipboardList className="w-4 h-4" /> },
-  { label: "Gate", href: "/gate-management", icon: <Shield className="w-4 h-4" /> },
-  { label: "3PL", href: "/3pl", icon: <Layers className="w-4 h-4" /> },
-  { label: "LCL", href: "/lcl", icon: <GitMerge className="w-4 h-4" /> },
-  { label: "Air", href: "/air-handling", icon: <Wind className="w-4 h-4" /> },
-  { label: "Storage", href: "/storage-saas", icon: <Box className="w-4 h-4" /> },
-  { label: "Portal", href: "/portal", icon: <Globe className="w-4 h-4" /> },
-  { label: "Billing", href: "/billing", icon: <BarChart3 className="w-4 h-4" /> },
-  { label: "Workforce", href: "/workforce", icon: <Users className="w-4 h-4" /> },
-  { label: "MHE", href: "/mhe-operations", icon: <Truck className="w-4 h-4" /> },
-  { label: "Cold", href: "/cold-chain", icon: <Thermometer className="w-4 h-4" /> },
-  { label: "SKUs", href: "/sku-master", icon: <Scan className="w-4 h-4" /> },
-  { label: "Space", href: "/space-management", icon: <Warehouse className="w-4 h-4" /> },
-  { label: "Sched", href: "/scheduler", icon: <CalendarClock className="w-4 h-4" /> },
-  { label: "Analytics", href: "/analytics", icon: <PieChart className="w-4 h-4" /> },
-  { label: "Audit", href: "/audit-trail", icon: <ClipboardList className="w-4 h-4" /> },
-  { label: "Setup", href: "/warehouse-setup", icon: <Building2 className="w-4 h-4" /> },
-  { label: "Settings", href: "/settings", icon: <Settings className="w-4 h-4" /> },
+const moduleRail: RailItem[] = [
+  { label: "Home", href: "/home", icon: <Home className="w-5 h-5" /> },
+  { label: "Inventory", href: "/inventory", icon: <Package className="w-5 h-5" /> },
+  { label: "Orders", href: "/orders", icon: <FileText className="w-5 h-5" /> },
+  { label: "GRN", href: "/grn", icon: <ClipboardList className="w-5 h-5" /> },
+  { label: "Gate", href: "/gate-management", icon: <Shield className="w-5 h-5" /> },
+  { label: "3PL", href: "/3pl", icon: <Layers className="w-5 h-5" /> },
+  { label: "LCL", href: "/lcl", icon: <GitMerge className="w-5 h-5" /> },
+  { label: "Air", href: "/air-handling", icon: <Wind className="w-5 h-5" /> },
+  { label: "Storage", href: "/storage-saas", icon: <Box className="w-5 h-5" /> },
+  { label: "Portal", href: "/portal", icon: <Globe className="w-5 h-5" /> },
+  { label: "Billing", href: "/billing", icon: <BarChart3 className="w-5 h-5" /> },
+  { label: "Workforce", href: "/workforce", icon: <Users className="w-5 h-5" /> },
+  { label: "MHE", href: "/mhe-operations", icon: <Truck className="w-5 h-5" /> },
+  { label: "Cold", href: "/cold-chain", icon: <Thermometer className="w-5 h-5" /> },
+  { label: "SKUs", href: "/sku-master", icon: <Scan className="w-5 h-5" /> },
+  { label: "Space", href: "/space-management", icon: <Warehouse className="w-5 h-5" /> },
+  { label: "Sched", href: "/scheduler", icon: <CalendarClock className="w-5 h-5" /> },
+  { label: "Analytics", href: "/analytics", icon: <PieChart className="w-5 h-5" /> },
+  { label: "Audit", href: "/audit-trail", icon: <ClipboardList className="w-5 h-5" /> },
+  { label: "Setup", href: "/warehouse-setup", icon: <Building2 className="w-5 h-5" /> },
+  { label: "Settings", href: "/settings", icon: <Settings className="w-5 h-5" /> },
 ]
 
 export function ModuleLayout({
@@ -79,21 +87,38 @@ export function ModuleLayout({
   return (
     <div className="flex h-full">
 
-      {/* ── Module Rail (far left icon strip) ── */}
-      <aside className="w-12 shrink-0 flex flex-col items-center py-2 gap-0.5 border-r border-sidebar-border overflow-y-auto"
+      {/* ── Module Rail (far left icon + label strip) ── */}
+      <aside className="w-[72px] shrink-0 flex flex-col items-center py-2 gap-0.5 border-r border-sidebar-border overflow-y-auto"
         style={{ background: "var(--sidebar)" }}>
         {moduleRail.map((m) => {
           const active = railActive(m.href)
           return (
-            <Link key={m.href} href={m.href} title={m.label}>
-              <div className={cn(
-                "w-9 h-9 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all duration-150 cursor-pointer",
-                active
-                  ? "bg-brand text-white shadow-sm shadow-brand/30"
-                  : "text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-              )}>
-                {m.icon}
-              </div>
+            <Link key={m.href} href={m.href} title={m.label} className="w-full flex justify-center">
+              <motion.div
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.94 }}
+                className={cn(
+                  "relative w-[60px] py-1.5 px-1 rounded-xl flex flex-col items-center justify-center gap-0.5 cursor-pointer",
+                  active ? "text-white" : "text-sidebar-foreground/55 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+                )}
+              >
+                {active && (
+                  <motion.div
+                    layoutId="rail-active-pill"
+                    className="absolute inset-0 rounded-xl bg-brand shadow-sm shadow-brand/30"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <span className="relative z-10">{m.icon}</span>
+                <span className="relative z-10 text-[9.5px] font-semibold leading-tight text-center truncate max-w-full">
+                  {m.label}
+                </span>
+                {m.badge !== undefined && (
+                  <span className="absolute z-10 top-1 right-1.5 min-w-[15px] h-[15px] px-[3px] rounded-full bg-danger text-white text-[9px] font-bold flex items-center justify-center leading-none">
+                    {m.badge}
+                  </span>
+                )}
+              </motion.div>
             </Link>
           )
         })}
@@ -132,44 +157,67 @@ export function ModuleLayout({
         </div>
 
         {/* Nav sections */}
-        <nav className="flex-1 overflow-y-auto py-1">
+        <nav className="flex-1 overflow-y-auto px-2 py-2">
           {sections.map((section, si) => (
-            <div key={si} className="mb-1">
+            <div key={si} className="mb-2">
               {section.title && (
-                <p className="px-3.5 pt-2 pb-0.5 text-[9px] font-bold text-sidebar-foreground/35 uppercase tracking-widest">
+                <p className="px-1.5 pt-2 pb-1 text-[9px] font-bold text-sidebar-foreground/35 uppercase tracking-widest">
                   {section.title}
                 </p>
               )}
-              {section.items
-                .filter(item => !searchVal || item.label.toLowerCase().includes(searchVal.toLowerCase()))
-                .map((item) => {
-                  const active = menuActive(item.href)
-                  return (
-                    <Link key={item.href} href={item.href}>
-                      <div className={cn(
-                        "flex items-center gap-2.5 px-3 py-2 text-[12px] font-medium transition-colors cursor-pointer relative",
-                        active
-                          ? "text-brand bg-brand/10 border-r-2 border-brand"
-                          : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/70"
-                      )}>
-                        {item.icon && (
-                          <span className={cn("shrink-0", active ? "text-brand" : "text-sidebar-foreground/45")}>
-                            {item.icon}
-                          </span>
-                        )}
-                        <span className="flex-1 truncate">{item.label}</span>
-                        {item.badge !== undefined && (
-                          <span className={cn(
-                            "text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.2rem] text-center leading-none",
-                            badgeClass(item.badgeVariant)
-                          )}>
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
-                    </Link>
-                  )
-                })}
+              <AnimatePresence initial={false}>
+                {section.items
+                  .filter(item => !searchVal || item.label.toLowerCase().includes(searchVal.toLowerCase()))
+                  .map((item) => {
+                    const active = menuActive(item.href)
+                    return (
+                      <motion.div
+                        key={item.href}
+                        layout
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="mb-1 last:mb-0"
+                      >
+                        <Link href={item.href}>
+                          <motion.div
+                            whileHover={{ x: active ? 0 : 2 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={cn(
+                              "flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12px] font-medium cursor-pointer relative overflow-hidden",
+                              active
+                                ? "text-white"
+                                : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/70 transition-colors"
+                            )}
+                          >
+                            {active && (
+                              <motion.span
+                                layoutId="module-menu-active"
+                                className="absolute inset-0 bg-brand rounded-lg"
+                                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                              />
+                            )}
+                            {item.icon && (
+                              <span className={cn("relative z-10 shrink-0", active ? "text-white" : "text-sidebar-foreground/45")}>
+                                {item.icon}
+                              </span>
+                            )}
+                            <span className="relative z-10 flex-1 truncate">{item.label}</span>
+                            {item.badge !== undefined && (
+                              <span className={cn(
+                                "relative z-10 text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.2rem] text-center leading-none",
+                                active ? "bg-white/20 text-white" : badgeClass(item.badgeVariant)
+                              )}>
+                                {item.badge}
+                              </span>
+                            )}
+                          </motion.div>
+                        </Link>
+                      </motion.div>
+                    )
+                  })}
+              </AnimatePresence>
             </div>
           ))}
         </nav>
@@ -219,8 +267,21 @@ export function ModuleLayout({
           </div>
         )}
 
-        {/* Main scrollable content */}
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        {/* Main scrollable content — fades/rises on route change within this module */}
+        <main className="flex-1 overflow-y-auto">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+              className="h-full"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
+        </main>
       </div>
     </div>
   )

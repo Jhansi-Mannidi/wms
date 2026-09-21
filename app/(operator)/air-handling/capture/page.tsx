@@ -402,7 +402,7 @@ export default function AirCapturePage() {
                   <p className="text-[9px] text-muted-foreground/70">{r.sub}</p>
                 </div>
               ))}
-              <div className="p-3 rounded-xl border-2 border-brand bg-brand/10">
+              <div className="p-2.5 rounded-xl border-2 border-brand bg-brand/10">
                 <p className="text-[10px] text-brand font-semibold uppercase tracking-wider mb-1">Chargeable Weight</p>
                 <p className="text-2xl font-bold text-brand">{chargeable > 0 ? `${chargeable.toFixed(2)} kg` : "—"}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">max(actual, volumetric)</p>

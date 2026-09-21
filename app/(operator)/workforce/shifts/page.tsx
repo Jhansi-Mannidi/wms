@@ -212,7 +212,7 @@ export default function ShiftsPage() {
 
       <div className="grid grid-cols-3 gap-4">
         {kpis.map(kpi => (
-          <div key={kpi.label} className="bg-card border border-border rounded-xl p-4 flex items-start justify-between">
+          <div key={kpi.label} className="bg-card border border-border rounded-xl p-3 flex items-start justify-between">
             <div>
               <p className="text-sm text-muted-foreground">{kpi.label}</p>
               <p className="text-2xl font-bold text-foreground mt-1">{kpi.value}</p>

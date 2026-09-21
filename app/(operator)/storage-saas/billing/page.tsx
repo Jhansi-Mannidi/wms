@@ -157,7 +157,7 @@ export default function StorageSaasBillingPage() {
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {kpis.map(k => (
-          <div key={k.label} className="p-4 rounded-xl border border-border bg-card">
+          <div key={k.label} className="p-3 rounded-xl border border-border bg-card">
             <p className="text-xs text-muted-foreground mb-1">{k.label}</p>
             <p className={cn("text-2xl font-bold", k.color)}>{k.value}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">{k.sub}</p>

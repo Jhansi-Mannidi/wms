@@ -203,7 +203,7 @@ export default function StorageReleasesPage() {
           { label: "Oldest Lot (Days)", value: `${oldestDays}d`, color: "text-warning" },
           { label: "Charges To Date", value: `₹${charges.toLocaleString()}`, color: "text-foreground" },
         ].map(k => (
-          <div key={k.label} className="p-4 rounded-xl border border-border bg-card text-center">
+          <div key={k.label} className="p-3 rounded-xl border border-border bg-card text-center">
             <p className="text-xs text-muted-foreground mb-1">{k.label}</p>
             <p className={cn("text-xl font-bold", k.color)}>{k.value}</p>
           </div>

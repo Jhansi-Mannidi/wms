@@ -286,7 +286,7 @@ export default function MHEOperationsPage() {
             { label: "Under Maintenance", value: maintenance.toString(), sub: "Unavailable", icon: <Wrench className="w-5 h-5" /> },
             { label: "Low Battery", value: lowBattery.toString(), sub: "Below 20%", icon: <Battery className="w-5 h-5" /> },
           ].map((stat, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className={cn(i === 2 ? "text-danger" : i === 3 ? "text-warning" : "text-brand")}>{stat.icon}</span>

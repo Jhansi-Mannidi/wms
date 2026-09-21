@@ -118,7 +118,7 @@ export default function SpaceTenantsPage() {
           { label: "Pallets Allocated", value: totalPallets.toLocaleString(), sub: "across all zones" },
           { label: "Space Allocated", value: `${totalSqft.toLocaleString()} sq ft`, sub: "leased floor area" },
         ].map((s) => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4">
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3">
             <p className="text-xs text-muted-foreground">{s.label}</p>
             <p className="text-2xl font-bold text-foreground mt-1">{s.value}</p>
             <p className="text-xs text-muted-foreground mt-1">{s.sub}</p>

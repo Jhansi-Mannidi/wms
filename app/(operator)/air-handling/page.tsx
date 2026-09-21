@@ -108,7 +108,7 @@ export default function AirHandlingDashboardPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {kpis.map(k => (
-          <div key={k.label} className="flex flex-col gap-2 p-4 rounded-xl border border-border bg-card">
+          <div key={k.label} className="flex flex-col gap-1.5 p-3 rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">{k.label}</span>
               <span className={k.color}>{k.icon}</span>

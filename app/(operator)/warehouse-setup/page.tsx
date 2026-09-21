@@ -367,7 +367,7 @@ export default function WarehouseSetupPage() {
             { label: "Total Locations", value: zones.reduce((s, z) => s + z.total, 0).toString(), icon: <Grid3X3 className="w-5 h-5" /> },
             { label: "Loading Docks", value: docks.length.toString(), icon: <Building2 className="w-5 h-5" /> },
           ].map((stat, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className="text-brand">{stat.icon}</span>

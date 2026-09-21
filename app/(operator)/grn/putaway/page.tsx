@@ -44,7 +44,7 @@ export default function PutawayPage() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[{ label: "Open Tasks", value: "2" }, { label: "In Progress", value: "1", cls: "text-blue-600" }, { label: "Completed Today", value: "14", cls: "text-success" }, { label: "Avg Putaway Time", value: "12m" }].map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4">
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3">
             <p className="text-xs text-muted-foreground">{s.label}</p>
             <p className={cn("text-2xl font-bold mt-1", s.cls || "text-foreground")}>{s.value}</p>
           </div>

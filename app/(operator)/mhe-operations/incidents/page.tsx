@@ -132,7 +132,7 @@ export default function MHEIncidentsPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4">
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3">
             <p className="text-xs text-muted-foreground">{s.label}</p>
             <p className="text-2xl font-bold text-foreground mt-1">{s.value}</p>
           </div>

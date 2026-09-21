@@ -176,7 +176,7 @@ export default function StorageBillingPage() {
     <div className="p-6">
       {/* Portfolio summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="p-5 rounded-xl border border-border bg-card">
+        <div className="p-3.5 rounded-xl border border-border bg-card">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-muted-foreground">Total Revenue</p>
             <TrendingUp className="w-4 h-4 text-success" />
@@ -184,7 +184,7 @@ export default function StorageBillingPage() {
           <p className="text-2xl font-bold text-foreground">₹{(totalRevenue / 1000).toFixed(1)}K</p>
           <p className="text-[10px] text-muted-foreground mt-1">{period}</p>
         </div>
-        <div className="p-5 rounded-xl border border-border bg-card">
+        <div className="p-3.5 rounded-xl border border-border bg-card">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-muted-foreground">Leased-In Cost</p>
             <TrendingUp className="w-4 h-4 text-danger rotate-180" />

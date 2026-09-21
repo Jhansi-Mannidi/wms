@@ -268,7 +268,7 @@ export default function SchedulerPage() {
             { label: "Failed (Today)", value: failedCount.toString(), sub: "Needs attention", icon: <AlertTriangle className="w-5 h-5" /> },
             { label: "SLA Rules", value: slaRules.filter((r) => r.active).length.toString(), sub: "Active rules", icon: <Clock className="w-5 h-5" /> },
           ].map((stat, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className={cn(i === 2 && failedCount > 0 ? "text-danger" : "text-brand")}>{stat.icon}</span>

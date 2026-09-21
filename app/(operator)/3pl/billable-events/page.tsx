@@ -171,7 +171,7 @@ export default function BillableEventsPage() {
     <div className="p-6 h-full overflow-y-auto">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {kpis.map(k => (
-          <div key={k.label} className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card">
+          <div key={k.label} className="flex items-center gap-2 p-3 rounded-xl border border-border bg-card">
             <div className={cn("w-9 h-9 rounded-lg border border-border flex items-center justify-center", k.color)}>{k.icon}</div>
             <div>
               <p className="text-xs text-muted-foreground">{k.label}</p>

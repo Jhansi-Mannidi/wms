@@ -175,7 +175,7 @@ export default function PortalVASPage() {
           { label: "In Progress", value: vasOrders.filter(v => v.status === "In Progress").length, color: "text-brand", bg: "bg-brand/15", icon: <Wrench className="w-4 h-4" /> },
           { label: "Completed", value: vasOrders.filter(v => v.status === "Completed").length, color: "text-success", bg: "bg-success/15", icon: <CheckCircle2 className="w-4 h-4" /> },
         ].map((s, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+          <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
             <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", s.bg, s.color)}>{s.icon}</div>
             <div>
               <p className="text-lg font-bold text-[#1E3A5F] dark:text-foreground">{s.value}</p>

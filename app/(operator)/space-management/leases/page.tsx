@@ -137,7 +137,7 @@ export default function SpaceLeasesPage() {
           { label: "Active", value: activeCount.toString(), sub: "currently in force" },
           { label: "Expiring Soon", value: expiringCount.toString(), sub: "need renewal" },
         ].map((s) => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4">
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3">
             <p className="text-xs text-muted-foreground">{s.label}</p>
             <p className="text-2xl font-bold text-foreground mt-1">{s.value}</p>
             <p className="text-xs text-muted-foreground mt-1">{s.sub}</p>

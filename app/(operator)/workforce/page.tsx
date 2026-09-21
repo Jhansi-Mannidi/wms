@@ -287,7 +287,7 @@ export default function WorkforcePage() {
             { label: "Active On Floor", value: activeCount.toString(), sub: "Currently working", icon: <CheckCircle2 className="w-5 h-5" />, subColor: "text-brand" },
             { label: "Pending Tasks", value: tasks.filter((t) => t.status !== "Completed").length.toString(), sub: "Need attention", icon: <AlertTriangle className="w-5 h-5" />, subColor: "text-warning" },
           ].map((stat, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className="text-brand">{stat.icon}</span>
@@ -473,7 +473,7 @@ export default function WorkforcePage() {
                       { label: "Tasks Done", value: done.toString() },
                       { label: "Efficiency", value: assigned > 0 ? `${Math.round((done / assigned) * 100)}%` : "—" },
                     ].map((m, j) => (
-                      <div key={j} className="p-3 rounded-xl bg-muted/30 border border-border/50">
+                      <div key={j} className="p-2.5 rounded-xl bg-muted/30 border border-border/50">
                         <p className="text-xs text-muted-foreground">{m.label}</p>
                         <p className="text-lg font-bold text-foreground mt-0.5">{m.value}</p>
                       </div>

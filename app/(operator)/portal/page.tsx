@@ -115,7 +115,7 @@ export default function PortalHomePage() {
       {/* KPI strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {kpis.map((k, i) => (
-          <div key={i} className="flex items-center gap-3 p-4 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+          <div key={i} className="flex items-center gap-2 p-3 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
             <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", k.bg, k.color)}>
               {k.icon}
             </div>
@@ -231,7 +231,7 @@ export default function PortalHomePage() {
             { zone: "Zone C — Cold", count: 76, pct: 91, color: "bg-danger" },
             { zone: "Zone D — Bulk", count: 44, pct: 35, color: "bg-warning" },
           ].map((z, i) => (
-            <div key={i} className="p-3 rounded-xl bg-[#F7F9FC] dark:bg-muted/30 border border-[#E4E9F0] dark:border-border">
+            <div key={i} className="p-2.5 rounded-xl bg-[#F7F9FC] dark:bg-muted/30 border border-[#E4E9F0] dark:border-border">
               <p className="text-[10px] font-semibold text-[#1E3A5F] dark:text-foreground/80 mb-1 truncate">{z.zone}</p>
               <p className="text-lg font-bold text-[#1E3A5F] dark:text-foreground">{z.count} <span className="text-xs font-normal text-muted-foreground">SKUs</span></p>
               <div className="mt-2 h-1.5 bg-[#E4E9F0] dark:bg-muted rounded-full overflow-hidden">

@@ -214,7 +214,7 @@ export default function PalletTrackingPage() {
             { label: "Staging", value: pallets.filter((p) => p.status === "Staging").length.toString(), icon: <Clock className="w-5 h-5" />, color: "text-warning" },
             { label: "Damaged", value: pallets.filter((p) => p.status === "Damaged").length.toString(), icon: <AlertTriangle className="w-5 h-5" />, color: "text-danger" },
           ].map((stat, i) => (
-            <div key={i} className="p-4 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-2">
                 <span className="text-xs text-muted-foreground">{stat.label}</span>
                 <span className={stat.color}>{stat.icon}</span>

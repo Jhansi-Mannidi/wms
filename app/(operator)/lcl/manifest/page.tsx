@@ -270,7 +270,7 @@ export default function ManifestPage() {
               { label: "Total Weight", value: `${totals.weight.toLocaleString()}`, unit: "kg", color: "text-foreground" },
               { label: "Total CBM", value: totals.cbm.toFixed(1), unit: "m³", color: "text-brand" },
             ].map(c => (
-              <div key={c.label} className="p-4 rounded-xl border border-border bg-card text-center">
+              <div key={c.label} className="p-3 rounded-xl border border-border bg-card text-center">
                 <p className="text-xs text-muted-foreground mb-1">{c.label}</p>
                 <p className={cn("text-2xl font-bold", c.color)}>{c.value}</p>
                 <p className="text-[10px] text-muted-foreground">{c.unit}</p>

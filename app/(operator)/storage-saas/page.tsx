@@ -191,7 +191,7 @@ export default function StorageSaaSPage() {
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         {kpis.map(k => (
-          <div key={k.label} className="flex flex-col gap-2 p-4 rounded-xl border border-border bg-card">
+          <div key={k.label} className="flex flex-col gap-1.5 p-3 rounded-xl border border-border bg-card">
             <span className="text-[11px] text-muted-foreground leading-tight">{k.label}</span>
             <p className={cn("text-xl font-bold", k.color)}>{k.value}</p>
             {k.bar !== null && (

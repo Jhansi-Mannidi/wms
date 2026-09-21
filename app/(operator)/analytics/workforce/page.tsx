@@ -49,7 +49,7 @@ export default function AnalyticsWorkforcePage() {
       </div>
       <div className="grid grid-cols-4 gap-4">
         {stats.map((s) => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4">
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3">
             <div className="flex justify-between items-start mb-2">{s.icon}</div>
             <p className="text-xs text-muted-foreground">{s.label}</p>
             <p className="text-2xl font-bold text-foreground">{s.value}</p>

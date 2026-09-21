@@ -45,7 +45,7 @@ export default function TruckArrivalPage() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[{ label: "Expected Today", value: "8" }, { label: "At Dock", value: "2", cls: "text-blue-600" }, { label: "Unloading", value: "1", cls: "text-amber-600" }, { label: "Completed", value: "3", cls: "text-success" }].map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4">
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3">
             <p className="text-xs text-muted-foreground">{s.label}</p>
             <p className={cn("text-2xl font-bold mt-1", s.cls || "text-foreground")}>{s.value}</p>
           </div>

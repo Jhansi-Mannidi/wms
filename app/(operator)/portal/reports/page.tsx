@@ -116,7 +116,7 @@ export default function PortalReportsPage() {
           { label: "Billing Reports", count: reports.filter(r => r.category === "Billing").length, icon: <DollarSign className="w-4 h-4" />, color: "text-success", bg: "bg-success/15" },
           { label: "VAS Reports", count: reports.filter(r => r.category === "VAS").length, icon: <FileText className="w-4 h-4" />, color: "text-purple-400", bg: "bg-purple-400/15" },
         ].map((s, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+          <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
             <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", s.bg, s.color)}>{s.icon}</div>
             <div>
               <p className="text-lg font-bold text-[#1E3A5F] dark:text-foreground">{s.count}</p>

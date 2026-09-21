@@ -227,12 +227,12 @@ export default function SpaceManagerPage() {
 
       {/* Portfolio summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="p-4 rounded-xl border border-border bg-card">
+        <div className="p-3 rounded-xl border border-border bg-card">
           <p className="text-xs text-muted-foreground mb-1">Total Sell Revenue</p>
           <p className="text-2xl font-bold text-foreground">₹{(totalSell / 1000).toFixed(1)}K</p>
           <p className="text-[10px] text-muted-foreground mt-0.5">Monthly, from all allocations</p>
         </div>
-        <div className="p-4 rounded-xl border border-border bg-card">
+        <div className="p-3 rounded-xl border border-border bg-card">
           <p className="text-xs text-muted-foreground mb-1">Leased-In Cost</p>
           <p className="text-2xl font-bold text-danger">₹{(totalCost / 1000).toFixed(1)}K</p>
           <p className="text-[10px] text-muted-foreground mt-0.5">Monthly payments</p>

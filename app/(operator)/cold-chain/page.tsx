@@ -271,7 +271,7 @@ export default function ColdChainPage() {
             { label: "Active Alerts", value: activeAlerts.toString(), sub: "Needs attention", icon: <AlertTriangle className="w-5 h-5" />, color: "text-danger" },
             { label: "Total SKUs", value: zones.reduce((s, z) => s + z.items, 0).toString(), sub: "Across cold zones", icon: <TrendingDown className="w-5 h-5" />, color: "text-brand" },
           ].map((stat, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className={stat.color}>{stat.icon}</span>

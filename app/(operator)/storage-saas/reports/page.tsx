@@ -167,7 +167,7 @@ export default function StorageSaaSReportsPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s, i) => (
-          <div key={i} className="flex items-center gap-3 p-4 rounded-2xl border border-border bg-card">
+          <div key={i} className="flex items-center gap-2 p-3 rounded-2xl border border-border bg-card">
             <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", s.bg, s.color)}>
               {s.icon}
             </div>

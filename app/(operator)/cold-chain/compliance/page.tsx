@@ -59,7 +59,7 @@ export default function ColdChainCompliancePage() {
           { label: "Fully Compliant", value: `${compliant} / ${records.length}`, sub: "zones passing", icon: <CheckCircle2 className="w-5 h-5 text-success" /> },
           { label: "Action Required", value: actionNeeded.toString(), sub: "needs remediation", icon: <AlertTriangle className="w-5 h-5 text-amber-500" /> },
         ].map((s) => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-4"><div className="mb-2">{s.icon}</div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold text-foreground">{s.value}</p><p className="text-xs text-muted-foreground">{s.sub}</p></div>
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3"><div className="mb-2">{s.icon}</div><p className="text-xs text-muted-foreground">{s.label}</p><p className="text-2xl font-bold text-foreground">{s.value}</p><p className="text-xs text-muted-foreground">{s.sub}</p></div>
         ))}
       </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">

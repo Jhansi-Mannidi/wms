@@ -82,7 +82,7 @@ export default function DeconsolidationPage() {
           { label: "Discrepancies", value: discrepancies, color: discrepancies > 0 ? "text-danger" : "text-success" },
           { label: "Released Shipments", value: `${releasedCount} / ${expectedLines.length}`, color: releasedCount === expectedLines.length ? "text-success" : "text-foreground" },
         ].map(k => (
-          <div key={k.label} className="rounded-xl border border-border bg-card p-4 text-center">
+          <div key={k.label} className="rounded-xl border border-border bg-card p-3 text-center">
             <p className="text-xs text-muted-foreground mb-1">{k.label}</p>
             <p className={cn("text-2xl font-bold", k.color)}>{k.value}</p>
           </div>

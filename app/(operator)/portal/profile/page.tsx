@@ -253,7 +253,7 @@ export default function PortalProfilePage() {
       {tab === "Company Profile" && (
         <div className="space-y-4">
           {/* Avatar + name */}
-          <div className="flex items-center gap-4 p-5 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+          <div className="flex items-center gap-3 p-3.5 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
             <div className="w-16 h-16 rounded-2xl bg-[#1E3A5F] flex items-center justify-center text-white text-2xl font-bold shrink-0">AP</div>
             <div className="flex-1">
               <p className="text-lg font-bold text-[#1E3A5F] dark:text-foreground">{company.find(f => f.key === "legal")?.value}</p>

@@ -205,7 +205,7 @@ export default function VASWorkOrdersPage() {
       <div className="flex-1 overflow-y-auto p-5 space-y-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {kpis.map(k => (
-            <div key={k.label} className="bg-card border border-border rounded-lg px-4 py-3">
+            <div key={k.label} className="bg-card border border-border rounded-lg px-3.5 py-2.5">
               <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{k.label}</p>
               <p className={cn("text-2xl font-bold mt-1", k.color)}>{k.value}</p>
             </div>

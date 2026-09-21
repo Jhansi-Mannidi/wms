@@ -191,7 +191,7 @@ export default function PortalASNPage() {
           { label: "Received", value: asns.filter(a => a.status === "Received").length, color: "text-success", bg: "bg-success/15" },
           { label: "Exceptions", value: asns.filter(a => a.status === "Exception").length, color: "text-danger", bg: "bg-danger/15" },
         ].map((s, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+          <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
             <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", s.bg)}>
               <Inbox className={cn("w-4 h-4", s.color)} />
             </div>
