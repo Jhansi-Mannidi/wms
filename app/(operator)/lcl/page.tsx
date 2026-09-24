@@ -8,6 +8,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { LCL_DASHBOARD_CONSOLS, LCL_DASHBOARD_RECEIPTS } from "@/lib/fixtures/lcl"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to Record<string, unknown> consumers
 type Consolidation = {
@@ -166,6 +167,7 @@ export default function LCLDashboardPage() {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
+      <PageHeader title="LCL Dashboard" description="Consolidation status, container fill and recent cargo receipts" className="mb-6" />
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {kpis.map(k => (
@@ -182,15 +184,15 @@ export default function LCLDashboardPage() {
 
       {/* Quick actions */}
       <div className="flex flex-wrap gap-2 mb-6">
-        <button onClick={() => setReceiptOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+        <button onClick={() => setReceiptOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
           <Plus className="w-4 h-4" /> New Cargo Receipt
         </button>
-        <button onClick={() => setConsolOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors">
+        <button onClick={() => setConsolOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors">
           <Plus className="w-4 h-4" /> New Consolidation
         </button>
         <button
           onClick={() => notify.info("Console refreshed", `${consolidations.length} consolidations and ${recentReceipts.length} receipts re-synced from CFS.`)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"
         >
           <RefreshCw className="w-4 h-4" /> Refresh
         </button>

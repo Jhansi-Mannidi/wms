@@ -83,25 +83,25 @@ export default function PortalReportsPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-5 w-full">
+    <div className="p-6 space-y-6 w-full">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1E3A5F] dark:text-foreground">Reports &amp; Documents</h1>
+          <h1 className="text-2xl font-bold text-foreground">Reports &amp; Documents</h1>
           <p className="text-sm text-muted-foreground">Download inventory, billing, and operational reports</p>
         </div>
         <div className="flex items-center gap-2">
           <select
             value={period}
             onChange={e => setPeriod(e.target.value)}
-            className="px-3 py-2 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card text-xs font-medium text-[#1E3A5F] dark:text-foreground outline-none cursor-pointer"
+            className="px-3 py-2 rounded-lg border border-border bg-card text-xs font-medium text-foreground outline-none cursor-pointer"
           >
             {periodOptions.map(p => <option key={p}>{p}</option>)}
           </select>
           <button
             onClick={downloadAll}
             title="Download all listed reports"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity"
           >
             <Download className="w-3.5 h-3.5" /> Download All
           </button>
@@ -116,10 +116,10 @@ export default function PortalReportsPage() {
           { label: "Billing Reports", count: reports.filter(r => r.category === "Billing").length, icon: <DollarSign className="w-4 h-4" />, color: "text-success", bg: "bg-success/15" },
           { label: "VAS Reports", count: reports.filter(r => r.category === "VAS").length, icon: <FileText className="w-4 h-4" />, color: "text-purple-400", bg: "bg-purple-400/15" },
         ].map((s, i) => (
-          <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+          <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-card">
             <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", s.bg, s.color)}>{s.icon}</div>
             <div>
-              <p className="text-lg font-bold text-[#1E3A5F] dark:text-foreground">{s.count}</p>
+              <p className="text-lg font-bold text-foreground">{s.count}</p>
               <p className="text-[10px] text-muted-foreground">{s.label}</p>
             </div>
           </div>
@@ -128,33 +128,33 @@ export default function PortalReportsPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex gap-1 p-0.5 rounded-lg bg-[#F7F9FC] dark:bg-muted/40 border border-[#E4E9F0] dark:border-border flex-wrap">
+        <div className="flex gap-1 p-0.5 rounded-lg bg-muted/40 border border-border flex-wrap">
           {reportCategories.map(c => (
             <button key={c} onClick={() => setCategory(c)}
               className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                category === c ? "bg-[#1E3A5F] dark:bg-brand text-white" : "text-muted-foreground hover:text-[#1E3A5F] dark:hover:text-foreground"
+                category === c ? "bg-brand text-white" : "text-muted-foreground hover:text-foreground"
               )}>
               {c}
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+        <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-card">
           <Search className="w-3.5 h-3.5 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search reports..." className="bg-transparent outline-none text-xs w-40 placeholder:text-muted-foreground text-[#1E3A5F] dark:text-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search reports..." className="bg-transparent outline-none text-xs w-40 placeholder:text-muted-foreground text-foreground" />
         </div>
       </div>
 
       {/* Report grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {filtered.map(r => (
-          <div key={r.id} onClick={() => setDetail(r)} className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card p-4 hover:border-[#1E3A5F]/30 dark:hover:border-brand/30 transition-all group cursor-pointer">
+          <div key={r.id} onClick={() => setDetail(r)} className="rounded-xl border border-border bg-card p-4 hover:border-brand/30 transition-all group cursor-pointer">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#1E3A5F]/10 dark:bg-brand/15 flex items-center justify-center text-[#1E3A5F] dark:text-brand shrink-0 group-hover:bg-[#1E3A5F]/20 dark:group-hover:bg-brand/25 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center text-brand shrink-0 group-hover:bg-brand/25 transition-colors">
                 {r.icon}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-sm font-bold text-[#1E3A5F] dark:text-foreground">{r.name}</p>
+                  <p className="text-sm font-bold text-foreground">{r.name}</p>
                   <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded", formatStyle[r.format] ?? "bg-muted text-muted-foreground")}>{r.format}</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{r.desc}</p>
@@ -163,7 +163,7 @@ export default function PortalReportsPage() {
                   <button
                     onClick={(e) => { e.stopPropagation(); download(r) }}
                     title={`Download ${r.name}`}
-                    className="flex items-center gap-1 text-xs text-[#1E3A5F] dark:text-brand font-medium hover:underline"
+                    className="flex items-center gap-1 text-xs text-brand font-medium hover:underline"
                   >
                     <Download className="w-3 h-3" /> {downloaded.includes(r.id) ? "Downloaded" : "Download"}
                   </button>
@@ -178,8 +178,8 @@ export default function PortalReportsPage() {
       </div>
 
       {/* Schedule section */}
-      <div className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card p-5">
-        <h2 className="text-sm font-bold text-[#1E3A5F] dark:text-foreground mb-3">Scheduled Reports</h2>
+      <div className="rounded-xl border border-border bg-card p-5">
+        <h2 className="text-sm font-bold text-foreground mb-3">Scheduled Reports</h2>
         <div className="space-y-2">
           {[
             { name: "Weekly Stock Ledger", freq: "Every Monday, 8:00 AM", format: "XLSX", dest: "apex.operations@pharma.in" },
@@ -195,11 +195,11 @@ export default function PortalReportsPage() {
             { name: "Weekly VAS Work Order Summary", freq: "Every Saturday, 6:00 PM", format: "XLSX", dest: "warehouse@apexpharma.in" },
             { name: "Weekly Cycle Count Variance", freq: "Every Wednesday, 8:00 AM", format: "CSV", dest: "supplychain@apexpharma.in" },
           ].map((s, i) => (
-            <div key={i} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-[#F7F9FC] dark:bg-muted/30 border border-[#E4E9F0] dark:border-border">
+            <div key={i} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-muted/30 border border-border">
               <div className="flex items-center gap-3">
-                <Clock className="w-4 h-4 text-[#1E3A5F] dark:text-brand shrink-0" />
+                <Clock className="w-4 h-4 text-brand shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold text-[#1E3A5F] dark:text-foreground">{s.name}</p>
+                  <p className="text-xs font-semibold text-foreground">{s.name}</p>
                   <p className="text-[10px] text-muted-foreground">{s.freq} · {s.dest}</p>
                 </div>
               </div>
@@ -207,7 +207,7 @@ export default function PortalReportsPage() {
                 <button
                   onClick={() => runSchedule(s.name, s.dest)}
                   title={`Run ${s.name} now`}
-                  className="text-[10px] font-semibold text-[#1E3A5F] dark:text-brand hover:underline"
+                  className="text-[10px] font-semibold text-brand hover:underline"
                 >
                   Run now
                 </button>

@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { LCL_CONSOLIDATION_POOL, LCL_INITIAL_CONSOLS } from "@/lib/fixtures/lcl"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to Record<string, unknown> consumers
 type PoolReceipt = {
@@ -122,6 +123,7 @@ export default function ConsolidationPlannerPage() {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
+      <PageHeader title="Consolidation Planner" description="Group cargo receipts into consolidations by route and CBM" className="mb-6" />
       {/* Consolidation switcher */}
       <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
@@ -135,7 +137,7 @@ export default function ConsolidationPlannerPage() {
           ))}
         </div>
         <button onClick={() => setCreateOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
           <Plus className="w-4 h-4" /> New Consolidation
         </button>
       </div>
@@ -180,7 +182,7 @@ export default function ConsolidationPlannerPage() {
                     "w-full flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-semibold transition-colors border",
                     mismatch
                       ? "bg-muted text-muted-foreground border-border cursor-not-allowed opacity-70"
-                      : "bg-[#F7941D]/10 text-[#F7941D] hover:bg-[#F7941D]/20 border-[#F7941D]/30"
+                      : "bg-brand/10 text-brand hover:bg-brand/20 border-brand/30"
                   )}
                 >
                   {mismatch ? <><AlertTriangle className="w-3.5 h-3.5" /> Destination mismatch</> : <><Plus className="w-3.5 h-3.5" /> Add to Consolidation</>}
@@ -258,7 +260,7 @@ export default function ConsolidationPlannerPage() {
               <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/30">
+                    <tr className="border-b border-border bg-muted/50">
                       {["Receipt", "Shipper", "CBM", "Pieces", "Weight (kg)", "POD", "Dwell", ""].map(h => (
                         <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">{h}</th>
                       ))}
@@ -299,7 +301,7 @@ export default function ConsolidationPlannerPage() {
           </div>
 
           {consolidated.length > 0 && !locked && (
-            <button onClick={() => setConfirmOpen(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#F7941D] text-white font-semibold text-sm hover:bg-[#F7941D]/90 transition-colors">
+            <button onClick={() => setConfirmOpen(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl bg-brand text-white font-semibold text-sm hover:bg-brand/90 transition-colors">
               <CheckCircle2 className="w-4 h-4" /> Confirm Consolidation
             </button>
           )}

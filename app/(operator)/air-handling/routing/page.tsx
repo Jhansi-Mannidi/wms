@@ -95,7 +95,7 @@ export default function RoutingBoardPage() {
     <div className="p-6 h-full overflow-y-auto">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-lg font-bold text-foreground">Routing Decision Board</h1>
+          <h1 className="text-2xl font-bold text-foreground">Routing Decision Board</h1>
           <p className="text-xs text-muted-foreground">{pending.length} packages awaiting routing decision</p>
         </div>
         {selected.length > 0 && (

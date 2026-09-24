@@ -50,7 +50,7 @@ export default function SchedulerCalendarPage() {
   }
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-6 space-y-6 w-full">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold text-foreground">Schedule Calendar</h1><p className="text-sm text-muted-foreground mt-1">Week view of shifts, tasks and planned activities</p></div>
         <div className="flex items-center gap-2">

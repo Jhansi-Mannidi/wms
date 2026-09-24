@@ -226,7 +226,7 @@ export default function DropOffIntakePage() {
 
   return (
     <div className="p-6 h-full overflow-y-auto w-full">
-      <h1 className="text-lg font-bold text-foreground mb-1">Quick Drop-Off Intake</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-1">Quick Drop-Off Intake</h1>
       <p className="text-xs text-muted-foreground mb-6">Counter-speed intake form · scan/keyboard friendly</p>
 
       {/* Customer selector */}
@@ -362,7 +362,7 @@ export default function DropOffIntakePage() {
           ))}
         </div>
 
-        <button onClick={addPackage} className="mt-3 w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-dashed border-[#F7941D]/50 text-[#F7941D] text-sm font-semibold hover:bg-[#F7941D]/5 transition-colors">
+        <button onClick={addPackage} className="mt-3 w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-dashed border-brand/50 text-brand text-sm font-semibold hover:bg-brand/5 transition-colors">
           <Plus className="w-4 h-4" /> Add Package
         </button>
       </div>
@@ -395,7 +395,7 @@ export default function DropOffIntakePage() {
       </div>
 
       {/* Submit */}
-      <button onClick={saveReceipt} className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-[#F7941D] text-white font-bold text-sm hover:bg-[#F7941D]/90 transition-colors">
+      <button onClick={saveReceipt} className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-brand text-white font-bold text-sm hover:bg-brand/90 transition-colors">
         <Printer className="w-4 h-4" /> Save &amp; Print Receipt
       </button>
 
@@ -406,7 +406,7 @@ export default function DropOffIntakePage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/20">
+                <tr className="border-b border-border bg-muted/50">
                   {["Receipt", "Customer", "Location", "Packages", "Pieces", "CBM", "Time", ""].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}

@@ -15,6 +15,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Client = {
@@ -158,6 +159,7 @@ export default function ThreePLPage() {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
+      <PageHeader title="Client Directory" description="All 3PL clients, their activity and account health" className="mb-6" />
       {/* KPI filter cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {kpiCards.map((k) => (
@@ -212,7 +214,7 @@ export default function ThreePLPage() {
         </div>
         <button
           onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
           <Plus className="w-4 h-4" /> New Client
         </button>
       </div>
@@ -223,7 +225,7 @@ export default function ThreePLPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/30">
+                <tr className="border-b border-border bg-muted/50">
                   {["Client", "GSTIN", "Agreement", "Space Used", "SKUs", "Open Orders", "Dues (₹)", "KAM", ""].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}

@@ -367,7 +367,7 @@ export default function WarehouseSetupPage() {
             { label: "Total Locations", value: zones.reduce((s, z) => s + z.total, 0).toString(), icon: <Grid3X3 className="w-5 h-5" /> },
             { label: "Loading Docks", value: docks.length.toString(), icon: <Building2 className="w-5 h-5" /> },
           ].map((stat, i) => (
-            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className="text-brand">{stat.icon}</span>
@@ -389,7 +389,7 @@ export default function WarehouseSetupPage() {
         {tab === "warehouses" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {warehouses.map((wh) => (
-              <div key={wh.id} className="p-5 rounded-2xl border border-border bg-card">
+              <div key={wh.id} className="p-5 rounded-xl border border-border bg-card">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center">
@@ -430,7 +430,7 @@ export default function WarehouseSetupPage() {
               </div>
             ))}
             {/* Add warehouse card */}
-            <button onClick={() => setWhCreateOpen(true)} className="p-5 rounded-2xl border-2 border-dashed border-border hover:border-brand/50 bg-card hover:bg-brand/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-brand h-40">
+            <button onClick={() => setWhCreateOpen(true)} className="p-5 rounded-xl border-2 border-dashed border-border hover:border-brand/50 bg-card hover:bg-brand/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-brand h-40">
               <Plus className="w-8 h-8" />
               <span className="text-sm font-medium">Add New Warehouse</span>
             </button>
@@ -438,7 +438,7 @@ export default function WarehouseSetupPage() {
         )}
 
         {tab === "zones" && (
-          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">Zone Configuration</h2>
               <button onClick={openZoneCreate} className="flex items-center gap-1.5 text-xs text-brand hover:underline">
@@ -448,7 +448,7 @@ export default function WarehouseSetupPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/20">
+                  <tr className="border-b border-border bg-muted/50">
                     {["Zone ID", "Name", "Warehouse", "Type", "Aisles", "Bays", "Levels", "Locations", "Racking", "Temperature", ""].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}
@@ -489,7 +489,7 @@ export default function WarehouseSetupPage() {
         )}
 
         {tab === "docks" && (
-          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">Loading Docks</h2>
               <button onClick={openDockCreate} className="flex items-center gap-1.5 text-xs text-brand hover:underline">
@@ -499,7 +499,7 @@ export default function WarehouseSetupPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/20">
+                  <tr className="border-b border-border bg-muted/50">
                     {["Dock ID", "Name", "Warehouse", "Type", "Gate", "Equipment", "Status", ""].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}

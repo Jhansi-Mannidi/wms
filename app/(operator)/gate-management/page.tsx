@@ -212,7 +212,7 @@ export default function GateManagementPage() {
             { label: "Total Today", value: entries.length.toString(), icon: <LogIn className="w-5 h-5" />, color: "text-success", bg: "bg-success/10" },
             { label: "Exited Today", value: entries.filter((g) => g.status === "Exited").length.toString(), icon: <LogOut className="w-5 h-5" />, color: "text-muted-foreground", bg: "bg-muted/50" },
           ].map((s, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-5 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{s.label}</span>
                 <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center", s.bg)}>
@@ -232,7 +232,7 @@ export default function GateManagementPage() {
               onClick={() => setGateFilter(gateFilter === gate.name ? "All Gates" : gate.name)}
               title={`Filter table by ${gate.name}`}
               className={cn(
-                "p-4 rounded-2xl border bg-card flex items-center gap-3 text-left transition-colors hover:border-brand/50",
+                "p-4 rounded-xl border bg-card flex items-center gap-3 text-left transition-colors hover:border-brand/50",
                 gateFilter === gate.name ? "border-brand" : "border-border",
               )}
             >
@@ -287,12 +287,12 @@ export default function GateManagementPage() {
         {/* Filters */}
         <div className="space-y-3">
           <div className="flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-xl border border-border bg-card">
+            <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-lg border border-border bg-card">
               <Search className="w-4 h-4 text-muted-foreground shrink-0" />
               <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground" placeholder="Search vehicle, driver, client..." value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             <div className="relative">
-              <select className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+              <select className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                 {["All Status", "Inside", "Expected", "Loading", "Exited"].map((s) => <option key={s}>{s}</option>)}
               </select>
               <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -301,7 +301,7 @@ export default function GateManagementPage() {
               onClick={() => setShowMoreFilters((v) => !v)}
               title="Toggle additional filters"
               className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-xl border bg-card text-sm transition-colors",
+                "flex items-center gap-2 px-3 py-2 rounded-lg border bg-card text-sm transition-colors",
                 showMoreFilters || extraFilterCount > 0 ? "border-brand text-brand" : "border-border text-muted-foreground hover:text-foreground",
               )}
             >
@@ -314,11 +314,11 @@ export default function GateManagementPage() {
           </div>
 
           {showMoreFilters && (
-            <div className="p-4 rounded-2xl border border-border bg-card grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
+            <div className="p-4 rounded-xl border border-border bg-card grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1.5">Gate</label>
                 <div className="relative">
-                  <select value={gateFilter} onChange={(e) => setGateFilter(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand">
+                  <select value={gateFilter} onChange={(e) => setGateFilter(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand">
                     {["All Gates", ...GATES].map((g) => <option key={g}>{g}</option>)}
                   </select>
                   <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -327,7 +327,7 @@ export default function GateManagementPage() {
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1.5">Purpose</label>
                 <div className="relative">
-                  <select value={purposeFilter} onChange={(e) => setPurposeFilter(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand">
+                  <select value={purposeFilter} onChange={(e) => setPurposeFilter(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand">
                     {["All Purposes", ...PURPOSES].map((p) => <option key={p}>{p}</option>)}
                   </select>
                   <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -336,7 +336,7 @@ export default function GateManagementPage() {
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1.5">Vehicle Type</label>
                 <div className="relative">
-                  <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand">
+                  <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand">
                     {["All Types", ...VEHICLE_TYPES].map((t) => <option key={t}>{t}</option>)}
                   </select>
                   <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -344,7 +344,7 @@ export default function GateManagementPage() {
               </div>
               <button
                 onClick={clearExtraFilters}
-                className="px-4 py-2 rounded-xl border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors"
+                className="px-4 py-2 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors"
               >
                 Clear Filters
               </button>
@@ -356,11 +356,11 @@ export default function GateManagementPage() {
         </div>
 
         {/* Table */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/30">
+                <tr className="border-b border-border bg-muted/50">
                   {["Entry ID", "Vehicle No.", "Driver", "Client", "Purpose", "Gate", "In Time", "Out Time", "Status", ""].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}

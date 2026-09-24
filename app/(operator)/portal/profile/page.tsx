@@ -231,18 +231,18 @@ export default function PortalProfilePage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-5 w-full">
+    <div className="p-6 space-y-6 w-full">
       <div>
-        <h1 className="text-xl font-bold text-[#1E3A5F] dark:text-foreground">Profile &amp; Settings</h1>
+        <h1 className="text-2xl font-bold text-foreground">Profile &amp; Settings</h1>
         <p className="text-sm text-muted-foreground">Manage your company profile, users, and notification preferences</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-0.5 rounded-xl bg-[#F7F9FC] dark:bg-muted/40 border border-[#E4E9F0] dark:border-border flex-wrap">
+      <div className="flex gap-1 p-0.5 rounded-xl bg-muted/40 border border-border flex-wrap">
         {tabs.map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={cn("px-3 py-2 rounded-lg text-xs font-medium transition-colors",
-              tab === t ? "bg-[#1E3A5F] dark:bg-brand text-white shadow-sm" : "text-muted-foreground hover:text-[#1E3A5F] dark:hover:text-foreground"
+              tab === t ? "bg-brand text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
             )}>
             {t}
           </button>
@@ -253,10 +253,10 @@ export default function PortalProfilePage() {
       {tab === "Company Profile" && (
         <div className="space-y-4">
           {/* Avatar + name */}
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
-            <div className="w-16 h-16 rounded-2xl bg-[#1E3A5F] flex items-center justify-center text-white text-2xl font-bold shrink-0">AP</div>
+          <div className="flex items-center gap-3 p-3.5 rounded-xl border border-border bg-card">
+            <div className="w-16 h-16 rounded-xl bg-navy flex items-center justify-center text-white text-2xl font-bold shrink-0">AP</div>
             <div className="flex-1">
-              <p className="text-lg font-bold text-[#1E3A5F] dark:text-foreground">{company.find(f => f.key === "legal")?.value}</p>
+              <p className="text-lg font-bold text-foreground">{company.find(f => f.key === "legal")?.value}</p>
               <p className="text-sm text-muted-foreground">Client ID: CLT-0412 · Since Jan 2024</p>
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-[10px] font-semibold bg-success/15 text-success px-2 py-0.5 rounded-full">Active</span>
@@ -267,21 +267,21 @@ export default function PortalProfilePage() {
             <button
               onClick={() => editing ? setEditing(false) : startEditing()}
               title={editing ? "Discard changes" : "Edit company profile"}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E4E9F0] dark:border-border bg-[#F7F9FC] dark:bg-muted text-xs font-medium text-[#1E3A5F] dark:text-foreground hover:bg-[#E4E9F0] dark:hover:bg-muted/70 transition-colors shrink-0"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-muted text-xs font-medium text-foreground hover:bg-muted/70 transition-colors shrink-0"
             >
               <Edit2 className="w-3.5 h-3.5" /> {editing ? "Cancel" : "Edit"}
             </button>
           </div>
 
           {/* Fields */}
-          <div className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card overflow-hidden">
-            <div className="px-5 py-3 border-b border-[#E4E9F0] dark:border-border">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
+            <div className="px-5 py-3 border-b border-border">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Company Information</p>
             </div>
-            <div className="divide-y divide-[#E4E9F0] dark:divide-border">
+            <div className="divide-y divide-border">
               {company.map(f => (
                 <div key={f.key} className="flex items-center gap-4 px-5 py-3.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#1E3A5F]/10 dark:bg-brand/15 flex items-center justify-center text-[#1E3A5F] dark:text-brand shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-brand/15 flex items-center justify-center text-brand shrink-0">
                     {f.icon}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -290,21 +290,21 @@ export default function PortalProfilePage() {
                       <input
                         value={draft[f.key] ?? ""}
                         onChange={e => setDraft(prev => ({ ...prev, [f.key]: e.target.value }))}
-                        className="mt-0.5 w-full text-sm text-[#1E3A5F] dark:text-foreground bg-[#F7F9FC] dark:bg-muted/40 border border-[#E4E9F0] dark:border-border rounded-lg px-2 py-1 outline-none focus:border-[#1E3A5F] dark:focus:border-brand transition-colors"
+                        className="mt-0.5 w-full text-sm text-foreground bg-muted/40 border border-border rounded-lg px-2 py-1 outline-none focus:border-brand transition-colors"
                       />
                     ) : (
-                      <p className="text-sm text-[#1E3A5F] dark:text-foreground truncate">{f.value}</p>
+                      <p className="text-sm text-foreground truncate">{f.value}</p>
                     )}
                   </div>
                 </div>
               ))}
             </div>
             {editing && (
-              <div className="px-5 py-3 border-t border-[#E4E9F0] dark:border-border flex justify-end gap-2">
-                <button onClick={() => setEditing(false)} className="flex items-center gap-1 px-4 py-2 rounded-xl border border-[#E4E9F0] dark:border-border text-xs text-muted-foreground hover:bg-[#F7F9FC] dark:hover:bg-muted transition-colors">
+              <div className="px-5 py-3 border-t border-border flex justify-end gap-2">
+                <button onClick={() => setEditing(false)} className="flex items-center gap-1 px-4 py-2 rounded-lg border border-border text-xs text-muted-foreground hover:bg-muted transition-colors">
                   <X className="w-3.5 h-3.5" /> Cancel
                 </button>
-                <button onClick={saveCompany} className="flex items-center gap-1 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity">
+                <button onClick={saveCompany} className="flex items-center gap-1 px-4 py-2 rounded-lg bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity">
                   <Check className="w-3.5 h-3.5" /> Save Changes
                 </button>
               </div>
@@ -312,7 +312,7 @@ export default function PortalProfilePage() {
           </div>
 
           {/* Warehouse access */}
-          <div className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card p-5">
+          <div className="rounded-xl border border-border bg-card p-5">
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Allocated Warehouse Space</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
@@ -321,10 +321,10 @@ export default function PortalProfilePage() {
                 { label: "Zone C — Cold", alloc: "80 Pallets", used: "73", pct: 91 },
                 { label: "Zone D — Bulk", alloc: "200 Pallets", used: "70", pct: 35 },
               ].map((z, i) => (
-                <div key={i} className="p-3 rounded-xl bg-[#F7F9FC] dark:bg-muted/30 border border-[#E4E9F0] dark:border-border">
-                  <p className="text-[10px] font-semibold text-[#1E3A5F] dark:text-foreground/80 mb-1 truncate">{z.label}</p>
-                  <p className="text-base font-bold text-[#1E3A5F] dark:text-foreground">{z.used} <span className="text-xs font-normal text-muted-foreground">/ {z.alloc}</span></p>
-                  <div className="mt-1.5 h-1.5 bg-[#E4E9F0] dark:bg-muted rounded-full overflow-hidden">
+                <div key={i} className="p-3 rounded-xl bg-muted/30 border border-border">
+                  <p className="text-[10px] font-semibold text-foreground/80 mb-1 truncate">{z.label}</p>
+                  <p className="text-base font-bold text-foreground">{z.used} <span className="text-xs font-normal text-muted-foreground">/ {z.alloc}</span></p>
+                  <div className="mt-1.5 h-1.5 bg-muted rounded-full overflow-hidden">
                     <div
                       className={cn("h-full rounded-full", z.pct > 85 ? "bg-danger" : z.pct > 60 ? "bg-warning" : "bg-success")}
                       style={{ width: `${z.pct}%` }}
@@ -342,16 +342,16 @@ export default function PortalProfilePage() {
       {tab === "Users & Access" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-[#1E3A5F] dark:text-foreground">{users.length} portal users</p>
-            <button onClick={() => setInviteOpen(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity">
+            <p className="text-sm font-semibold text-foreground">{users.length} portal users</p>
+            <button onClick={() => setInviteOpen(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity">
               <Plus className="w-3.5 h-3.5" /> Invite User
             </button>
           </div>
-          <div className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card overflow-hidden">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-[#E4E9F0] dark:border-border bg-[#F7F9FC] dark:bg-muted/30">
+                  <tr className="border-b border-border bg-muted/50">
                     <th className="px-4 py-3 text-left font-semibold text-muted-foreground">User</th>
                     <th className="px-4 py-3 text-left font-semibold text-muted-foreground hidden sm:table-cell">Email</th>
                     <th className="px-4 py-3 text-center font-semibold text-muted-foreground">Role</th>
@@ -360,15 +360,15 @@ export default function PortalProfilePage() {
                     <th className="px-4 py-3"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E4E9F0] dark:divide-border">
+                <tbody className="divide-y divide-border">
                   {users.map((u) => (
-                    <tr key={u.email} className="hover:bg-[#F7F9FC] dark:hover:bg-muted/20 transition-colors">
+                    <tr key={u.email} className="hover:bg-muted/20 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-[#1E3A5F] dark:bg-brand flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-brand flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                             {u.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
                           </div>
-                          <span className="font-semibold text-[#1E3A5F] dark:text-foreground">{u.name}</span>
+                          <span className="font-semibold text-foreground">{u.name}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{u.email}</td>
@@ -403,8 +403,8 @@ export default function PortalProfilePage() {
               </table>
             </div>
           </div>
-          <div className="p-4 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
-            <p className="text-xs font-bold text-[#1E3A5F] dark:text-foreground mb-1">Role Permissions</p>
+          <div className="p-4 rounded-xl border border-border bg-card">
+            <p className="text-xs font-bold text-foreground mb-1">Role Permissions</p>
             <p className="text-xs text-muted-foreground">Admin can manage users and access all sections. Ops Manager can view and submit requests. Finance can access billing only. Viewer has read-only access to inventory and orders.</p>
           </div>
         </div>
@@ -412,18 +412,18 @@ export default function PortalProfilePage() {
 
       {/* Notifications */}
       {tab === "Notifications" && (
-        <div className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card overflow-hidden">
-          <div className="px-5 py-3 border-b border-[#E4E9F0] dark:border-border flex items-center justify-between gap-3">
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="px-5 py-3 border-b border-border flex items-center justify-between gap-3">
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Email Notification Preferences</p>
             <p className="text-[10px] text-muted-foreground">{notifications.filter(n => n.enabled).length} of {notifications.length} enabled</p>
           </div>
-          <div className="divide-y divide-[#E4E9F0] dark:divide-border">
+          <div className="divide-y divide-border">
             {notifications.map((n, i) => (
               <div key={n.label} className="flex items-center justify-between px-5 py-3.5 gap-4">
                 <div className="flex items-center gap-3">
-                  <Bell className="w-4 h-4 text-[#1E3A5F] dark:text-brand shrink-0" />
+                  <Bell className="w-4 h-4 text-brand shrink-0" />
                   <div>
-                    <p className="text-sm font-semibold text-[#1E3A5F] dark:text-foreground">{n.label}</p>
+                    <p className="text-sm font-semibold text-foreground">{n.label}</p>
                     <p className="text-xs text-muted-foreground">{n.desc}</p>
                   </div>
                 </div>
@@ -431,7 +431,7 @@ export default function PortalProfilePage() {
                   onClick={() => toggleNotification(i)}
                   title={`${n.enabled ? "Disable" : "Enable"} ${n.label} emails`}
                   aria-pressed={n.enabled}
-                  className={cn("w-11 h-6 rounded-full relative cursor-pointer transition-colors shrink-0", n.enabled ? "bg-[#1E3A5F] dark:bg-brand" : "bg-[#E4E9F0] dark:bg-muted")}
+                  className={cn("w-11 h-6 rounded-full relative cursor-pointer transition-colors shrink-0", n.enabled ? "bg-brand" : "bg-muted")}
                 >
                   <div className={cn("absolute top-1 w-4 h-4 rounded-full bg-white transition-all", n.enabled ? "left-6" : "left-1")} />
                 </button>
@@ -444,51 +444,51 @@ export default function PortalProfilePage() {
       {/* API & Integrations */}
       {tab === "API & Integrations" && (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card p-5">
+          <div className="rounded-xl border border-border bg-card p-5">
             <div className="flex items-center gap-3 mb-4">
-              <Key className="w-5 h-5 text-[#1E3A5F] dark:text-brand" />
-              <p className="text-sm font-bold text-[#1E3A5F] dark:text-foreground">API Access Token</p>
+              <Key className="w-5 h-5 text-brand" />
+              <p className="text-sm font-bold text-foreground">API Access Token</p>
             </div>
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-[#F7F9FC] dark:bg-muted/40 border border-[#E4E9F0] dark:border-border font-mono text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-border font-mono text-xs text-muted-foreground">
               <span className="flex-1 truncate">{tokenRevealed ? token : MASKED_TOKEN}</span>
               <button
                 onClick={() => setTokenRevealed(v => !v)}
                 title={tokenRevealed ? "Hide token" : "Reveal token"}
-                className="text-[#1E3A5F] dark:text-brand text-[10px] font-semibold hover:underline shrink-0"
+                className="text-brand text-[10px] font-semibold hover:underline shrink-0"
               >
                 {tokenRevealed ? "Hide" : "Reveal"}
               </button>
               <button
                 onClick={copyToken}
                 title="Copy token to clipboard"
-                className="text-[#1E3A5F] dark:text-brand text-[10px] font-semibold hover:underline shrink-0"
+                className="text-brand text-[10px] font-semibold hover:underline shrink-0"
               >
                 Copy
               </button>
             </div>
             <p className="text-xs text-muted-foreground mt-2">Use this token to integrate your ERP or WMS with the VoltusFreight API. Keep it confidential.</p>
             <div className="flex gap-2 mt-3">
-              <button onClick={() => setRegenOpen(true)} className="px-3 py-2 rounded-xl border border-[#E4E9F0] dark:border-border text-xs font-medium text-muted-foreground hover:bg-[#F7F9FC] dark:hover:bg-muted transition-colors">Regenerate Token</button>
+              <button onClick={() => setRegenOpen(true)} className="px-3 py-2 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:bg-muted transition-colors">Regenerate Token</button>
               <button
                 onClick={() => notify.info("API documentation", "The VoltusFreight REST API reference has opened in a new tab.")}
-                className="px-3 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity"
+                className="px-3 py-2 rounded-lg bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity"
               >
                 View API Docs
               </button>
             </div>
           </div>
-          <div className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card p-5">
-            <p className="text-sm font-bold text-[#1E3A5F] dark:text-foreground mb-3">Webhook Endpoints</p>
+          <div className="rounded-xl border border-border bg-card p-5">
+            <p className="text-sm font-bold text-foreground mb-3">Webhook Endpoints</p>
             <div className="space-y-2">
               {webhooks.map((w, i) => (
-                <div key={w.event} className="flex items-center gap-3 p-3 rounded-xl bg-[#F7F9FC] dark:bg-muted/30 border border-[#E4E9F0] dark:border-border">
+                <div key={w.event} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border">
                   <div className={cn("w-2 h-2 rounded-full shrink-0", w.active ? "bg-success" : "bg-muted-foreground")} />
-                  <span className="font-mono text-xs text-[#1E3A5F] dark:text-brand shrink-0">{w.event}</span>
+                  <span className="font-mono text-xs text-brand shrink-0">{w.event}</span>
                   <span className="text-xs text-muted-foreground flex-1 truncate">{w.url}</span>
                   <button
                     onClick={() => openWebhook(i)}
                     title={`Edit ${w.event} webhook`}
-                    className="text-[10px] text-[#1E3A5F] dark:text-brand hover:underline shrink-0"
+                    className="text-[10px] text-brand hover:underline shrink-0"
                   >
                     Edit
                   </button>
@@ -498,7 +498,7 @@ export default function PortalProfilePage() {
                 <p className="py-6 text-center text-xs text-muted-foreground">No webhooks configured yet.</p>
               )}
             </div>
-            <button onClick={() => openWebhook(null)} className="mt-3 flex items-center gap-1.5 text-xs text-[#1E3A5F] dark:text-brand font-medium hover:underline">
+            <button onClick={() => openWebhook(null)} className="mt-3 flex items-center gap-1.5 text-xs text-brand font-medium hover:underline">
               <Plus className="w-3.5 h-3.5" /> Add Webhook
             </button>
           </div>

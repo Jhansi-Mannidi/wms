@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type BillableEvent = {
@@ -169,6 +170,7 @@ export default function BillableEventsPage() {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
+      <PageHeader title="Billable Events" description="Chargeable activities captured across 3PL operations" className="mb-6" />
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {kpis.map(k => (
           <div key={k.label} className="flex items-center gap-2 p-3 rounded-xl border border-border bg-card">
@@ -202,7 +204,7 @@ export default function BillableEventsPage() {
           <Plus className="w-4 h-4" /> New Event
         </button>
         {selected.length > 0 && (
-          <button onClick={() => setRunOpen(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+          <button onClick={() => setRunOpen(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
             <Play className="w-4 h-4" /> Run Invoice (₹{totalSelected.toLocaleString()})
           </button>
         )}
@@ -211,7 +213,7 @@ export default function BillableEventsPage() {
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-muted/30">
+            <tr className="border-b border-border bg-muted/50">
               <th className="w-10 px-4 py-3"><input type="checkbox" title="Select all events" className="rounded" checked={selected.length > 0 && selected.length === filtered.length} onChange={e => setSelected(e.target.checked ? filtered.map(ev => ev.id) : [])} /></th>
               {["Event", "Client", "Type", "Description", "Qty / UOM", "Rate (₹)", "Amount (₹)", "Period", "Status", ""].map(h => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>

@@ -102,7 +102,7 @@ export default function MHETrackingPage() {
       <div><h1 className="text-2xl font-bold text-foreground">Equipment Tracking</h1><p className="text-sm text-muted-foreground mt-1">Live location, operator assignment and battery status</p></div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr>{["Equipment ID","Type","Model","Operator","Zone","Battery","Status","Last Move","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <thead className="bg-muted/50 border-b border-border"><tr>{["Equipment ID","Type","Model","Operator","Zone","Battery","Status","Last Move","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {equipment.map(e=>(
               <tr key={e.id} className="hover:bg-muted/30 transition-colors">

@@ -67,7 +67,7 @@ export default function DeconsolidationPage() {
               {releasedCount === expectedLines.length ? "De-Stuffing Complete" : "De-Stuffing in Progress"}
             </span>
           </div>
-          <h1 className="text-xl font-bold text-foreground">De-Consolidation Board</h1>
+          <h1 className="text-2xl font-bold text-foreground">De-Consolidation Board</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             INMUN (Mundra) import · 20&apos; FCL · Arrived 19 Jul 2026
           </p>
@@ -100,7 +100,7 @@ export default function DeconsolidationPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/20">
+                <tr className="border-b border-border bg-muted/50">
                   {["HAWB / Consignee", "Expected", "De-Stuffed", "Delta", "Status", ""].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
@@ -201,7 +201,7 @@ export default function DeconsolidationPage() {
                       </div>
                       {modes2[line.ref] && (
                         <button onClick={() => setReleaseTarget(line)}
-                          className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-[#F7941D] text-white text-[11px] font-bold hover:bg-[#F7941D]/90 transition-colors">
+                          className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-brand text-white text-[11px] font-bold hover:bg-brand/90 transition-colors">
                           <Truck className="w-3 h-3" /> Confirm Release ({modes2[line.ref]})
                         </button>
                       )}

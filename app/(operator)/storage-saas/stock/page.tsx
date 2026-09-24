@@ -208,7 +208,7 @@ export default function StorageSaasStockPage() {
           <ExportButton data={filtered} filename="storage-stock" />
           <button
             onClick={openCreate}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"
           >
             <Plus className="w-4 h-4" /> New Stock Entry
           </button>
@@ -238,7 +238,7 @@ export default function StorageSaasStockPage() {
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr>{["Stock ID","Customer","Item","Pieces","Location","Since","Days","Charges","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <thead className="bg-muted/50 border-b border-border"><tr>{["Stock ID","Customer","Item","Pieces","Location","Since","Days","Charges","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {filtered.map(s=>(
               <tr key={s.id} className="hover:bg-muted/30 transition-colors">

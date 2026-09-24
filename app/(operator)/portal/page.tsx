@@ -93,11 +93,11 @@ export default function PortalHomePage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 w-full">
+    <div className="p-6 space-y-6 w-full">
       {/* Welcome */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E3A5F] dark:text-foreground">Welcome, Apex Pharma Ltd</h1>
+          <h1 className="text-2xl font-bold text-foreground">Welcome, Apex Pharma Ltd</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             Your warehousing snapshot for today, {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
             {syncedAt && ` · synced ${syncedAt}`}
@@ -106,7 +106,7 @@ export default function PortalHomePage() {
         <button
           onClick={refresh}
           title="Refresh snapshot"
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card text-xs font-medium text-[#1E3A5F] dark:text-foreground hover:bg-[#E4E9F0] dark:hover:bg-muted transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted transition-colors"
         >
           <RefreshCw className="w-3.5 h-3.5" /> Refresh
         </button>
@@ -115,13 +115,13 @@ export default function PortalHomePage() {
       {/* KPI strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {kpis.map((k, i) => (
-          <div key={i} className="flex items-center gap-2 p-3 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+          <div key={i} className="flex items-center gap-2 p-3 rounded-xl border border-border bg-card">
             <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", k.bg, k.color)}>
               {k.icon}
             </div>
             <div>
-              <p className="text-xl font-bold text-[#1E3A5F] dark:text-foreground">{k.value}</p>
-              <p className="text-[11px] font-semibold text-[#1E3A5F] dark:text-foreground/80">{k.label}</p>
+              <p className="text-xl font-bold text-foreground">{k.value}</p>
+              <p className="text-[11px] font-semibold text-foreground/80">{k.label}</p>
               <p className="text-[10px] text-muted-foreground">{k.sub}</p>
             </div>
           </div>
@@ -134,11 +134,11 @@ export default function PortalHomePage() {
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
           {quickLinks.map((q) => (
             <Link key={q.href} href={q.href}>
-              <div className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card hover:border-[#1E3A5F]/40 hover:bg-[#1E3A5F]/5 dark:hover:border-brand/40 dark:hover:bg-brand/5 transition-all text-center cursor-pointer group">
-                <div className="w-9 h-9 rounded-xl bg-[#1E3A5F]/10 dark:bg-brand/15 flex items-center justify-center text-[#1E3A5F] dark:text-brand group-hover:bg-[#1E3A5F]/20 dark:group-hover:bg-brand/25 transition-colors">
+              <div className="flex flex-col items-center gap-2 p-3 rounded-xl border border-border bg-card hover:border-brand/40 hover:bg-brand/5 transition-all text-center cursor-pointer group">
+                <div className="w-9 h-9 rounded-xl bg-brand/15 flex items-center justify-center text-brand group-hover:bg-brand/25 transition-colors">
                   {q.icon}
                 </div>
-                <p className="text-[11px] font-medium text-[#1E3A5F] dark:text-foreground/80 leading-tight">{q.label}</p>
+                <p className="text-[11px] font-medium text-foreground/80 leading-tight">{q.label}</p>
               </div>
             </Link>
           ))}
@@ -147,24 +147,24 @@ export default function PortalHomePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* Recent orders */}
-        <div className="lg:col-span-3 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#E4E9F0] dark:border-border">
-            <h2 className="text-sm font-bold text-[#1E3A5F] dark:text-foreground">Recent Orders</h2>
-            <Link href="/portal/ship-out" className="flex items-center gap-1 text-xs text-[#1E3A5F] dark:text-brand hover:underline">
+        <div className="lg:col-span-3 rounded-xl border border-border bg-card overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <h2 className="text-sm font-bold text-foreground">Recent Orders</h2>
+            <Link href="/portal/ship-out" className="flex items-center gap-1 text-xs text-brand hover:underline">
               View all <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
-          <div className="divide-y divide-[#E4E9F0] dark:divide-border">
+          <div className="divide-y divide-border">
             {recentOrders.map((o) => (
               <button
                 key={o.id}
                 onClick={() => setDetail(o)}
                 title={`View ${o.id}`}
-                className="w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-[#F7F9FC] dark:hover:bg-muted/20 transition-colors"
+                className="w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-[#1E3A5F] dark:text-foreground">{o.id}</span>
+                    <span className="text-xs font-bold text-foreground">{o.id}</span>
                     <span className="text-[10px] text-muted-foreground">{o.sku}</span>
                   </div>
                   <p className="text-xs text-muted-foreground truncate">{o.desc}</p>
@@ -179,25 +179,25 @@ export default function PortalHomePage() {
         </div>
 
         {/* Alerts */}
-        <div className="lg:col-span-2 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#E4E9F0] dark:border-border">
-            <h2 className="text-sm font-bold text-[#1E3A5F] dark:text-foreground">Alerts & Notices</h2>
+        <div className="lg:col-span-2 rounded-xl border border-border bg-card overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <h2 className="text-sm font-bold text-foreground">Alerts & Notices</h2>
             <span className="text-[10px] font-semibold bg-danger/15 text-danger px-2 py-0.5 rounded-full">{alerts.length} new</span>
           </div>
-          <div className="divide-y divide-[#E4E9F0] dark:divide-border">
+          <div className="divide-y divide-border">
             {alerts.map((a, i) => (
               <div key={i} className="flex gap-3 px-4 py-3">
                 <div className={cn("mt-0.5 shrink-0", a.type === "warning" ? "text-warning" : a.type === "danger" ? "text-danger" : "text-brand")}>
                   {a.type === "warning" ? <AlertTriangle className="w-4 h-4" /> : a.type === "danger" ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-[#1E3A5F] dark:text-foreground/90 leading-relaxed">{a.msg}</p>
+                  <p className="text-xs text-foreground/90 leading-relaxed">{a.msg}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1"><Clock className="w-3 h-3" />{a.time}</p>
                 </div>
                 <button
                   onClick={() => dismissAlert(i)}
                   title="Dismiss alert"
-                  className="w-6 h-6 shrink-0 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-[#E4E9F0] dark:hover:bg-muted hover:text-[#1E3A5F] dark:hover:text-foreground transition-colors"
+                  className="w-6 h-6 shrink-0 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -207,20 +207,20 @@ export default function PortalHomePage() {
               <p className="px-4 py-8 text-center text-xs text-muted-foreground">All caught up — no open alerts.</p>
             )}
           </div>
-          <div className="px-4 py-3 border-t border-[#E4E9F0] dark:border-border">
+          <div className="px-4 py-3 border-t border-border">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3 text-success" /> Fill Rate: <strong className="text-[#1E3A5F] dark:text-foreground ml-1">98.4%</strong></span>
-              <span className="flex items-center gap-1"><Box className="w-3 h-3 text-brand" /> Utilisation: <strong className="text-[#1E3A5F] dark:text-foreground ml-1">84%</strong></span>
+              <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3 text-success" /> Fill Rate: <strong className="text-foreground ml-1">98.4%</strong></span>
+              <span className="flex items-center gap-1"><Box className="w-3 h-3 text-brand" /> Utilisation: <strong className="text-foreground ml-1">84%</strong></span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Inventory summary */}
-      <div className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-bold text-[#1E3A5F] dark:text-foreground">Inventory Snapshot</h2>
-          <Link href="/portal/inventory" className="flex items-center gap-1 text-xs text-[#1E3A5F] dark:text-brand hover:underline">
+          <h2 className="text-sm font-bold text-foreground">Inventory Snapshot</h2>
+          <Link href="/portal/inventory" className="flex items-center gap-1 text-xs text-brand hover:underline">
             Full inventory <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
@@ -231,10 +231,10 @@ export default function PortalHomePage() {
             { zone: "Zone C — Cold", count: 76, pct: 91, color: "bg-danger" },
             { zone: "Zone D — Bulk", count: 44, pct: 35, color: "bg-warning" },
           ].map((z, i) => (
-            <div key={i} className="p-2.5 rounded-xl bg-[#F7F9FC] dark:bg-muted/30 border border-[#E4E9F0] dark:border-border">
-              <p className="text-[10px] font-semibold text-[#1E3A5F] dark:text-foreground/80 mb-1 truncate">{z.zone}</p>
-              <p className="text-lg font-bold text-[#1E3A5F] dark:text-foreground">{z.count} <span className="text-xs font-normal text-muted-foreground">SKUs</span></p>
-              <div className="mt-2 h-1.5 bg-[#E4E9F0] dark:bg-muted rounded-full overflow-hidden">
+            <div key={i} className="p-2.5 rounded-xl bg-muted/30 border border-border">
+              <p className="text-[10px] font-semibold text-foreground/80 mb-1 truncate">{z.zone}</p>
+              <p className="text-lg font-bold text-foreground">{z.count} <span className="text-xs font-normal text-muted-foreground">SKUs</span></p>
+              <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
                 <div className={cn("h-full rounded-full transition-all", z.color)} style={{ width: `${z.pct}%` }} />
               </div>
               <p className="text-[10px] text-muted-foreground mt-1">{z.pct}% utilisation</p>

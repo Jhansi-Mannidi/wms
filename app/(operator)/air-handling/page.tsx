@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/wms/empty-state"
 import { Drawer } from "@/components/ui/modal"
 import { DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type RecentPackage = {
@@ -105,6 +106,7 @@ export default function AirHandlingDashboardPage() {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
+      <PageHeader title="Air Dashboard" description="Today's air packages, routing decisions and export status" className="mb-6" />
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {kpis.map(k => (
@@ -124,18 +126,18 @@ export default function AirHandlingDashboardPage() {
         <button
           onClick={() => router.push("/air-handling/capture")}
           title="Open package capture"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"
         >
           <Plus className="w-4 h-4" /> New Package
         </button>
         <button
           onClick={() => router.push("/air-handling/routing")}
           title="Open the routing decision board"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"
         >
           <ArrowRight className="w-4 h-4" /> Route Packages
         </button>
-        <button onClick={refresh} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors">
+        <button onClick={refresh} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors">
           <RefreshCw className="w-4 h-4" /> Refresh
         </button>
         {lastRefresh && <span className="text-[11px] text-muted-foreground">Last refreshed {lastRefresh}</span>}
@@ -215,7 +217,7 @@ export default function AirHandlingDashboardPage() {
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/30">
+              <tr className="border-b border-border bg-muted/50">
                 {["Package", "Shipper", "Consignee", "Chargeable Wt.", "Route", "Status", ""].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}

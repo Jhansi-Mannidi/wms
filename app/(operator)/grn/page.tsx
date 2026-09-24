@@ -176,7 +176,7 @@ export default function GRNPage() {
         </div>
 
         {/* Stepper */}
-        <div className="p-4 rounded-2xl border border-border bg-card">
+        <div className="p-4 rounded-xl border border-border bg-card">
           <div className="flex items-center">
             {steps.map((s, i) => (
               <div key={s.id} className="flex items-center flex-1 last:flex-none">
@@ -215,7 +215,7 @@ export default function GRNPage() {
         {/* Step 1: Vehicle & Documents */}
         {step === 1 && (
           <div className="space-y-4">
-            <div className="p-5 rounded-2xl border border-border bg-card space-y-4">
+            <div className="p-5 rounded-xl border border-border bg-card space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <Truck className="w-5 h-5 text-brand" />
                 <h2 className="font-semibold text-foreground">Gate Entry Reference</h2>
@@ -224,7 +224,7 @@ export default function GRNPage() {
                 <label className="block text-sm font-medium text-foreground mb-1.5">Select Gate Entry</label>
                 <div className="relative">
                   <select
-                    className="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors"
+                    className="w-full appearance-none pl-3 pr-10 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors"
                     value={gateEntry}
                     onChange={(e) => setGateEntry(e.target.value)}
                   >
@@ -236,7 +236,7 @@ export default function GRNPage() {
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl border border-border bg-card space-y-4">
+            <div className="p-5 rounded-xl border border-border bg-card space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <FileText className="w-5 h-5 text-brand" />
                 <h2 className="font-semibold text-foreground">Document Details</h2>
@@ -245,7 +245,7 @@ export default function GRNPage() {
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Document Type <span className="text-danger">*</span></label>
                   <div className="relative">
-                    <select className="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors" value={docType} onChange={(e) => setDocType(e.target.value)}>
+                    <select className="w-full appearance-none pl-3 pr-10 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors" value={docType} onChange={(e) => setDocType(e.target.value)}>
                       {["Purchase Order", "Transfer Order", "Return", "Direct Delivery"].map((t) => <option key={t}>{t}</option>)}
                     </select>
                     <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -253,16 +253,16 @@ export default function GRNPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Document Number</label>
-                  <input className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground" placeholder="e.g. PO-2024-0089" value={docNumber} onChange={(e) => setDocNumber(e.target.value)} />
+                  <input className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground" placeholder="e.g. PO-2024-0089" value={docNumber} onChange={(e) => setDocNumber(e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Supplier / Vendor <span className="text-danger">*</span></label>
-                  <input className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground" placeholder="Supplier name" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
+                  <input className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground" placeholder="Supplier name" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Client</label>
                   <div className="relative">
-                    <select className="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors">
+                    <select className="w-full appearance-none pl-3 pr-10 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors">
                       <option>Select client...</option>
                       {["Acme Foods", "Global Oils", "Agro Corp", "Sweet Mills"].map((c) => <option key={c}>{c}</option>)}
                     </select>
@@ -272,7 +272,7 @@ export default function GRNPage() {
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl border border-border bg-card space-y-4">
+            <div className="p-5 rounded-xl border border-border bg-card space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <Truck className="w-5 h-5 text-brand" />
                 <h2 className="font-semibold text-foreground">Vehicle Details</h2>
@@ -280,19 +280,19 @@ export default function GRNPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Vehicle Number <span className="text-danger">*</span></label>
-                  <input className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground" placeholder="e.g. TN-45-AB-1234" value={vehicleNo} onChange={(e) => setVehicleNo(e.target.value)} />
+                  <input className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground" placeholder="e.g. TN-45-AB-1234" value={vehicleNo} onChange={(e) => setVehicleNo(e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Driver Name</label>
-                  <input className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground" placeholder="Driver name" value={driverName} onChange={(e) => setDriverName(e.target.value)} />
+                  <input className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground" placeholder="Driver name" value={driverName} onChange={(e) => setDriverName(e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Arrival Time</label>
-                  <input type="datetime-local" className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors" />
+                  <input type="datetime-local" className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Seal Number</label>
-                  <input className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground" placeholder="Seal / LR number" />
+                  <input className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground" placeholder="Seal / LR number" />
                 </div>
               </div>
             </div>
@@ -322,11 +322,11 @@ export default function GRNPage() {
               </div>
             )}
 
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/30">
+                    <tr className="border-b border-border bg-muted/50">
                       {["SKU Code", "Product Name", "Expected", "Received", "UOM", "Batch/Lot", "Expiry", "Condition", ""].map((h) => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                       ))}
@@ -387,7 +387,7 @@ export default function GRNPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">Notes / Remarks</label>
               <textarea
                 rows={3}
-                className="w-full px-3 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground resize-none"
+                className="w-full px-3 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground outline-none focus:border-brand transition-colors placeholder:text-muted-foreground resize-none"
                 placeholder="Any special instructions or observations..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -398,7 +398,7 @@ export default function GRNPage() {
 
         {/* Steps 3-5 */}
         {step === 3 && (
-          <div className="p-8 rounded-2xl border border-border bg-card text-center">
+          <div className="p-8 rounded-xl border border-border bg-card text-center">
             <CheckCircle className="w-12 h-12 text-brand mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-foreground mb-2">Quality Check</h2>
             <p className="text-muted-foreground text-sm mb-6">Verify items meet quality standards before putaway</p>
@@ -412,7 +412,7 @@ export default function GRNPage() {
                   key={action}
                   onClick={() => runQc(result)}
                   title={`Mark quality check as ${result}`}
-                  className={cn("py-2 px-3 rounded-xl text-sm font-medium transition-colors border",
+                  className={cn("py-2 px-3 rounded-lg text-sm font-medium transition-colors border",
                     action === "Pass All" ? "bg-success text-white border-success hover:bg-success/90" :
                     action === "Flag Items" ? "border-warning text-warning hover:bg-warning/10" :
                     "border-danger text-danger hover:bg-danger/10",
@@ -447,7 +447,7 @@ export default function GRNPage() {
         )}
 
         {step === 4 && (
-          <div className="p-8 rounded-2xl border border-border bg-card text-center">
+          <div className="p-8 rounded-xl border border-border bg-card text-center">
             <MapPin className="w-12 h-12 text-brand mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-foreground mb-2">Putaway Instructions</h2>
             <p className="text-muted-foreground text-sm mb-6">System will auto-assign storage locations based on zone rules</p>
@@ -463,7 +463,7 @@ export default function GRNPage() {
         )}
 
         {step === 5 && (
-          <div className="p-8 rounded-2xl border border-border bg-card text-center">
+          <div className="p-8 rounded-xl border border-border bg-card text-center">
             <div className="w-16 h-16 rounded-full bg-success/15 flex items-center justify-center mx-auto mb-4">
               <Check className="w-8 h-8 text-success" />
             </div>
@@ -491,7 +491,7 @@ export default function GRNPage() {
           <button
             onClick={() => setStep(Math.max(1, step - 1))}
             disabled={step === 1}
-            className="px-5 py-2.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-5 py-2.5 rounded-lg border border-border bg-card text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Previous
           </button>
@@ -500,7 +500,7 @@ export default function GRNPage() {
             <button
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
-              className="px-5 py-2.5 rounded-xl bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Continue
             </button>
@@ -533,7 +533,7 @@ export default function GRNPage() {
                 setDraft(null)
                 router.push("/inventory/grn-history")
               }}
-              className="px-5 py-2.5 rounded-xl bg-success text-white text-sm font-medium hover:bg-success/90 transition-colors"
+              className="px-5 py-2.5 rounded-lg bg-success text-white text-sm font-medium hover:bg-success/90 transition-colors"
             >
               Confirm GRN
             </button>

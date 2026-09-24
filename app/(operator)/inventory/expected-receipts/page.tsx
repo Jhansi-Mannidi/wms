@@ -159,7 +159,7 @@ export default function ExpectedReceiptsPage() {
       </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b border-border bg-muted/30">
+          <thead className="bg-muted/50 border-b border-border">
             <tr>{["ASN ID", "Supplier", "Product", "Qty", "ETA", "PO Number", "Carrier", "Status", "Actions"].map(h => <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-border">

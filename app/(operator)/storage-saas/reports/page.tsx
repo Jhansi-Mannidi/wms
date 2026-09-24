@@ -140,24 +140,24 @@ export default function StorageSaaSReportsPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-5">
+    <div className="p-6 space-y-6 w-full">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Reports &amp; Analytics</h1>
+          <h1 className="text-2xl font-bold text-foreground">Reports &amp; Analytics</h1>
           <p className="text-sm text-muted-foreground">Storage-as-a-Service operational and financial reports</p>
         </div>
         <div className="flex items-center gap-2">
           <select
             value={period}
             onChange={e => setPeriod(e.target.value)}
-            className="px-3 py-2 rounded-xl border border-border bg-card text-xs text-foreground outline-none cursor-pointer"
+            className="px-3 py-2 rounded-lg border border-border bg-card text-xs text-foreground outline-none cursor-pointer"
           >
             {periods.map(p => <option key={p}>{p}</option>)}
           </select>
           <ExportButton data={filtered.map(r => ({ id: r.id, name: r.name, category: r.category, desc: r.desc, format: r.format }))} filename="storage-saas-reports" label="Export All" />
           <button
             onClick={() => setCreateOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#F7941D] text-white text-xs font-semibold hover:bg-[#F7941D]/90 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand text-white text-xs font-semibold hover:bg-brand/90 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> New Report
           </button>
@@ -167,7 +167,7 @@ export default function StorageSaaSReportsPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s, i) => (
-          <div key={i} className="flex items-center gap-2 p-3 rounded-2xl border border-border bg-card">
+          <div key={i} className="flex items-center gap-2 p-3 rounded-xl border border-border bg-card">
             <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", s.bg, s.color)}>
               {s.icon}
             </div>
@@ -197,7 +197,7 @@ export default function StorageSaaSReportsPage() {
           <div
             key={r.id}
             onClick={() => setDetail(r)}
-            className="rounded-2xl border border-border bg-card p-4 hover:border-brand/40 hover:bg-brand/5 transition-all group cursor-pointer"
+            className="rounded-xl border border-border bg-card p-4 hover:border-brand/40 hover:bg-brand/5 transition-all group cursor-pointer"
           >
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center text-brand shrink-0 group-hover:bg-brand/25 transition-colors">
@@ -237,7 +237,7 @@ export default function StorageSaaSReportsPage() {
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="sm:col-span-2 rounded-2xl border border-dashed border-border bg-card p-10 text-center">
+          <div className="sm:col-span-2 rounded-xl border border-dashed border-border bg-card p-10 text-center">
             <FileText className="w-6 h-6 mx-auto text-muted-foreground" />
             <p className="text-sm font-semibold text-foreground mt-2">No reports in this category</p>
             <p className="text-xs text-muted-foreground mt-1">Pick another category or create a new report.</p>
@@ -246,7 +246,7 @@ export default function StorageSaaSReportsPage() {
       </div>
 
       {/* Mini chart placeholder */}
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-bold text-foreground">Monthly Revenue Trend</h2>
           <span className="text-xs text-muted-foreground">{MONTH_NAMES[selectedMonth]} · {period}</span>

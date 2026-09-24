@@ -210,7 +210,7 @@ export default function AirCapturePage() {
   return (
     <div className="p-6 w-full">
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-foreground">Air Package Capture</h1>
+        <h1 className="text-2xl font-bold text-foreground">Air Package Capture</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Register inbound packages and compute chargeable weight</p>
       </div>
 
@@ -408,7 +408,7 @@ export default function AirCapturePage() {
                 <p className="text-[10px] text-muted-foreground mt-0.5">max(actual, volumetric)</p>
               </div>
             </div>
-            <button onClick={receivePackage} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#F7941D] text-white text-sm font-bold hover:bg-[#F7941D]/90 transition-colors shadow-lg shadow-[#F7941D]/20">
+            <button onClick={receivePackage} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand/90 transition-colors shadow-lg shadow-brand/20">
               <Package className="w-4 h-4" /> Receive Package
             </button>
             <p className="text-[10px] text-muted-foreground text-center mt-2">Assigns hold location + logs handling-in event</p>
@@ -422,7 +422,7 @@ export default function AirCapturePage() {
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/30">
+              <tr className="border-b border-border bg-muted/50">
                 {["Package", "Shipper", "Consignee", "Pcs", "Chargeable", "Route", "Hold", "Attachments", "Actions"].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}

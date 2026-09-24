@@ -8,6 +8,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type ShipOut = {
@@ -143,6 +144,7 @@ export default function ShipOutQueuePage() {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
+      <PageHeader title="Ship-Out Queue" description="Client release orders waiting to be picked, packed and dispatched" className="mb-6" />
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
         {kpis.map(k => (
           <div key={k.label} className="p-2.5 rounded-xl border border-border bg-card text-center">
@@ -176,7 +178,7 @@ export default function ShipOutQueuePage() {
         </div>
         <button
           onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
           <Plus className="w-4 h-4" /> New Ship-Out
         </button>
       </div>
@@ -240,7 +242,7 @@ export default function ShipOutQueuePage() {
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/30">
+              <tr className="border-b border-border bg-muted/50">
                 {["Order Ref", "Client", "Lines/Pcs", "Mode", "Ship To", "SLA", "Status", ""].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}

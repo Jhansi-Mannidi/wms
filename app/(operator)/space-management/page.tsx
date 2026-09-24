@@ -185,7 +185,7 @@ export default function SpaceManagementPage() {
             { label: "Overall Utilization", value: `${overallUtil}%`, sub: `${totalPallets} pallets stored`, icon: <TrendingUp className="w-5 h-5" /> },
             { label: "Active Tenants", value: activeTenants.toString(), sub: "Client contracts", icon: <Users className="w-5 h-5" /> },
           ].map((stat, i) => (
-            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className={cn(i === 2 && overallUtil >= 85 ? "text-warning" : "text-brand")}>{stat.icon}</span>
@@ -198,7 +198,7 @@ export default function SpaceManagementPage() {
 
         {/* Overall utilization banner */}
         {overallUtil >= 85 && (
-          <div className="flex items-center gap-3 p-4 rounded-2xl border border-warning/30 bg-warning/10">
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-warning/30 bg-warning/10">
             <AlertTriangle className="w-5 h-5 text-warning shrink-0" />
             <p className="text-sm text-warning font-medium">Warehouse utilization is at {overallUtil}%. Consider expanding capacity or redistributing stock.</p>
           </div>
@@ -216,7 +216,7 @@ export default function SpaceManagementPage() {
         {tab === "zones" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {zones.map((zone) => (
-              <div key={zone.id} className="p-5 rounded-2xl border border-border bg-card">
+              <div key={zone.id} className="p-5 rounded-xl border border-border bg-card">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <div className="flex items-center gap-2">
@@ -263,7 +263,7 @@ export default function SpaceManagementPage() {
               </div>
             ))}
             {zones.length === 0 && (
-              <div className="col-span-full p-10 text-center text-sm text-muted-foreground rounded-2xl border border-border bg-card">
+              <div className="col-span-full p-10 text-center text-sm text-muted-foreground rounded-xl border border-border bg-card">
                 No zones configured. Use “Add Zone” to create one.
               </div>
             )}
@@ -273,17 +273,17 @@ export default function SpaceManagementPage() {
         {tab === "tenants" && (
           <>
             <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-xl border border-border bg-card">
+              <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-lg border border-border bg-card">
                 <Search className="w-4 h-4 text-muted-foreground shrink-0" />
                 <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground" placeholder="Search tenant..." value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/30">
+                    <tr className="border-b border-border bg-muted/50">
                       {["Tenant ID", "Client Name", "Contract", "Zones", "Pallets", "Space", "Monthly Rent", "Since", "Status", ""].map((h) => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                       ))}

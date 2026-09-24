@@ -149,7 +149,7 @@ export default function AttendancePage() {
     <div className="p-6 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Attendance</h1>
+          <h1 className="text-2xl font-bold text-foreground">Attendance</h1>
           <p className="text-sm text-muted-foreground">Daily attendance tracking across all shifts</p>
         </div>
         <div className="flex items-center gap-2">

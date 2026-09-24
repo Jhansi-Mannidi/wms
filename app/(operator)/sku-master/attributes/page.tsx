@@ -168,7 +168,7 @@ export default function SKUAttributesPage() {
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr>{["ID", "Attribute", "Type", "Required", "SKUs Using", "Example Values", "Actions"].map(h => <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <thead className="bg-muted/50 border-b border-border"><tr>{["ID", "Attribute", "Type", "Required", "SKUs Using", "Example Values", "Actions"].map(h => <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {filtered.map(a => (
               <tr key={a.id} className="hover:bg-muted/30 transition-colors">

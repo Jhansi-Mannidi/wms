@@ -208,7 +208,7 @@ export default function SpaceManagerPage() {
     <div className="p-6">
       <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Space &amp; Sub-Lease Manager</h1>
+          <h1 className="text-2xl font-bold text-foreground">Space &amp; Sub-Lease Manager</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Own vs leased-in space · allocation · margin arbitrage</p>
         </div>
         <div className="flex gap-2">
@@ -219,7 +219,7 @@ export default function SpaceManagerPage() {
           </button>
           <button
             onClick={() => { setAllocForm(emptyAllocForm); setAllocErrors({}); setAllocOpen(true) }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90">
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90">
             <Plus className="w-4 h-4" /> Allocate Space
           </button>
         </div>
@@ -272,7 +272,7 @@ export default function SpaceManagerPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/20">
+                <tr className="border-b border-border bg-muted/50">
                   {["Customer", "Space Source", "Area / Slots", "Sell Rate (₹/slot)", "Cost Rate (₹/slot)", "Markup %", "Margin ₹/mo", ""].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}

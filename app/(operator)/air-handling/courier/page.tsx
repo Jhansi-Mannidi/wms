@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { PageHeader } from "@/components/wms/page-header"
 
 type Stage = "Ready" | "Assigned" | "Out-for-Delivery" | "Delivered" | "RTO"
 
@@ -170,6 +171,7 @@ export default function CourierConsolePage() {
 
   return (
     <div className="p-6 h-full flex flex-col">
+      <PageHeader title="Courier Console" description="Assign and track local courier deliveries" className="mb-5 shrink-0" />
       {/* KPI row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {kpis.map(k => (
@@ -201,7 +203,7 @@ export default function CourierConsolePage() {
             </button>
           ))}
         </div>
-        <button onClick={() => setCreateOpen(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90">
+        <button onClick={() => setCreateOpen(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90">
           <Plus className="w-4 h-4" /> New Job
         </button>
       </div>
@@ -260,7 +262,7 @@ export default function CourierConsolePage() {
                           {job.stage !== "Delivered" && job.stage !== "RTO" && (
                             <>
                               <button onClick={() => advance(job.id)}
-                                className="text-[10px] px-2 py-1 rounded-lg bg-[#F7941D] text-white font-semibold hover:bg-[#F7941D]/90 transition-colors">
+                                className="text-[10px] px-2 py-1 rounded-lg bg-brand text-white font-semibold hover:bg-brand/90 transition-colors">
                                 {job.stage === "Ready" ? "Assign" : job.stage === "Assigned" ? "Dispatch" : "Mark Delivered"}
                               </button>
                               <button onClick={() => setRtoTarget(job)} title="Mark as RTO" className="p-1 rounded-md text-danger hover:bg-danger/10 transition-colors">
@@ -292,7 +294,7 @@ export default function CourierConsolePage() {
         <div className="flex-1 overflow-auto rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/20">
+              <tr className="border-b border-border bg-muted/50">
                 {["Job ID", "Consignee", "City", "Carrier", "Weight", "Service", "SLA", "Status", "POD", ""].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}
@@ -313,7 +315,7 @@ export default function CourierConsolePage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       {job.stage !== "Delivered" && job.stage !== "RTO" && (
-                        <button onClick={() => advance(job.id)} className="text-[10px] px-2 py-1 rounded bg-[#F7941D] text-white font-semibold hover:bg-[#F7941D]/90">
+                        <button onClick={() => advance(job.id)} className="text-[10px] px-2 py-1 rounded bg-brand text-white font-semibold hover:bg-brand/90">
                           {job.stage === "Ready" ? "Assign" : job.stage === "Assigned" ? "Dispatch" : "Delivered"}
                         </button>
                       )}

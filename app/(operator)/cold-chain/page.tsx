@@ -271,7 +271,7 @@ export default function ColdChainPage() {
             { label: "Active Alerts", value: activeAlerts.toString(), sub: "Needs attention", icon: <AlertTriangle className="w-5 h-5" />, color: "text-danger" },
             { label: "Total SKUs", value: zones.reduce((s, z) => s + z.items, 0).toString(), sub: "Across cold zones", icon: <TrendingDown className="w-5 h-5" />, color: "text-brand" },
           ].map((stat, i) => (
-            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className={stat.color}>{stat.icon}</span>
@@ -297,7 +297,7 @@ export default function ColdChainPage() {
         {tab === "zones" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {zones.map((zone) => (
-              <div key={zone.id} className={cn("p-5 rounded-2xl border bg-card", statusConfig[zone.status]?.border ?? "border-border")}>
+              <div key={zone.id} className={cn("p-5 rounded-xl border bg-card", statusConfig[zone.status]?.border ?? "border-border")}>
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <div className="flex items-center gap-2">
@@ -356,7 +356,7 @@ export default function ColdChainPage() {
               </div>
             ))}
             {zones.length === 0 && (
-              <div className="col-span-full p-10 text-center text-sm text-muted-foreground rounded-2xl border border-border bg-card">
+              <div className="col-span-full p-10 text-center text-sm text-muted-foreground rounded-xl border border-border bg-card">
                 No zones are being monitored. Use “Add Zone” to start.
               </div>
             )}
@@ -366,7 +366,7 @@ export default function ColdChainPage() {
         {tab === "alerts" && (
           <div className="space-y-3">
             {alerts.map((alert) => (
-              <div key={alert.id} className={cn("p-4 rounded-2xl border flex items-start gap-4", alert.resolved ? "border-border bg-card opacity-60" : cn("bg-card", severityConfig[alert.severity]?.bg.replace("/15", "/5"), "border-" + (alert.severity === "Critical" ? "danger" : alert.severity === "Warning" ? "warning" : "brand") + "/30"))}>
+              <div key={alert.id} className={cn("p-4 rounded-xl border flex items-start gap-4", alert.resolved ? "border-border bg-card opacity-60" : cn("bg-card", severityConfig[alert.severity]?.bg.replace("/15", "/5"), "border-" + (alert.severity === "Critical" ? "danger" : alert.severity === "Warning" ? "warning" : "brand") + "/30"))}>
                 <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", severityConfig[alert.severity]?.bg)}>
                   <AlertTriangle className={cn("w-4 h-4", severityConfig[alert.severity]?.color)} />
                 </div>
@@ -395,7 +395,7 @@ export default function ColdChainPage() {
         )}
 
         {tab === "logs" && (
-          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">Temperature Logs — Today</h2>
               <button onClick={() => setHistoryOpen(true)} title="View full temperature history" className="flex items-center gap-1.5 text-xs text-brand hover:underline">
@@ -405,7 +405,7 @@ export default function ColdChainPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/20">
+                  <tr className="border-b border-border bg-muted/50">
                     {["Zone", "Time", "Temperature", "Humidity", "Status"].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}

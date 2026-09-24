@@ -112,7 +112,7 @@ export default function StorageSaasReportPage() {
           <ExportButton data={reports} filename="storage-reports" />
           <button
             onClick={() => setCreateOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"
           >
             <Plus className="w-4 h-4" /> Generate Report
           </button>

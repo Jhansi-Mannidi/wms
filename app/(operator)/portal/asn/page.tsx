@@ -171,14 +171,14 @@ export default function PortalASNPage() {
   ]
 
   return (
-    <div className="p-4 sm:p-6 space-y-5 w-full">
+    <div className="p-6 space-y-6 w-full">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1E3A5F] dark:text-foreground">Inbound ASNs</h1>
+          <h1 className="text-2xl font-bold text-foreground">Inbound ASNs</h1>
           <p className="text-sm text-muted-foreground">Submit and track your Advance Shipment Notices</p>
         </div>
-        <button type="button" onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
+        <button type="button" onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
           <Plus className="w-4 h-4" /> New ASN
         </button>
       </div>
@@ -186,17 +186,17 @@ export default function PortalASNPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total ASNs", value: asns.length, color: "text-[#1E3A5F] dark:text-brand", bg: "bg-[#1E3A5F]/10 dark:bg-brand/15" },
+          { label: "Total ASNs", value: asns.length, color: "text-brand", bg: "bg-brand/15" },
           { label: "In Transit", value: asns.filter(a => a.status === "In Transit").length, color: "text-brand", bg: "bg-brand/15" },
           { label: "Received", value: asns.filter(a => a.status === "Received").length, color: "text-success", bg: "bg-success/15" },
           { label: "Exceptions", value: asns.filter(a => a.status === "Exception").length, color: "text-danger", bg: "bg-danger/15" },
         ].map((s, i) => (
-          <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+          <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-card">
             <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", s.bg)}>
               <Inbox className={cn("w-4 h-4", s.color)} />
             </div>
             <div>
-              <p className="text-lg font-bold text-[#1E3A5F] dark:text-foreground">{s.value}</p>
+              <p className="text-lg font-bold text-foreground">{s.value}</p>
               <p className="text-[10px] text-muted-foreground">{s.label}</p>
             </div>
           </div>
@@ -233,28 +233,28 @@ export default function PortalASNPage() {
 
       {/* Tabs + search */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-1 p-0.5 rounded-lg bg-[#F7F9FC] dark:bg-muted/40 border border-[#E4E9F0] dark:border-border">
+        <div className="flex gap-1 p-0.5 rounded-lg bg-muted/40 border border-border">
           {tabs.map(t => (
             <button key={t} onClick={() => setTab(t)}
               className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                tab === t ? "bg-[#1E3A5F] dark:bg-brand text-white" : "text-muted-foreground hover:text-[#1E3A5F] dark:hover:text-foreground"
+                tab === t ? "bg-brand text-white" : "text-muted-foreground hover:text-foreground"
               )}>
               {t}
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+        <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-card">
           <Search className="w-3.5 h-3.5 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ASN or supplier..." className="bg-transparent outline-none text-xs w-40 placeholder:text-muted-foreground text-[#1E3A5F] dark:text-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ASN or supplier..." className="bg-transparent outline-none text-xs w-40 placeholder:text-muted-foreground text-foreground" />
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#E4E9F0] dark:border-border bg-[#F7F9FC] dark:bg-muted/30">
+              <tr className="border-b border-border bg-muted/50">
                 <th className="px-4 py-3 text-left font-semibold text-muted-foreground">ASN ID</th>
                 <th className="px-4 py-3 text-left font-semibold text-muted-foreground hidden sm:table-cell">PO Reference</th>
                 <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Supplier</th>
@@ -266,12 +266,12 @@ export default function PortalASNPage() {
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E4E9F0] dark:divide-border">
+            <tbody className="divide-y divide-border">
               {filtered.map(a => (
-                <tr key={a.id} onClick={() => setDetail(a)} className="hover:bg-[#F7F9FC] dark:hover:bg-muted/20 transition-colors cursor-pointer">
-                  <td className="px-4 py-3 font-mono font-bold text-[#1E3A5F] dark:text-brand">{a.id}</td>
+                <tr key={a.id} onClick={() => setDetail(a)} className="hover:bg-muted/20 transition-colors cursor-pointer">
+                  <td className="px-4 py-3 font-mono font-bold text-brand">{a.id}</td>
                   <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{a.po}</td>
-                  <td className="px-4 py-3 font-medium text-[#1E3A5F] dark:text-foreground">{a.supplier}</td>
+                  <td className="px-4 py-3 font-medium text-foreground">{a.supplier}</td>
                   <td className="px-4 py-3 text-center text-muted-foreground hidden md:table-cell">{a.lines}</td>
                   <td className="px-4 py-3 text-center text-muted-foreground hidden md:table-cell">{a.cartons}</td>
                   <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">{a.expected}</td>
@@ -285,7 +285,7 @@ export default function PortalASNPage() {
                     <button
                       onClick={(e) => { e.stopPropagation(); setDetail(a) }}
                       title="View ASN details"
-                      className="w-7 h-7 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:bg-[#E4E9F0] dark:hover:bg-muted hover:text-[#1E3A5F] dark:hover:text-foreground transition-colors"
+                      className="w-7 h-7 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                     >
                       <Eye className="w-3.5 h-3.5" />
                     </button>
@@ -316,7 +316,7 @@ export default function PortalASNPage() {
             </tbody>
           </table>
         </div>
-        <div className="px-4 py-2.5 border-t border-[#E4E9F0] dark:border-border text-xs text-muted-foreground">
+        <div className="px-4 py-2.5 border-t border-border text-xs text-muted-foreground">
           Showing {filtered.length} of {asns.length} ASNs
         </div>
       </div>

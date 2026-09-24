@@ -193,7 +193,7 @@ export default function ProductivityPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Productivity Analytics</h1>
+          <h1 className="text-2xl font-bold text-foreground">Productivity Analytics</h1>
           <p className="text-sm text-muted-foreground">Worker performance and efficiency metrics</p>
         </div>
         <div className="flex items-center gap-2">

@@ -7,6 +7,7 @@ import { Modal } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Invoice = {
@@ -190,7 +191,7 @@ export default function InvoiceRunPage() {
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <p className="text-sm text-muted-foreground">No draft invoices in this run.</p>
           <button onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
             <Plus className="w-4 h-4" /> New Draft Invoice
           </button>
         </div>
@@ -221,8 +222,9 @@ export default function InvoiceRunPage() {
   }
 
   return (
-    <div className="p-6 h-full overflow-y-auto">
-      <div className="flex gap-5 h-full">
+    <div className="p-6 h-full flex flex-col">
+      <PageHeader title="Invoice Run" description="Turn captured billable events into client invoices" className="mb-5 shrink-0" />
+      <div className="flex gap-5 flex-1 min-h-0">
         {/* Left — draft invoice list */}
         <div className="w-72 shrink-0 flex flex-col gap-3">
           <div className="flex items-center justify-between mb-1">
@@ -345,7 +347,7 @@ export default function InvoiceRunPage() {
               onClick={() => selectedInv.status === "Issued"
                 ? notify.info("Already issued", `${selectedInv.id} was already approved and issued.`)
                 : setIssueOpen(true)}
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+              className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
               <CheckCircle2 className="w-4 h-4" /> Approve & Issue
             </button>
             <button onClick={sendToPortal} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">

@@ -49,7 +49,7 @@ export default function SchedulerHistoryPage() {
       </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr>{["ID","Type","Detail","By","Date","Status",""].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <thead className="bg-muted/50 border-b border-border"><tr>{["ID","Type","Detail","By","Date","Status",""].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {filtered.map(h=>(
               <tr key={h.id} className="hover:bg-muted/30 transition-colors">

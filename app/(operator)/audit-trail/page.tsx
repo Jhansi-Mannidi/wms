@@ -176,7 +176,7 @@ export default function AuditTrailPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, i) => (
-            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <Shield className={cn("w-5 h-5", i === 3 ? "text-danger" : "text-brand")} />
@@ -189,7 +189,7 @@ export default function AuditTrailPage() {
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3">
-          <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-xl border border-border bg-card">
+          <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-lg border border-border bg-card">
             <Search className="w-4 h-4 text-muted-foreground shrink-0" />
             <input
               className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground"
@@ -204,7 +204,7 @@ export default function AuditTrailPage() {
           ].map((f, i) => (
             <div key={i} className="relative">
               <select
-                className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-card text-sm text-foreground outline-none cursor-pointer"
+                className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-border bg-card text-sm text-foreground outline-none cursor-pointer"
                 value={f.value}
                 onChange={(e) => { f.onChange(e.target.value); setPage(1) }}
               >
@@ -217,7 +217,7 @@ export default function AuditTrailPage() {
             onClick={openRange}
             title="Filter by date range"
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-xl border border-border text-sm transition-colors",
+              "flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm transition-colors",
               rangeActive ? "bg-brand text-white border-brand" : "bg-card text-muted-foreground hover:text-foreground"
             )}
           >
@@ -228,7 +228,7 @@ export default function AuditTrailPage() {
             <button
               onClick={clearRange}
               title="Clear date range"
-              className="flex items-center gap-1 px-3 py-2 rounded-xl border border-border bg-card text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 px-3 py-2 rounded-lg border border-border bg-card text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <XIcon className="w-4 h-4" /> Clear
             </button>
@@ -236,11 +236,11 @@ export default function AuditTrailPage() {
         </div>
 
         {/* Log table */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/30">
+                <tr className="border-b border-border bg-muted/50">
                   {["Log ID", "Timestamp", "User", "Module", "Action", "Entity", "Details", "IP", ""].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                       {h}

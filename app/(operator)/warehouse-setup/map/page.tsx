@@ -86,7 +86,7 @@ export default function WarehouseMapPage() {
   }
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-6 space-y-6 w-full">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div><h1 className="text-2xl font-bold text-foreground">Warehouse Map</h1><p className="text-sm text-muted-foreground mt-1">Schematic layout of all zones, aisles and functional areas</p></div>
         <div className="flex items-center gap-2">

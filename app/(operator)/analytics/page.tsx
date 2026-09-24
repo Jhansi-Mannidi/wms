@@ -128,7 +128,7 @@ export default function AnalyticsPage() {
         {/* KPI Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {kpis.map((kpi, i) => (
-            <div key={i} className="p-4 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-4 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-2">
                 <span className="text-brand">{kpi.icon}</span>
                 <span className={cn("flex items-center gap-0.5 text-[10px] font-semibold", kpi.positive ? "text-success" : "text-danger")}>
@@ -145,7 +145,7 @@ export default function AnalyticsPage() {
         {/* Charts Row 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Throughput */}
-          <div className="p-5 rounded-2xl border border-border bg-card">
+          <div className="p-5 rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold text-sm text-foreground">Weekly Throughput</h3>
@@ -171,7 +171,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Category Breakdown */}
-          <div className="p-5 rounded-2xl border border-border bg-card">
+          <div className="p-5 rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold text-sm text-foreground">Stock by Category</h3>
@@ -208,7 +208,7 @@ export default function AnalyticsPage() {
         {/* Charts Row 2 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Order Fulfillment */}
-          <div className="p-5 rounded-2xl border border-border bg-card">
+          <div className="p-5 rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold text-sm text-foreground">Order Fulfillment Trend</h3>
@@ -232,7 +232,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Inventory Trend */}
-          <div className="p-5 rounded-2xl border border-border bg-card">
+          <div className="p-5 rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold text-sm text-foreground">Inventory Value Trend</h3>
@@ -264,7 +264,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Top SKUs table */}
-        <div className="p-5 rounded-2xl border border-border bg-card">
+        <div className="p-5 rounded-xl border border-border bg-card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-sm text-foreground">Top 5 SKUs by Movement</h3>
             <button onClick={() => setAllSkusOpen(true)} title="View all SKU movement" className="text-xs text-brand hover:underline">View All</button>

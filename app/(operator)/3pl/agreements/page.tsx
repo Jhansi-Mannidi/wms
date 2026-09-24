@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Agreement = {
@@ -278,7 +279,8 @@ export default function AgreementsPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-0 px-5 pt-4 border-b border-border shrink-0">
+      <PageHeader title="Agreements" description="Client contracts, SLAs and rate terms" className="px-6 pt-5 pb-3 shrink-0" />
+      <div className="flex items-center gap-0 px-6 border-b border-border shrink-0">
         {tabs.map((t) => (
           <button key={t} onClick={() => setTab(t)} className={cn(
             "px-4 py-2 text-[12px] font-medium border-b-2 -mb-px transition-colors whitespace-nowrap",
@@ -315,7 +317,7 @@ export default function AgreementsPage() {
             <div className="bg-card border border-border rounded-xl overflow-hidden">
               <table className="w-full text-[12px]">
                 <thead>
-                  <tr className="border-b border-border bg-muted/30">
+                  <tr className="border-b border-border bg-muted/50">
                     {["Rate Card", "Service", "UOM", "Rate (₹)", "Applies To", ""].map(h => (
                       <th key={h} className="px-4 py-2.5 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{h}</th>
                     ))}
@@ -376,7 +378,7 @@ export default function AgreementsPage() {
             <div className="bg-card border border-border rounded-xl overflow-hidden">
               <table className="w-full text-[12px]">
                 <thead>
-                  <tr className="border-b border-border bg-muted/30">
+                  <tr className="border-b border-border bg-muted/50">
                     {["Client", "Type", "Period", "Status", "Days Left", "Billing", "Value", "Auto-Renew", ""].map(h => (
                       <th key={h} className="px-4 py-2.5 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{h}</th>
                     ))}

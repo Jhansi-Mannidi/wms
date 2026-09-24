@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Stock = {
@@ -200,7 +201,8 @@ export default function OwnedStockExplorerPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-0 px-5 pt-4 border-b border-border shrink-0">
+      <PageHeader title="Owned Stock Explorer" description="Inventory held on behalf of each 3PL client" className="px-6 pt-5 pb-3 shrink-0" />
+      <div className="flex items-center gap-0 px-6 border-b border-border shrink-0">
         {tabs.map((t) => (
           <button key={t} onClick={() => setTab(t)} className={cn(
             "px-4 py-2 text-[12px] font-medium border-b-2 -mb-px transition-colors whitespace-nowrap",
@@ -268,7 +270,7 @@ export default function OwnedStockExplorerPage() {
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-[12px]">
               <thead>
-                <tr className="border-b border-border bg-muted/30">
+                <tr className="border-b border-border bg-muted/50">
                   {["Lot ID", "SKU", "Client", "Qty", "Manufactured", "Expiry", "Location", ""].map(h => (
                     <th key={h} className="px-4 py-2.5 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
@@ -311,7 +313,7 @@ export default function OwnedStockExplorerPage() {
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-[12px]">
               <thead>
-                <tr className="border-b border-border bg-muted/30">
+                <tr className="border-b border-border bg-muted/50">
                   {["SKU / Name", "Client", "Cat.", "QoH", "Reserved", "Available", "Reserve %", "Location", "Expiry", "Status", ""].map(h => (
                     <th key={h} className="px-4 py-2.5 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}

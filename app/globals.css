@@ -56,6 +56,16 @@
   --radius-2xl: calc(var(--radius) * 1.8);
 }
 
+/* ─── DESIGN STANDARDS ───
+   Colour   use theme tokens only (brand, foreground, muted, border, card, success,
+            warning, danger, violet, navy) — never hex values, so light & dark match.
+            Accent / active state = brand.
+   Radius   controls (buttons, inputs, selects, chips) rounded-lg · cards & panels
+            rounded-xl · modals & dialogs rounded-2xl · badges & pills rounded-full
+   Page     wrapper p-6 space-y-6 · title via <PageHeader> (h1 text-2xl font-bold)
+   Tables   <thead className="bg-muted/50 border-b border-border">
+   Navigation lives in lib/navigation.tsx. */
+
 /* ─── LIGHT THEME ─── */
 :root {
   color-scheme: light;

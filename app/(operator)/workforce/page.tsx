@@ -287,7 +287,7 @@ export default function WorkforcePage() {
             { label: "Active On Floor", value: activeCount.toString(), sub: "Currently working", icon: <CheckCircle2 className="w-5 h-5" />, subColor: "text-brand" },
             { label: "Pending Tasks", value: tasks.filter((t) => t.status !== "Completed").length.toString(), sub: "Need attention", icon: <AlertTriangle className="w-5 h-5" />, subColor: "text-warning" },
           ].map((stat, i) => (
-            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className="text-brand">{stat.icon}</span>
@@ -301,7 +301,7 @@ export default function WorkforcePage() {
         {/* Shift overview */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {shifts.map((shift) => (
-            <div key={shift.name} className={cn("p-4 rounded-2xl border bg-card", shift.status === "Active" ? "border-brand/30" : "border-border")}>
+            <div key={shift.name} className={cn("p-4 rounded-xl border bg-card", shift.status === "Active" ? "border-brand/30" : "border-border")}>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-semibold text-sm text-foreground">{shift.name}</span>
                 <span className={cn("text-xs font-medium px-2 py-0.5 rounded-full", shift.status === "Active" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground")}>
@@ -329,7 +329,7 @@ export default function WorkforcePage() {
         {tab === "workers" && (
           <>
             <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-xl border border-border bg-card">
+              <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-lg border border-border bg-card">
                 <Search className="w-4 h-4 text-muted-foreground shrink-0" />
                 <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground" placeholder="Search worker name or ID..." value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
@@ -338,7 +338,7 @@ export default function WorkforcePage() {
                 { value: shiftFilter, options: ["All Shifts", "Morning", "Afternoon", "Night"], onChange: setShiftFilter },
               ].map((f, i) => (
                 <div key={i} className="relative">
-                  <select className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={f.value} onChange={(e) => f.onChange(e.target.value)}>
+                  <select className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={f.value} onChange={(e) => f.onChange(e.target.value)}>
                     {f.options.map((o) => <option key={o}>{o}</option>)}
                   </select>
                   <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -346,11 +346,11 @@ export default function WorkforcePage() {
               ))}
             </div>
 
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/30">
+                    <tr className="border-b border-border bg-muted/50">
                       {["Emp ID", "Name", "Role", "Shift", "Zone", "Tasks Today", "Completed", "Progress", "Status", ""].map((h) => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                       ))}
@@ -403,11 +403,11 @@ export default function WorkforcePage() {
         )}
 
         {tab === "tasks" && (
-          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/30">
+                  <tr className="border-b border-border bg-muted/50">
                     {["Task ID", "Type", "Reference", "Assigned To", "Zone", "Priority", "Status", "ETA", ""].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}
@@ -456,7 +456,7 @@ export default function WorkforcePage() {
               const assigned = shiftWorkers.reduce((s, w) => s + w.tasksToday, 0)
               const done = shiftWorkers.reduce((s, w) => s + w.tasksCompleted, 0)
               return (
-                <div key={shift.name} className="p-5 rounded-2xl border border-border bg-card">
+                <div key={shift.name} className="p-5 rounded-xl border border-border bg-card">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="font-semibold text-foreground">{shift.name}</h3>

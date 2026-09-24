@@ -132,7 +132,7 @@ export default function CargoReceiptPage() {
   return (
     <div className="p-6 w-full">
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-foreground">Cargo Receipt Capture</h1>
+        <h1 className="text-2xl font-bold text-foreground">Cargo Receipt Capture</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Register incoming cargo at CFS and assign a hold location</p>
       </div>
 
@@ -344,7 +344,7 @@ export default function CargoReceiptPage() {
               <p className="mt-4 text-xs text-danger">{formError}</p>
             )}
 
-            <button onClick={receiveCargo} className="w-full mt-5 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#F7941D] text-white text-sm font-bold hover:bg-[#F7941D]/90 transition-colors shadow-lg shadow-[#F7941D]/20">
+            <button onClick={receiveCargo} className="w-full mt-5 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand/90 transition-colors shadow-lg shadow-brand/20">
               <Package className="w-4 h-4" /> Receive Cargo
             </button>
             <p className="text-[10px] text-muted-foreground text-center mt-2">Assigns CFS hold location + prints receipt/QR</p>

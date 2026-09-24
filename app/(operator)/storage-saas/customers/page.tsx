@@ -10,6 +10,7 @@ import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
 import { EmptyState } from "@/components/wms/empty-state"
 import { cn } from "@/lib/utils"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Customer = {
@@ -211,6 +212,7 @@ export default function StorageCustomersPage() {
 
   return (
     <div className="p-6">
+      <PageHeader title="Customers" description="Storage customers, their stock on hand and account status" className="mb-6" />
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
@@ -253,7 +255,7 @@ export default function StorageCustomersPage() {
         </div>
         <button
           onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90">
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90">
           <Plus className="w-4 h-4" /> New Customer
         </button>
       </div>
@@ -263,7 +265,7 @@ export default function StorageCustomersPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/20">
+                <tr className="border-b border-border bg-muted/50">
                   {["Customer", "Contact", "Pieces On Hand", "Days Stored", "Charges (₹)", "Status", ""].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
@@ -349,7 +351,7 @@ export default function StorageCustomersPage() {
                   onClick={() => { setReleaseTarget(c); setReleaseQty(""); setReleaseError("") }}
                   disabled={c.pieces === 0}
                   title={c.pieces === 0 ? "No pieces on hand to release" : "Release pieces"}
-                  className="flex-1 py-1.5 rounded-lg bg-[#F7941D] text-white text-xs font-medium hover:bg-[#F7941D]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                  className="flex-1 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                   Release
                 </button>
               </div>

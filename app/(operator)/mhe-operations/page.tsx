@@ -286,7 +286,7 @@ export default function MHEOperationsPage() {
             { label: "Under Maintenance", value: maintenance.toString(), sub: "Unavailable", icon: <Wrench className="w-5 h-5" /> },
             { label: "Low Battery", value: lowBattery.toString(), sub: "Below 20%", icon: <Battery className="w-5 h-5" /> },
           ].map((stat, i) => (
-            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className={cn(i === 2 ? "text-danger" : i === 3 ? "text-warning" : "text-brand")}>{stat.icon}</span>
@@ -308,23 +308,23 @@ export default function MHEOperationsPage() {
         {tab === "fleet" && (
           <>
             <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-xl border border-border bg-card">
+              <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-lg border border-border bg-card">
                 <Search className="w-4 h-4 text-muted-foreground shrink-0" />
                 <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground" placeholder="Search equipment..." value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
               <div className="relative">
-                <select className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                <select className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   {["All Status", "In Use", "Available", "Under Maintenance", "Charging"].map((s) => <option key={s}>{s}</option>)}
                 </select>
                 <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/30">
+                    <tr className="border-b border-border bg-muted/50">
                       {["ID", "Equipment", "Type", "Operator", "Zone", "Battery", "Status", "Next Service", ""].map((h) => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                       ))}
@@ -380,11 +380,11 @@ export default function MHEOperationsPage() {
                 <Plus className="w-4 h-4" /> Log Maintenance
               </button>
             </div>
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/30">
+                    <tr className="border-b border-border bg-muted/50">
                       {["Log ID", "Equipment", "Type", "Date", "Technician", "Status", "Notes", ""].map((h) => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                       ))}
@@ -424,7 +424,7 @@ export default function MHEOperationsPage() {
               </div>
             </div>
             {overdue.length > 0 && (
-              <div className="p-4 rounded-2xl border border-warning/30 bg-warning/5 flex items-start gap-3">
+              <div className="p-4 rounded-xl border border-warning/30 bg-warning/5 flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold text-foreground">Upcoming Maintenance Due</p>

@@ -287,7 +287,7 @@ export default function SKUMasterPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, i) => (
-            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className="text-brand">{stat.icon}</span>
@@ -300,7 +300,7 @@ export default function SKUMasterPage() {
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3">
-          <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-xl border border-border bg-card">
+          <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-lg border border-border bg-card">
             <Search className="w-4 h-4 text-muted-foreground shrink-0" />
             <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground" placeholder="Search SKU, name, barcode..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
           </div>
@@ -310,7 +310,7 @@ export default function SKUMasterPage() {
             { value: clientFilter, options: ["All Clients", ...CLIENT_OPTIONS], onChange: setClientFilter },
           ].map((f, i) => (
             <div key={i} className="relative">
-              <select className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={f.value} onChange={(e) => { f.onChange(e.target.value); setPage(1) }}>
+              <select className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={f.value} onChange={(e) => { f.onChange(e.target.value); setPage(1) }}>
                 {f.options.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
               <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -319,11 +319,11 @@ export default function SKUMasterPage() {
         </div>
 
         {/* Table */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/30">
+                <tr className="border-b border-border bg-muted/50">
                   {["SKU Code", "Product Name", "Category", "Brand", "UOM", "Weight", "Barcode", "HSN Code", "Client", "Status", ""].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}

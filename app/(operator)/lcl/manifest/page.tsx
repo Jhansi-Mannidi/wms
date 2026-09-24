@@ -149,7 +149,7 @@ export default function ManifestPage() {
               {dispatched ? "Dispatched" : "Ready to Dispatch"}
             </span>
           </div>
-          <h1 className="text-xl font-bold text-foreground">Manifest & Export Documents</h1>
+          <h1 className="text-2xl font-bold text-foreground">Manifest & Export Documents</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             INNSA (Nhava Sheva) <ArrowRight className="inline w-3 h-3 mx-1" /> INMUN (Mundra) · 20&apos; FCL · {manifestLines.length} HAWB lines
           </p>
@@ -170,7 +170,7 @@ export default function ManifestPage() {
               }
               setDispatchOpen(true)
             }}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-bold hover:bg-[#F7941D]/90 transition-colors shadow-lg shadow-[#F7941D]/20">
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-bold hover:bg-brand/90 transition-colors shadow-lg shadow-brand/20">
               <Send className="w-4 h-4" /> Dispatch to Port
             </button>
           ) : (
@@ -206,11 +206,11 @@ export default function ManifestPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/20">
+                  <tr className="border-b border-border bg-muted/50">
                     <th className="w-10 px-4 py-3">
                       <input type="checkbox" onChange={toggleAll} checked={manifestLines.length > 0 && selected.length === manifestLines.length}
                         title="Select all lines"
-                        className="w-3.5 h-3.5 rounded accent-[#F7941D]" />
+                        className="w-3.5 h-3.5 rounded accent-brand" />
                     </th>
                     {["HAWB Ref", "Shipper", "Pieces", "Weight (kg)", "CBM (m³)", "Marks & Nos.", "HS Code", ""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
@@ -224,7 +224,7 @@ export default function ManifestPage() {
                         <input type="checkbox" checked={selected.includes(line.ref)}
                           title={`Select ${line.ref}`}
                           onChange={() => setSelected(s => s.includes(line.ref) ? s.filter(x => x !== line.ref) : [...s, line.ref])}
-                          className="w-3.5 h-3.5 rounded accent-[#F7941D]" />
+                          className="w-3.5 h-3.5 rounded accent-brand" />
                       </td>
                       <td className="px-4 py-3 font-mono text-xs text-brand font-semibold">{line.ref}</td>
                       <td className="px-4 py-3">

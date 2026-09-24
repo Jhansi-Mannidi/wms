@@ -163,7 +163,7 @@ export default function WorkforceTasksPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Task Assignment</h1>
+          <h1 className="text-2xl font-bold text-foreground">Task Assignment</h1>
           <p className="text-sm text-muted-foreground">Manage and assign warehouse floor tasks</p>
         </div>
         <div className="flex items-center gap-2">

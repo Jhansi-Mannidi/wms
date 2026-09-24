@@ -251,7 +251,7 @@ export default function InventoryPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
-          <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
+          <div key={i} className="p-3.5 rounded-xl border border-border bg-card">
             <div className="flex items-start justify-between mb-3">
               <span className="text-sm text-muted-foreground">{stat.label}</span>
               <span className={stat.color}>{stat.icon}</span>
@@ -263,7 +263,7 @@ export default function InventoryPage() {
       </div>
 
       {/* Filters */}
-      <div className="p-4 rounded-2xl border border-border bg-card space-y-3">
+      <div className="p-4 rounded-xl border border-border bg-card space-y-3">
         <div className="flex flex-wrap gap-3">
           <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-lg border border-border bg-background">
             <svg className="w-4 h-4 text-muted-foreground shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -304,11 +304,11 @@ export default function InventoryPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/30">
+              <tr className="border-b border-border bg-muted/50">
                 {([
                   ["SKU Code", "sku"], ["Product Name", "name"], ["Owner", "owner"], ["Zone-Location", "zone"],
                   ["Available", "available"], ["Reserved", "reserved"], ["Batch/Lot", "batch"], ["Expiry", "expiry"],

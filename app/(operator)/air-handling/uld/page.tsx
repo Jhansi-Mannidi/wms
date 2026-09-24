@@ -135,7 +135,7 @@ export default function ULDBuildPage() {
   return (
     <div className="p-6 w-full">
       <div className="mb-5">
-        <h1 className="text-xl font-bold text-foreground">ULD Build & MAWB</h1>
+        <h1 className="text-2xl font-bold text-foreground">ULD Build & MAWB</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Consolidate export packages into ULD and generate master air waybill</p>
       </div>
 
@@ -294,7 +294,7 @@ export default function ULDBuildPage() {
               className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm outline-none focus:border-brand mb-3" />
             {!confirmed ? (
               <button onClick={confirmBuild} disabled={loaded.length === 0 || !seal || !flight}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#F7941D] text-white text-sm font-bold hover:bg-[#F7941D]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-[#F7941D]/20">
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-brand/20">
                 <Send className="w-4 h-4" /> Confirm Build & Handoff to Airline
               </button>
             ) : (
@@ -303,7 +303,7 @@ export default function ULDBuildPage() {
                   <CheckCircle2 className="w-4 h-4" /> ULD Handed Off · Status: Exported/In-Transit
                 </div>
                 <button onClick={() => setResetTarget(true)} title="Start a new ULD build"
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
                   <RotateCcw className="w-4 h-4" /> Start New Build
                 </button>
               </div>
@@ -373,7 +373,7 @@ export default function ULDBuildPage() {
           <div className="rounded-xl border border-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/30">
+                <tr className="border-b border-border bg-muted/50">
                   {["Reference", "Consignee", "Destination", "Weight"].map(h => (
                     <th key={h} className="px-4 py-2.5 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{h}</th>
                   ))}

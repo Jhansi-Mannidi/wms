@@ -44,7 +44,7 @@ export default function LCLTrackingPage() {
   return (
     <div className="p-6 h-full">
       <div className="mb-5">
-        <h1 className="text-xl font-bold text-foreground">Shipper Cargo Tracking</h1>
+        <h1 className="text-2xl font-bold text-foreground">Shipper Cargo Tracking</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Live status for all LCL shipments</p>
       </div>
 

@@ -9,6 +9,7 @@ import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
 import { LCL_LOAD_PLAN_CONTAINERS, LCL_LOAD_PLAN_TEMPLATES } from "@/lib/fixtures/lcl"
+import { PageHeader } from "@/components/wms/page-header"
 
 const CBM_MAX = 28.3
 const KG_MAX = 21700
@@ -221,7 +222,8 @@ export default function LCLLoadPlanPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-0 px-5 pt-4 border-b border-border shrink-0">
+      <PageHeader title="Load Plan" description="Plan container stuffing and review the load sequence" className="px-6 pt-5 pb-3 shrink-0" />
+      <div className="flex items-center gap-0 px-6 border-b border-border shrink-0">
         {TABS.map(t => (
           <button key={t} type="button" onClick={() => setTab(t)} className={cn(
             "px-4 py-2 text-[12px] font-medium border-b-2 -mb-px transition-colors whitespace-nowrap",

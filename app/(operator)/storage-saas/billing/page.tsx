@@ -147,7 +147,7 @@ export default function StorageSaasBillingPage() {
           <ExportButton data={filtered} filename="storage-billing" />
           <button
             onClick={() => setCreateOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"
           >
             <Plus className="w-4 h-4" /> New Invoice
           </button>
@@ -177,7 +177,7 @@ export default function StorageSaasBillingPage() {
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr>{["Invoice","Customer","Period","Storage","Handling","Delivery","Total","Status","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <thead className="bg-muted/50 border-b border-border"><tr>{["Invoice","Customer","Period","Storage","Handling","Delivery","Total","Status","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {filtered.map(b=>(
               <tr key={b.id} className="hover:bg-muted/30 transition-colors">

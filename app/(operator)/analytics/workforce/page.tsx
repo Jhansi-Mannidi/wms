@@ -60,7 +60,7 @@ export default function AnalyticsWorkforcePage() {
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="px-4 py-3 border-b border-border"><p className="font-semibold text-sm text-foreground">Worker Performance Today</p></div>
         <table className="w-full text-sm">
-          <thead className="bg-muted/50">
+          <thead className="bg-muted/50 border-b border-border">
             <tr>{["Name","Role","Tasks","Accuracy","Hours","Efficiency","Actions"].map(h => <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-border">

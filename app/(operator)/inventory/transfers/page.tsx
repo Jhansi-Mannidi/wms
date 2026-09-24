@@ -170,7 +170,7 @@ export default function TransferOrdersPage() {
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b border-border bg-muted/30">
+          <thead className="bg-muted/50 border-b border-border">
             <tr>{["Transfer ID", "Product", "From", "", "To", "Qty", "Reason", "By", "Date", "Status", "Actions"].map((h, i) => <th key={i} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-border">

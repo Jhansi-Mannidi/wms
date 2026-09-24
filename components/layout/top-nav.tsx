@@ -26,6 +26,7 @@ import { useTheme } from "@/components/theme-provider"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { AnimatedDropdown } from "@/components/ui/animated-dropdown"
 import { notify } from "@/components/ui/toast"
+import { SEARCH_INDEX } from "@/lib/navigation"
 
 const WAREHOUSES = [
   { id: "hyd", city: "Hyderabad, IN", name: "Main Warehouse", zone: "CFS Zone A" },
@@ -78,6 +79,33 @@ export function TopNav() {
   const warehouseRef = useRef<HTMLDivElement>(null)
   const quickRef = useRef<HTMLDivElement>(null)
   const msgRef = useRef<HTMLDivElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  // ⌘K / Ctrl+K focuses the global page search.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault()
+        searchRef.current?.focus()
+      }
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [])
+
+  const searchTerm = searchQuery.trim().toLowerCase()
+  const searchResults = searchTerm
+    ? SEARCH_INDEX.filter((r) =>
+        `${r.label} ${r.module.title} ${r.section ?? ""} ${r.group}`.toLowerCase().includes(searchTerm),
+      ).slice(0, 8)
+    : []
+
+  function openResult(href: string) {
+    router.push(href)
+    setSearchQuery("")
+    setSearchOpen(false)
+    searchRef.current?.blur()
+  }
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -127,10 +155,15 @@ export function TopNav() {
           onClick={() => setSearchOpen(true)}>
           <Search className="w-4 h-4 shrink-0" />
           <input
+            ref={searchRef}
             type="text"
             value={searchQuery}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && searchResults[0]) openResult(searchResults[0].href)
+              if (e.key === "Escape") { setSearchQuery(""); searchRef.current?.blur() }
+            }}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search across all modules..."
+            placeholder="Search modules and pages..."
             className="bg-transparent text-sm outline-none w-full placeholder:text-sidebar-foreground/40 text-sidebar-foreground"
             onFocus={() => setSearchOpen(true)}
             onBlur={() => setTimeout(() => setSearchOpen(false), 200)}
@@ -140,7 +173,31 @@ export function TopNav() {
           </kbd>
         </div>
         <AnimatedDropdown open={searchOpen && !!searchQuery} align="left" className="left-0 right-0 mt-1 rounded-lg p-2">
-          <p className="text-xs text-muted-foreground px-2 py-1">No results for &quot;{searchQuery}&quot;</p>
+          {searchResults.length === 0 ? (
+            <p className="text-xs text-muted-foreground px-2 py-1">No pages match &quot;{searchQuery}&quot;</p>
+          ) : (
+            searchResults.map((r) => {
+              const Icon = r.module.icon
+              return (
+                <button
+                  key={r.href}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => openResult(r.href)}
+                  className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-left hover:bg-muted transition-colors"
+                >
+                  <span className="w-7 h-7 rounded-md bg-brand/15 text-brand flex items-center justify-center shrink-0">
+                    <Icon className="w-3.5 h-3.5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm text-foreground truncate">{r.label}</span>
+                    <span className="block text-[11px] text-muted-foreground truncate">
+                      {r.group} › {r.module.title}{r.section ? ` › ${r.section}` : ""}
+                    </span>
+                  </span>
+                </button>
+              )
+            })
+          )}
         </AnimatedDropdown>
       </div>
 

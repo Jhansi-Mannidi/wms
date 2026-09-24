@@ -99,7 +99,7 @@ function ProfileSection() {
       </div>
       {/* Avatar */}
       <div className="flex items-center gap-4">
-        <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold shrink-0", color)}>{initials}</div>
+        <div className={cn("w-16 h-16 rounded-xl flex items-center justify-center text-white text-xl font-bold shrink-0", color)}>{initials}</div>
         <div>
           <button onClick={openPhoto} className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted transition-colors">
             Change Photo
@@ -119,7 +119,7 @@ function ProfileSection() {
         <div className="space-y-5">
           {/* Live preview */}
           <div className="flex items-center gap-4">
-            <div className={cn("w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shrink-0", draftColor)}>
+            <div className={cn("w-20 h-20 rounded-xl flex items-center justify-center text-white text-2xl font-bold shrink-0", draftColor)}>
               {draftInitials.trim().toUpperCase() || "?"}
             </div>
             <div className="min-w-0">
@@ -204,7 +204,7 @@ function ProfileSection() {
         ].map((f) => (
           <div key={f.label}>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">{f.label}</label>
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-background focus-within:border-brand/50 focus-within:ring-1 focus-within:ring-brand/20 transition-all">
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border bg-background focus-within:border-brand/50 focus-within:ring-1 focus-within:ring-brand/20 transition-all">
               <span className="text-muted-foreground shrink-0">{f.icon}</span>
               <input defaultValue={f.value} className="bg-transparent text-sm outline-none flex-1 text-foreground" />
             </div>
@@ -214,7 +214,7 @@ function ProfileSection() {
       <div>
         <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Role / Title</label>
         <div className="relative">
-          <select className="w-full appearance-none pl-3 pr-8 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none cursor-pointer">
+          <select className="w-full appearance-none pl-3 pr-8 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none cursor-pointer">
             <option>Warehouse Manager</option>
             <option>Operations Supervisor</option>
             <option>Floor Supervisor</option>
@@ -224,7 +224,7 @@ function ProfileSection() {
           <ChevronRight className="w-4 h-4 text-muted-foreground absolute right-2.5 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
         </div>
       </div>
-      <button onClick={handleSave} className={cn("flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors", saved ? "bg-success text-white" : "bg-brand text-white hover:bg-brand/90")}>
+      <button onClick={handleSave} className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors", saved ? "bg-success text-white" : "bg-brand text-white hover:bg-brand/90")}>
         {saved ? <><Check className="w-4 h-4" /> Saved!</> : <><Save className="w-4 h-4" /> Save Changes</>}
       </button>
     </div>
@@ -269,7 +269,7 @@ function NotificationsSection() {
         <p className="text-sm text-muted-foreground">Control how and when you receive alerts</p>
       </div>
       {groups.map((g) => (
-        <div key={g.title} className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div key={g.title} className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-5 py-3 border-b border-border bg-muted/20">
             <p className="text-sm font-semibold text-foreground">{g.title}</p>
           </div>
@@ -343,12 +343,12 @@ function SecuritySection() {
         <p className="text-sm text-muted-foreground">Manage your account security settings</p>
       </div>
       {/* Password */}
-      <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+      <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <p className="text-sm font-semibold text-foreground">Change Password</p>
         {passwordFields.map((f) => (
           <div key={f.label}>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">{f.label}</label>
-            <div className={cn("flex items-center gap-2 px-3 py-2.5 rounded-xl border bg-background focus-within:border-brand/50 transition-all", pwErrors[f.key] ? "border-danger" : "border-border")}>
+            <div className={cn("flex items-center gap-2 px-3 py-2.5 rounded-lg border bg-background focus-within:border-brand/50 transition-all", pwErrors[f.key] ? "border-danger" : "border-border")}>
               <input
                 type={f.show ? "text" : "password"}
                 placeholder="••••••••"
@@ -363,12 +363,12 @@ function SecuritySection() {
             {pwErrors[f.key] && <p className="mt-1 text-xs text-danger">{pwErrors[f.key]}</p>}
           </div>
         ))}
-        <button onClick={updatePassword} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
+        <button onClick={updatePassword} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
           <Save className="w-4 h-4" /> Update Password
         </button>
       </div>
       {/* 2FA */}
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-sm font-semibold text-foreground">Two-Factor Authentication</p>
@@ -385,7 +385,7 @@ function SecuritySection() {
         )}
       </div>
       {/* Sessions */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-5 py-3 border-b border-border bg-muted/20">
           <p className="text-sm font-semibold text-foreground">Active Sessions</p>
         </div>
@@ -430,7 +430,7 @@ function AppearanceSection() {
         <h2 className="text-lg font-bold text-foreground">Appearance</h2>
         <p className="text-sm text-muted-foreground">Customize how the application looks</p>
       </div>
-      <div className="rounded-2xl border border-border bg-card p-5 space-y-5">
+      <div className="rounded-xl border border-border bg-card p-5 space-y-5">
         <div>
           <p className="text-sm font-semibold text-foreground mb-3">Table Density</p>
           <div className="flex gap-3">
@@ -439,7 +439,7 @@ function AppearanceSection() {
                 key={d}
                 onClick={() => setDensity(d)}
                 className={cn(
-                  "flex-1 py-2.5 rounded-xl border text-sm font-medium capitalize transition-colors",
+                  "flex-1 py-2.5 rounded-lg border text-sm font-medium capitalize transition-colors",
                   density === d ? "border-brand bg-brand/10 text-brand" : "border-border text-muted-foreground hover:border-foreground/30"
                 )}
               >
@@ -451,7 +451,7 @@ function AppearanceSection() {
         <div>
           <p className="text-sm font-semibold text-foreground mb-3">Language</p>
           <div className="relative">
-            <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none">
+            <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none">
               <option value="en">English</option>
               <option value="hi">Hindi</option>
               <option value="ta">Tamil</option>
@@ -463,7 +463,7 @@ function AppearanceSection() {
         <div>
           <p className="text-sm font-semibold text-foreground mb-1">Date Format</p>
           <div className="relative">
-            <select className="w-full appearance-none pl-3 pr-8 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none">
+            <select className="w-full appearance-none pl-3 pr-8 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none">
               <option>DD/MM/YYYY</option>
               <option>MM/DD/YYYY</option>
               <option>YYYY-MM-DD</option>
@@ -523,7 +523,7 @@ function ApiSection() {
         <h2 className="text-lg font-bold text-foreground">API &amp; Tokens</h2>
         <p className="text-sm text-muted-foreground">Manage API keys for external integrations</p>
       </div>
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-5 py-3 flex items-center justify-between border-b border-border bg-muted/20">
           <p className="text-sm font-semibold text-foreground">API Keys</p>
           <button onClick={() => { setKeyName(""); setKeyError(""); setGenOpen(true) }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand/90 transition-colors">
@@ -548,9 +548,9 @@ function ApiSection() {
           )}
         </div>
       </div>
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-xl border border-border bg-card p-5">
         <p className="text-sm font-semibold text-foreground mb-2">Webhook URL</p>
-        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-background">
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border bg-background">
           <input value={webhook} onChange={(e) => setWebhook(e.target.value)} className="bg-transparent text-sm font-mono outline-none flex-1 text-foreground" />
         </div>
         <p className="text-xs text-muted-foreground mt-2">Events will be POSTed to this URL on order and inventory changes.</p>
@@ -618,7 +618,7 @@ function IntegrationsSection() {
     <div className="space-y-4">
       <div><h2 className="text-lg font-bold text-foreground">Integrations</h2><p className="text-sm text-muted-foreground">Connect third-party services</p></div>
       {integrations.map((int) => (
-        <div key={int.name} className="flex items-center justify-between p-4 rounded-2xl border border-border bg-card hover:bg-muted/20 transition-colors">
+        <div key={int.name} className="flex items-center justify-between p-4 rounded-xl border border-border bg-card hover:bg-muted/20 transition-colors">
           <div>
             <p className="text-sm font-semibold text-foreground">{int.name}</p>
             <p className="text-xs text-muted-foreground">{int.desc}</p>
@@ -626,7 +626,7 @@ function IntegrationsSection() {
           <button
             onClick={() => int.connected ? setDisconnectTarget(int) : connect(int)}
             title={int.connected ? `Disconnect ${int.name}` : `Connect ${int.name}`}
-            className={cn("px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors", int.connected ? "bg-success/15 text-success hover:bg-success/25" : "bg-brand text-white hover:bg-brand/90")}
+            className={cn("px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors", int.connected ? "bg-success/15 text-success hover:bg-success/25" : "bg-brand text-white hover:bg-brand/90")}
           >
             {int.connected ? "Connected" : "Connect"}
           </button>
@@ -659,7 +659,7 @@ export default function SettingsPage() {
     localization: (
       <div className="space-y-4">
         <div><h2 className="text-lg font-bold text-foreground">Localization</h2><p className="text-sm text-muted-foreground">Regional and currency settings</p></div>
-        <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
           {[
             { label: "Currency", value: "INR — Indian Rupee (₹)", options: ["INR — Indian Rupee (₹)", "USD — US Dollar ($)", "EUR — Euro (€)"] },
             { label: "Timezone", value: "Asia/Kolkata (IST +5:30)", options: ["Asia/Kolkata (IST +5:30)", "UTC", "America/New_York"] },
@@ -668,7 +668,7 @@ export default function SettingsPage() {
             <div key={f.label}>
               <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">{f.label}</label>
               <div className="relative">
-                <select defaultValue={f.value} className="w-full appearance-none pl-3 pr-8 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground outline-none">
+                <select defaultValue={f.value} className="w-full appearance-none pl-3 pr-8 py-2.5 rounded-lg border border-border bg-background text-sm text-foreground outline-none">
                   {f.options.map((o) => <option key={o}>{o}</option>)}
                 </select>
                 <ChevronRight className="w-4 h-4 text-muted-foreground absolute right-2.5 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
@@ -693,7 +693,7 @@ export default function SettingsPage() {
               key={s.id}
               onClick={() => setActive(s.id)}
               className={cn(
-                "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left",
+                "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
                 active === s.id ? "bg-brand/10 text-brand" : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >

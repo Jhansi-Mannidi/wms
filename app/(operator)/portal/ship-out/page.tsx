@@ -193,13 +193,13 @@ export default function PortalShipOutPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-5 w-full">
+    <div className="p-6 space-y-6 w-full">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1E3A5F] dark:text-foreground">Ship-Out Orders</h1>
+          <h1 className="text-2xl font-bold text-foreground">Ship-Out Orders</h1>
           <p className="text-sm text-muted-foreground">Place and track outbound dispatch requests</p>
         </div>
-        <button type="button" onClick={() => { setForm(emptyForm); setQty(emptyQty); setStep(0); setErrors({}); setCreateOpen(true) }} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
+        <button type="button" onClick={() => { setForm(emptyForm); setQty(emptyQty); setStep(0); setErrors({}); setCreateOpen(true) }} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
           <Plus className="w-4 h-4" /> New Ship-Out Order
         </button>
       </div>
@@ -207,15 +207,15 @@ export default function PortalShipOutPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total Orders", value: orders.length, icon: <Package className="w-4 h-4" />, color: "text-[#1E3A5F] dark:text-brand", bg: "bg-[#1E3A5F]/10 dark:bg-brand/15" },
+          { label: "Total Orders", value: orders.length, icon: <Package className="w-4 h-4" />, color: "text-brand", bg: "bg-brand/15" },
           { label: "In Progress", value: orders.filter(o => ["Picking","Packing"].includes(o.status)).length, icon: <Clock className="w-4 h-4" />, color: "text-warning", bg: "bg-warning/15" },
           { label: "Dispatched", value: orders.filter(o => o.status === "Dispatched").length, icon: <Truck className="w-4 h-4" />, color: "text-brand", bg: "bg-brand/15" },
           { label: "Delivered", value: orders.filter(o => o.status === "Delivered").length, icon: <CheckCircle2 className="w-4 h-4" />, color: "text-success", bg: "bg-success/15" },
         ].map((s, i) => (
-          <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+          <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-card">
             <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", s.bg, s.color)}>{s.icon}</div>
             <div>
-              <p className="text-lg font-bold text-[#1E3A5F] dark:text-foreground">{s.value}</p>
+              <p className="text-lg font-bold text-foreground">{s.value}</p>
               <p className="text-[10px] text-muted-foreground">{s.label}</p>
             </div>
           </div>
@@ -370,25 +370,25 @@ export default function PortalShipOutPage() {
 
       {/* Tabs + search */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-1 p-0.5 rounded-lg bg-[#F7F9FC] dark:bg-muted/40 border border-[#E4E9F0] dark:border-border flex-wrap">
+        <div className="flex gap-1 p-0.5 rounded-lg bg-muted/40 border border-border flex-wrap">
           {tabs.map(t => (
-            <button key={t} onClick={() => setTab(t)} className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-colors", tab === t ? "bg-[#1E3A5F] dark:bg-brand text-white" : "text-muted-foreground hover:text-[#1E3A5F] dark:hover:text-foreground")}>
+            <button key={t} onClick={() => setTab(t)} className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-colors", tab === t ? "bg-brand text-white" : "text-muted-foreground hover:text-foreground")}>
               {t}
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+        <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-card">
           <Search className="w-3.5 h-3.5 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search order or destination..." className="bg-transparent outline-none text-xs w-44 placeholder:text-muted-foreground text-[#1E3A5F] dark:text-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search order or destination..." className="bg-transparent outline-none text-xs w-44 placeholder:text-muted-foreground text-foreground" />
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#E4E9F0] dark:border-border bg-[#F7F9FC] dark:bg-muted/30">
+              <tr className="border-b border-border bg-muted/50">
                 <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Order ID</th>
                 <th className="px-4 py-3 text-left font-semibold text-muted-foreground">Destination</th>
                 <th className="px-4 py-3 text-center font-semibold text-muted-foreground hidden md:table-cell">Cartons</th>
@@ -399,11 +399,11 @@ export default function PortalShipOutPage() {
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E4E9F0] dark:divide-border">
+            <tbody className="divide-y divide-border">
               {filtered.map(o => (
-                <tr key={o.id} onClick={() => setDetail(o)} className="hover:bg-[#F7F9FC] dark:hover:bg-muted/20 transition-colors cursor-pointer">
-                  <td className="px-4 py-3 font-mono font-bold text-[#1E3A5F] dark:text-brand">{o.id}</td>
-                  <td className="px-4 py-3 text-[#1E3A5F] dark:text-foreground max-w-[160px] truncate">{o.dest}</td>
+                <tr key={o.id} onClick={() => setDetail(o)} className="hover:bg-muted/20 transition-colors cursor-pointer">
+                  <td className="px-4 py-3 font-mono font-bold text-brand">{o.id}</td>
+                  <td className="px-4 py-3 text-foreground max-w-[160px] truncate">{o.dest}</td>
                   <td className="px-4 py-3 text-center text-muted-foreground hidden md:table-cell">{o.cartons}</td>
                   <td className="px-4 py-3 hidden lg:table-cell">
                     <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", priorityStyle[o.priority])}>{o.priority}</span>
@@ -417,7 +417,7 @@ export default function PortalShipOutPage() {
                     <button
                       onClick={(e) => { e.stopPropagation(); setDetail(o) }}
                       title="View order details"
-                      className="w-7 h-7 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:bg-[#E4E9F0] dark:hover:bg-muted hover:text-[#1E3A5F] dark:hover:text-foreground transition-colors"
+                      className="w-7 h-7 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                     >
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
@@ -430,7 +430,7 @@ export default function PortalShipOutPage() {
             </tbody>
           </table>
         </div>
-        <div className="px-4 py-2.5 border-t border-[#E4E9F0] dark:border-border text-xs text-muted-foreground">Showing {filtered.length} of {orders.length} orders</div>
+        <div className="px-4 py-2.5 border-t border-border text-xs text-muted-foreground">Showing {filtered.length} of {orders.length} orders</div>
       </div>
 
       {/* Order detail drawer */}

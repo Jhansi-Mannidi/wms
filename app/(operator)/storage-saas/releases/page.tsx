@@ -176,12 +176,12 @@ export default function StorageReleasesPage() {
     <div className="p-6 w-full">
       <div className="mb-5 flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Customer Stock &amp; Release</h1>
+          <h1 className="text-2xl font-bold text-foreground">Customer Stock &amp; Release</h1>
           <p className="text-sm text-muted-foreground mt-0.5">View per-customer stock and confirm piece releases</p>
         </div>
         <button
           onClick={() => { setDispatchForm({ ...emptyDispatchForm, customer }); setDispatchErrors({}); setDispatchOpen(true) }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90">
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90">
           <Plus className="w-4 h-4" /> New Release Dispatch
         </button>
       </div>
@@ -225,11 +225,11 @@ export default function StorageReleasesPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/20">
+                  <tr className="border-b border-border bg-muted/50">
                     <th className="w-10 px-4 py-3">
                       <input type="checkbox" onChange={toggleAll} checked={stock.length > 0 && stock.every(r => r.selected)}
                         title="Select all lots"
-                        className="w-3.5 h-3.5 rounded accent-[#F7941D]" />
+                        className="w-3.5 h-3.5 rounded accent-brand" />
                     </th>
                     {["Lot Ref", "Description", "Pieces", "Location", "Days", "Condition", ""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
@@ -243,7 +243,7 @@ export default function StorageReleasesPage() {
                       <td className="px-4 py-3">
                         <input type="checkbox" checked={row.selected} onChange={() => toggleRow(row.id)} onClick={e => e.stopPropagation()}
                           title={`Select ${row.lotRef}`}
-                          className="w-3.5 h-3.5 rounded accent-[#F7941D]" />
+                          className="w-3.5 h-3.5 rounded accent-brand" />
                       </td>
                       <td className="px-4 py-3 font-mono text-xs text-brand font-semibold">{row.lotRef}</td>
                       <td className="px-4 py-3 text-xs font-medium text-foreground">{row.desc}</td>
@@ -281,7 +281,7 @@ export default function StorageReleasesPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/20">
+                  <tr className="border-b border-border bg-muted/50">
                     {["Release", "Customer", "Lots", "Pieces", "Mode", "Charge", "Time", ""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}
@@ -364,7 +364,7 @@ export default function StorageReleasesPage() {
                 )}
 
                 <button onClick={handleRelease} disabled={!mode}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#F7941D] text-white text-sm font-bold hover:bg-[#F7941D]/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-lg shadow-[#F7941D]/20">
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-brand text-white text-sm font-bold hover:bg-brand/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-lg shadow-brand/20">
                   <CheckCircle2 className="w-4 h-4" /> Confirm Release
                 </button>
               </>

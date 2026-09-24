@@ -6,6 +6,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { cn } from "@/lib/utils"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type Activity = {
@@ -188,6 +189,7 @@ export default function StorageSaaSPage() {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
+      <PageHeader title="Storage Dashboard" description="Mini-warehouse occupancy, drop-offs and revenue at a glance" className="mb-6" />
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         {kpis.map(k => (
@@ -233,7 +235,7 @@ export default function StorageSaaSPage() {
           <button
             onClick={() => { setMovementForm(emptyMovementForm); setMovementErrors({}); setMovementKind("drop-off") }}
             title="Record a new drop-off"
-            className="w-full flex items-center gap-3 px-4 py-4 rounded-xl bg-[#F7941D] text-white font-semibold text-sm hover:bg-[#F7941D]/90 transition-colors">
+            className="w-full flex items-center gap-3 px-4 py-4 rounded-xl bg-brand text-white font-semibold text-sm hover:bg-brand/90 transition-colors">
             <Plus className="w-5 h-5" />
             <div className="text-left">
               <p>New Drop-Off</p>

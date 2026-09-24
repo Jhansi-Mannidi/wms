@@ -268,7 +268,7 @@ export default function SchedulerPage() {
             { label: "Failed (Today)", value: failedCount.toString(), sub: "Needs attention", icon: <AlertTriangle className="w-5 h-5" /> },
             { label: "SLA Rules", value: slaRules.filter((r) => r.active).length.toString(), sub: "Active rules", icon: <Clock className="w-5 h-5" /> },
           ].map((stat, i) => (
-            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className={cn(i === 2 && failedCount > 0 ? "text-danger" : "text-brand")}>{stat.icon}</span>
@@ -280,7 +280,7 @@ export default function SchedulerPage() {
         </div>
 
         {failedCount > 0 && (
-          <div className="flex items-center gap-3 p-4 rounded-2xl border border-danger/30 bg-danger/5">
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-danger/30 bg-danger/5">
             <AlertTriangle className="w-5 h-5 text-danger shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-danger">{failedCount} job{failedCount > 1 ? "s" : ""} failed</p>
@@ -305,7 +305,7 @@ export default function SchedulerPage() {
           <>
             <div className="flex flex-wrap gap-3">
               <div className="relative">
-                <select className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                <select className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
                   {["All Types", "Inventory", "Orders", "Billing", "Workforce", "Cold Chain", "MHE"].map((t) => <option key={t}>{t}</option>)}
                 </select>
                 <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -314,7 +314,7 @@ export default function SchedulerPage() {
 
             <div className="space-y-3">
               {filteredJobs.map((job) => (
-                <div key={job.id} className={cn("p-4 rounded-2xl border bg-card hover:border-brand/30 transition-colors", job.status === "Failed" ? "border-danger/30 bg-danger/5" : "border-border")}>
+                <div key={job.id} className={cn("p-4 rounded-xl border bg-card hover:border-brand/30 transition-colors", job.status === "Failed" ? "border-danger/30 bg-danger/5" : "border-border")}>
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 min-w-0">
                       <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5",
@@ -359,7 +359,7 @@ export default function SchedulerPage() {
                 </div>
               ))}
               {filteredJobs.length === 0 && (
-                <div className="p-10 rounded-2xl border border-border bg-card text-center text-sm text-muted-foreground">
+                <div className="p-10 rounded-xl border border-border bg-card text-center text-sm text-muted-foreground">
                   No jobs match this type filter.
                 </div>
               )}
@@ -374,11 +374,11 @@ export default function SchedulerPage() {
                 <Plus className="w-4 h-4" /> Add SLA Rule
               </button>
             </div>
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/30">
+                    <tr className="border-b border-border bg-muted/50">
                       {["Rule ID", "Name", "Module", "Target", "Breach Action", "Priority", "Active", ""].map((h) => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                       ))}

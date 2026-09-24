@@ -134,7 +134,7 @@ export default function AddWorkerPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-foreground">Add Worker</h1>
+        <h1 className="text-2xl font-bold text-foreground">Add Worker</h1>
         <p className="text-sm text-muted-foreground">Register a new warehouse employee</p>
       </div>
 

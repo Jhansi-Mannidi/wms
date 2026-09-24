@@ -197,7 +197,7 @@ export default function GateExitPage() {
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr>{["Exit ID","Vehicle","Driver","Purpose","Exit Time","Dwell Time","Clearance","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <thead className="bg-muted/50 border-b border-border"><tr>{["Exit ID","Vehicle","Driver","Purpose","Exit Time","Dwell Time","Clearance","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {filtered.map(e=>(
               <tr key={e.id} className="hover:bg-muted/30 transition-colors">

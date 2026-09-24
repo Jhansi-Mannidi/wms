@@ -343,7 +343,7 @@ export default function BillingPage() {
             { label: "Overdue Amount", value: formatAmount(overdueTotal), sub: `${overdueInvoices.length} invoice${overdueInvoices.length === 1 ? "" : "s"} overdue`, icon: <AlertTriangle className="w-5 h-5" />, subColor: "text-danger" },
             { label: "Collected", value: formatAmount(collectedTotal), sub: "Settled to date", icon: <CheckCircle2 className="w-5 h-5" />, subColor: "text-success" },
           ].map((stat, i) => (
-            <div key={i} className="p-3.5 rounded-2xl border border-border bg-card">
+            <div key={i} className="p-3.5 rounded-xl border border-border bg-card">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
                 <span className={cn(i === 2 ? "text-danger" : "text-brand")}>{stat.icon}</span>
@@ -374,7 +374,7 @@ export default function BillingPage() {
           <>
             {/* Filters */}
             <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-xl border border-border bg-card">
+              <div className="flex items-center gap-2 flex-1 min-w-48 px-3 py-2 rounded-lg border border-border bg-card">
                 <Search className="w-4 h-4 text-muted-foreground shrink-0" />
                 <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground text-foreground" placeholder="Search invoice, client..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
               </div>
@@ -383,7 +383,7 @@ export default function BillingPage() {
                 { value: clientFilter, options: ["All Clients", "Acme Foods", "Global Oils", "Agro Corp", "Sweet Mills", "Salt Works", "Fresh Farms"], onChange: setClientFilter },
               ].map((f, i) => (
                 <div key={i} className="relative">
-                  <select className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={f.value} onChange={(e) => { f.onChange(e.target.value); setPage(1) }}>
+                  <select className="appearance-none pl-3 pr-8 py-2 rounded-lg border border-border bg-card text-sm text-foreground outline-none cursor-pointer" value={f.value} onChange={(e) => { f.onChange(e.target.value); setPage(1) }}>
                     {f.options.map((o) => <option key={o}>{o}</option>)}
                   </select>
                   <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -392,11 +392,11 @@ export default function BillingPage() {
             </div>
 
             {/* Table */}
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/30">
+                    <tr className="border-b border-border bg-muted/50">
                       {["Invoice ID", "Client", "Period", "Services", "Amount", "Due Date", "Raised On", "Status", ""].map((h) => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                       ))}
@@ -471,7 +471,7 @@ export default function BillingPage() {
         )}
 
         {tab === "rates" && (
-          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-foreground">Contract Rate Card</h2>
               <button onClick={openNewRate} className="flex items-center gap-1.5 text-xs text-brand hover:underline">
@@ -481,7 +481,7 @@ export default function BillingPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/20">
+                  <tr className="border-b border-border bg-muted/50">
                     {["Client", "Service", "Rate", "UOM", ""].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}
@@ -515,7 +515,7 @@ export default function BillingPage() {
                 key={i}
                 onClick={() => generateReport(r.title)}
                 title={`Generate ${r.title}`}
-                className="text-left p-5 rounded-2xl border border-border bg-card hover:border-brand/40 transition-colors cursor-pointer group"
+                className="text-left p-5 rounded-xl border border-border bg-card hover:border-brand/40 transition-colors cursor-pointer group"
               >
                 <div className="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center text-brand mb-3 group-hover:bg-brand/25 transition-colors">
                   {r.icon}

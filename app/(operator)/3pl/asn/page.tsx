@@ -8,6 +8,7 @@ import { Modal, Drawer } from "@/components/ui/modal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type ASN = {
@@ -170,6 +171,7 @@ export default function ASNBoardPage() {
 
   return (
     <div className="p-6 h-full overflow-y-auto">
+      <PageHeader title="ASN / Inbound Board" description="Advance shipping notices and incoming client deliveries" className="mb-6" />
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {kpis.map(k => (
@@ -208,7 +210,7 @@ export default function ASNBoardPage() {
         </div>
         <button
           onClick={() => { setForm(emptyForm); setErrors({}); setCreateOpen(true) }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-medium hover:bg-[#F7941D]/90 transition-colors">
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors">
           <Plus className="w-4 h-4" /> New ASN
         </button>
       </div>
@@ -267,7 +269,7 @@ export default function ASNBoardPage() {
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/30">
+              <tr className="border-b border-border bg-muted/50">
                 {["ASN Ref", "Client", "Lines / Pieces", "ETA", "Mode", "Status", ""].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}

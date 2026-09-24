@@ -150,13 +150,13 @@ export default function PortalBillingPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-5 w-full">
+    <div className="p-6 space-y-6 w-full">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1E3A5F] dark:text-foreground">Billing &amp; Invoices</h1>
+          <h1 className="text-2xl font-bold text-foreground">Billing &amp; Invoices</h1>
           <p className="text-sm text-muted-foreground">Storage, handling, and VAS charges from VoltusFreight</p>
         </div>
-        <button onClick={() => openPayment()} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1E3A5F] dark:bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
+        <button onClick={() => openPayment()} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
           <CreditCard className="w-4 h-4" /> Pay Now
         </button>
       </div>
@@ -169,10 +169,10 @@ export default function PortalBillingPage() {
           { label: "Paid (Last 30d)", value: fmt(paid30d), color: "text-success", bg: "bg-success/15", icon: <CheckCircle2 className="w-4 h-4" /> },
           { label: "Avg Monthly Bill", value: fmt(Math.round(invoices.reduce((a, b) => a + b.total, 0) / invoices.length)), color: "text-brand", bg: "bg-brand/15", icon: <DollarSign className="w-4 h-4" /> },
         ].map((s, i) => (
-          <div key={i} className="flex items-center gap-3 p-4 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card">
+          <div key={i} className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card">
             <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", s.bg, s.color)}>{s.icon}</div>
             <div>
-              <p className="text-base font-bold text-[#1E3A5F] dark:text-foreground">{s.value}</p>
+              <p className="text-base font-bold text-foreground">{s.value}</p>
               <p className="text-[10px] text-muted-foreground">{s.label}</p>
             </div>
           </div>
@@ -189,9 +189,9 @@ export default function PortalBillingPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 p-0.5 rounded-lg bg-[#F7F9FC] dark:bg-muted/40 border border-[#E4E9F0] dark:border-border w-fit">
+      <div className="flex gap-1 p-0.5 rounded-lg bg-muted/40 border border-border w-fit">
         {tabs.map(t => (
-          <button key={t} onClick={() => setTab(t)} className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-colors", tab === t ? "bg-[#1E3A5F] dark:bg-brand text-white" : "text-muted-foreground hover:text-[#1E3A5F] dark:hover:text-foreground")}>
+          <button key={t} onClick={() => setTab(t)} className={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-colors", tab === t ? "bg-brand text-white" : "text-muted-foreground hover:text-foreground")}>
             {t}
           </button>
         ))}
@@ -200,15 +200,15 @@ export default function PortalBillingPage() {
       {/* Invoice cards */}
       <div className="space-y-3">
         {filtered.map(inv => (
-          <div key={inv.id} className="rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#E4E9F0] dark:border-border">
+          <div key={inv.id} className="rounded-xl border border-border bg-card overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#1E3A5F]/10 dark:bg-brand/15 flex items-center justify-center shrink-0">
-                  <FileText className="w-4 h-4 text-[#1E3A5F] dark:text-brand" />
+                <div className="w-9 h-9 rounded-xl bg-brand/15 flex items-center justify-center shrink-0">
+                  <FileText className="w-4 h-4 text-brand" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-bold text-[#1E3A5F] dark:text-foreground">{inv.id}</p>
+                    <p className="text-sm font-bold text-foreground">{inv.id}</p>
                     <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full", statusStyle[inv.status])}>
                       {statusIcon[inv.status]} {inv.status}
                     </span>
@@ -222,12 +222,12 @@ export default function PortalBillingPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <p className="text-lg font-bold text-[#1E3A5F] dark:text-foreground">{fmt(inv.total)}</p>
+                <p className="text-lg font-bold text-foreground">{fmt(inv.total)}</p>
                 {inv.status !== "Paid" && (
                   <button
                     onClick={() => openPayment(inv)}
                     title="Pay this invoice"
-                    className="px-3 py-1.5 rounded-lg bg-[#1E3A5F] dark:bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity"
+                    className="px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:opacity-90 transition-opacity"
                   >
                     Pay
                   </button>
@@ -243,7 +243,7 @@ export default function PortalBillingPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-px bg-[#E4E9F0] dark:bg-border">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-px bg-border">
               {[
                 { label: "Storage", value: fmt(inv.storage) },
                 { label: "Handling", value: fmt(inv.handling) },
@@ -251,31 +251,31 @@ export default function PortalBillingPage() {
                 { label: "Issued", value: inv.issued },
                 { label: inv.status === "Paid" ? "Paid On" : "Due", value: inv.status === "Paid" ? inv.paid : inv.due },
               ].map((cell, ci) => (
-                <div key={ci} className="bg-white dark:bg-card px-4 py-2.5">
+                <div key={ci} className="bg-card px-4 py-2.5">
                   <p className="text-[10px] text-muted-foreground">{cell.label}</p>
-                  <p className={cn("text-xs font-semibold mt-0.5", ci === 4 && inv.status === "Overdue" ? "text-danger" : "text-[#1E3A5F] dark:text-foreground")}>{cell.value}</p>
+                  <p className={cn("text-xs font-semibold mt-0.5", ci === 4 && inv.status === "Overdue" ? "text-danger" : "text-foreground")}>{cell.value}</p>
                 </div>
               ))}
             </div>
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground text-sm rounded-2xl border border-dashed border-[#E4E9F0] dark:border-border">
+          <div className="text-center py-12 text-muted-foreground text-sm rounded-xl border border-dashed border-border">
             No {tab.toLowerCase()} invoices.
           </div>
         )}
       </div>
 
       {/* Rate card link */}
-      <div className="p-4 rounded-2xl border border-[#E4E9F0] dark:border-border bg-white dark:bg-card flex items-center justify-between">
+      <div className="p-4 rounded-xl border border-border bg-card flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold text-[#1E3A5F] dark:text-foreground">Your Rate Card</p>
+          <p className="text-sm font-semibold text-foreground">Your Rate Card</p>
           <p className="text-xs text-muted-foreground">Storage: ₹4.20/unit/month · Handling in: ₹6.50/carton · Handling out: ₹7.00/carton</p>
         </div>
         <button
           onClick={() => setRateCardOpen(true)}
           title="View full rate card"
-          className="flex items-center gap-1 text-xs text-[#1E3A5F] dark:text-brand hover:underline shrink-0"
+          className="flex items-center gap-1 text-xs text-brand hover:underline shrink-0"
         >
           View full rate card <ChevronRight className="w-3 h-3" />
         </button>

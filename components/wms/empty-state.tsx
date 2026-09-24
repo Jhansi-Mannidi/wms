@@ -26,7 +26,7 @@ export function EmptyState({ icon: Icon, title, description, action, className }
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
-        className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mb-3"
+        className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3"
       >
         <Icon className="w-6 h-6 text-muted-foreground" />
       </motion.div>
@@ -37,7 +37,7 @@ export function EmptyState({ icon: Icon, title, description, action, className }
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           onClick={action.onClick}
-          className="mt-4 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand text-white text-xs font-semibold hover:bg-brand/90 transition-colors"
+          className="mt-4 flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand text-white text-xs font-semibold hover:bg-brand/90 transition-colors"
         >
           {ActionIcon && <ActionIcon className="w-3.5 h-3.5" />}
           {action.label}

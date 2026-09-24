@@ -9,6 +9,7 @@ import { Field, TextInput, Select, ModalActions, DetailRow } from "@/components/
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
 import { cn } from "@/lib/utils"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type BillingRow = {
@@ -174,6 +175,7 @@ export default function StorageBillingPage() {
 
   return (
     <div className="p-6">
+      <PageHeader title="Revenue & Margin" description="Storage revenue, operating cost and net margin by customer" className="mb-6" />
       {/* Portfolio summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="p-3.5 rounded-xl border border-border bg-card">
@@ -221,15 +223,15 @@ export default function StorageBillingPage() {
           className={cn(
             "flex items-center gap-1.5 px-3 py-2 rounded-lg border bg-card text-sm transition-colors",
             filtersActive
-              ? "border-[#F7941D] text-[#F7941D]"
+              ? "border-brand text-brand"
               : "border-border text-muted-foreground hover:text-foreground"
           )}>
           <Filter className="w-4 h-4" /> Filter
-          {filtersActive && <span className="w-1.5 h-1.5 rounded-full bg-[#F7941D]" />}
+          {filtersActive && <span className="w-1.5 h-1.5 rounded-full bg-brand" />}
         </button>
         <button
           onClick={() => setCreateOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#F7941D] text-white text-sm font-semibold hover:bg-[#F7941D]/90 transition-colors">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand/90 transition-colors">
           <Plus className="w-4 h-4" /> New Billing Line
         </button>
         <ExportButton data={filtered.map(r => ({ id: r.id, customer: r.customer, storage: r.storage, handling: r.handling, delivery: r.delivery, total: r.total, cost: r.cost, margin: r.margin }))} filename="storage-billing" label="Export All" className="ml-auto" />
@@ -240,7 +242,7 @@ export default function StorageBillingPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/20">
+              <tr className="border-b border-border bg-muted/50">
                 {["Customer", "Storage Rent (₹)", "Handling (₹)", "Delivery (₹)", "Total (₹)", "Margin (₹)", "Action"].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}
@@ -270,7 +272,7 @@ export default function StorageBillingPage() {
                         <button
                           onClick={() => handleGenerate(row.id)}
                           disabled={generatingFor === row.id}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F7941D] text-white text-xs font-semibold hover:bg-[#F7941D]/90 transition-colors disabled:opacity-60">
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-semibold hover:bg-brand/90 transition-colors disabled:opacity-60">
                           <FileText className="w-3.5 h-3.5" />
                           {generatingFor === row.id ? "Generating..." : "Generate Invoice"}
                         </button>

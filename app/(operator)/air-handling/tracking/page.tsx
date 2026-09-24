@@ -81,7 +81,7 @@ export default function AirTrackingPage() {
   return (
     <div className="p-6 h-full">
       <div className="mb-5">
-        <h1 className="text-xl font-bold text-foreground">Air Shipment Tracking</h1>
+        <h1 className="text-2xl font-bold text-foreground">Air Shipment Tracking</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Unified tracking for local delivery and export shipments</p>
       </div>
 

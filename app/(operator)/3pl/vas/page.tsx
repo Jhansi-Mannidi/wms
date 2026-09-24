@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Field, TextInput, TextArea, Select, ModalActions, DetailRow } from "@/components/ui/form"
 import { notify } from "@/components/ui/toast"
 import { RowActions } from "@/components/ui/row-actions"
+import { PageHeader } from "@/components/wms/page-header"
 
 // `type` (not `interface`) so rows stay assignable to ExportButton's Record<string, unknown>
 type WorkOrder = {
@@ -193,7 +194,8 @@ export default function VASWorkOrdersPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-0 px-5 pt-4 border-b border-border shrink-0">
+      <PageHeader title="VAS Work Orders" description="Value-added service jobs such as labelling, kitting and repacking" className="px-6 pt-5 pb-3 shrink-0" />
+      <div className="flex items-center gap-0 px-6 border-b border-border shrink-0">
         {tabs.map((t) => (
           <button key={t} onClick={() => setTab(t)} className={cn(
             "px-4 py-2 text-[12px] font-medium border-b-2 -mb-px transition-colors whitespace-nowrap",

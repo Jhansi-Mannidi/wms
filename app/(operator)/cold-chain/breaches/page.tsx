@@ -66,7 +66,7 @@ export default function ColdChainBreachesPage() {
       )}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50"><tr>{["Breach ID","Zone","Sensor","Type","Reading","Threshold","Duration","Detected","Status","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
+          <thead className="bg-muted/50 border-b border-border"><tr>{["Breach ID","Zone","Sensor","Type","Reading","Threshold","Duration","Detected","Status","Actions"].map(h=><th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">
             {breaches.map(b=>(
               <tr key={b.id} className="hover:bg-muted/30 transition-colors">

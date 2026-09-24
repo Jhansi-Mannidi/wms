@@ -1,73 +1,55 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import {
-  Package, Tag, ShoppingCart, Truck, Building, DollarSign, Users,
-  Forklift, Box, Thermometer, Clock, BarChart2, Shield, Warehouse,
-  Settings, Plus, FileText, RefreshCw, LogIn, Grid, List, Star,
-  TrendingUp, AlertTriangle, CheckCircle2, Zap, Layers, Wind,
-  UserCircle, Globe
+  Package, Truck, FileText, RefreshCw, LogIn, Grid, List, Star,
+  TrendingUp, AlertTriangle, CheckCircle2, Zap, Layers, Users, ChevronRight,
+  Ship, Plane,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { NAV_GROUPS, type NavGroup, type NavModule } from "@/lib/navigation"
 
-const modules = [
-  // Operations
-  { id: "inventory", category: "Operations", badge: "2,450", badgeType: "count", icon: <Package className="w-8 h-8" />, title: "Inventory Management", desc: "Real-time stock tracking", href: "/inventory", },
-  { id: "sku-master", category: "Inventory", badge: "New", badgeType: "new", icon: <Tag className="w-8 h-8" />, title: "SKU Master", desc: "Product definitions & mappings", href: "/sku-master", },
-  { id: "orders", category: "Operations", badge: "28", badgeType: "count", icon: <ShoppingCart className="w-8 h-8" />, title: "Order Management", desc: "Process & fulfill orders", href: "/orders", },
-  { id: "gate", category: "Logistics", badge: "5", badgeType: "count", icon: <Truck className="w-8 h-8" />, title: "Gate Management", desc: "Vehicle entry & exit", href: "/gate-management", },
-  { id: "space", category: "Operations", badge: "87%", badgeType: "percent", icon: <Building className="w-8 h-8" />, title: "Space Management", desc: "Facility & tenant management", href: "/space-management", },
-  { id: "billing", category: "Operations", badge: "12", badgeType: "count", icon: <DollarSign className="w-8 h-8" />, title: "Billing & Invoicing", desc: "Invoices & payments", href: "/billing", },
-  { id: "workforce", category: "Operations", badge: "45", badgeType: "count", icon: <Users className="w-8 h-8" />, title: "Workforce", desc: "Shift & task management", href: "/workforce", },
-  { id: "mhe", category: "Logistics", badge: "12", badgeType: "count", icon: <Forklift className="w-8 h-8" />, title: "MHE Operations", desc: "Equipment tracking", href: "/mhe-operations", },
-  { id: "pallets", category: "Logistics", badge: "890", badgeType: "count", icon: <Box className="w-8 h-8" />, title: "Pallet Tracking", desc: "Pallet lifecycle management", href: "/pallet-tracking", },
-  { id: "cold-chain", category: "Operations", badge: "2", badgeType: "alert", icon: <Thermometer className="w-8 h-8" />, title: "Cold Chain", desc: "Temperature monitoring", href: "/cold-chain", },
-  { id: "scheduler", category: "Operations", badge: "8", badgeType: "count", icon: <Clock className="w-8 h-8" />, title: "Scheduler", desc: "Jobs, SLAs & automation", href: "/scheduler", },
-  // Freight Streams
-  { id: "3pl", category: "Freight", badge: "New", badgeType: "new", icon: <Layers className="w-8 h-8" />, title: "3PL End-to-End", desc: "Multi-client 3PL operations", href: "/3pl", },
-  { id: "lcl", category: "Freight", badge: "New", badgeType: "new", icon: <Globe className="w-8 h-8" />, title: "LCL Consolidation", desc: "CBM-based cargo consolidation", href: "/lcl", },
-  { id: "air", category: "Freight", badge: "New", badgeType: "new", icon: <Wind className="w-8 h-8" />, title: "Air Handling", desc: "Local delivery & export routing", href: "/air-handling", },
-  { id: "saas", category: "Freight", badge: "New", badgeType: "new", icon: <Warehouse className="w-8 h-8" />, title: "Storage-as-a-Service", desc: "Mini-warehouse & sub-lease", href: "/storage-saas", },
-  // Portal & Reports
-  { id: "portal", category: "Portal", badge: "New", badgeType: "new", icon: <UserCircle className="w-8 h-8" />, title: "Customer Portal", desc: "Client-facing inventory & orders", href: "/portal", },
-  { id: "analytics", category: "Reports", badge: "New", badgeType: "new", icon: <BarChart2 className="w-8 h-8" />, title: "Analytics", desc: "Dashboards & insights", href: "/analytics", },
-  { id: "audit", category: "Reports", badge: undefined, badgeType: "none", icon: <Shield className="w-8 h-8" />, title: "Audit Trail", desc: "Compliance & logging", href: "/audit-trail", },
-  // System
-  { id: "warehouse-setup", category: "System", badge: undefined, badgeType: "none", icon: <Warehouse className="w-8 h-8" />, title: "Warehouse Setup", desc: "Configure warehouses & zones", href: "/warehouse-setup", },
-  { id: "settings", category: "System", badge: undefined, badgeType: "none", icon: <Settings className="w-8 h-8" />, title: "Settings", desc: "System configuration", href: "/settings", },
-]
+// Modules, groups and descriptions come from lib/navigation.tsx so Home always
+// matches the module rail.
+type HomeModule = NavModule & { group: NavGroup }
 
-const categories = ["All", "Operations", "Inventory", "Logistics", "Freight", "Portal", "Reports", "Favorites"]
+const modules: HomeModule[] = NAV_GROUPS.flatMap((g) => g.modules.map((m) => ({ ...m, group: g })))
 
-const categoryColors: Record<string, string> = {
-  Operations: "text-blue-400",
-  Inventory:  "text-emerald-400",
-  Logistics:  "text-amber-400",
-  Freight:    "text-orange-400",
-  Portal:     "text-violet-400",
-  Reports:    "text-purple-400",
-  System:     "text-slate-400",
+const categories = ["All", ...NAV_GROUPS.map((g) => g.title), "Favorites"]
+
+const groupColors: Record<string, string> = {
+  inbound:   "text-sky-400",
+  inventory: "text-emerald-400",
+  outbound:  "text-blue-400",
+  freight:   "text-orange-400",
+  resources: "text-amber-400",
+  finance:   "text-violet-400",
+  insights:  "text-purple-400",
+  admin:     "text-slate-400",
 }
 
-const categoryDotColors: Record<string, string> = {
-  Operations: "bg-blue-400",
-  Inventory:  "bg-emerald-400",
-  Logistics:  "bg-amber-400",
-  Freight:    "bg-orange-400",
-  Portal:     "bg-violet-400",
-  Reports:    "bg-purple-400",
-  System:     "bg-slate-400",
+const groupDotColors: Record<string, string> = {
+  inbound:   "bg-sky-400",
+  inventory: "bg-emerald-400",
+  outbound:  "bg-blue-400",
+  freight:   "bg-orange-400",
+  resources: "bg-amber-400",
+  finance:   "bg-violet-400",
+  insights:  "bg-purple-400",
+  admin:     "bg-slate-400",
 }
 
 const favorites = ["inventory", "orders", "gate", "3pl", "lcl", "air"]
 
-function ModuleCard({ mod, viewMode }: { mod: typeof modules[0]; viewMode: "grid" | "list" }) {
-  const badgeClass = mod.badgeType === "new"
+function ModuleCard({ mod, viewMode }: { mod: HomeModule; viewMode: "grid" | "list" }) {
+  const Icon = mod.icon
+  const badge = mod.homeBadge
+  const badgeClass = badge?.type === "new"
     ? "bg-success/20 text-success"
-    : mod.badgeType === "percent"
+    : badge?.type === "percent"
     ? "bg-warning/20 text-warning"
-    : mod.badgeType === "alert"
+    : badge?.type === "alert"
     ? "bg-danger/20 text-danger"
     : "bg-brand/20 text-brand"
 
@@ -76,17 +58,17 @@ function ModuleCard({ mod, viewMode }: { mod: typeof modules[0]; viewMode: "grid
       <Link href={mod.href}>
         <div className="flex items-center gap-4 px-4 py-3 rounded-xl border border-border bg-card hover:border-brand/40 hover:bg-brand/5 transition-all group cursor-pointer">
           <div className="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center text-brand shrink-0">
-            <span className="scale-75">{mod.icon}</span>
+            <Icon className="w-6 h-6" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className={cn("text-[10px] font-semibold uppercase tracking-wider", categoryColors[mod.category] ?? "text-muted-foreground")}>{mod.category}</span>
-              {mod.badge && <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded-full", badgeClass)}>{mod.badge}</span>}
+              <span className={cn("text-[10px] font-semibold uppercase tracking-wider", groupColors[mod.group.id] ?? "text-muted-foreground")}>{mod.group.title}</span>
+              {badge && <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded-full", badgeClass)}>{badge.value}</span>}
             </div>
             <p className="text-sm font-semibold text-foreground truncate group-hover:text-brand transition-colors">{mod.title}</p>
             <p className="text-xs text-muted-foreground truncate">{mod.desc}</p>
           </div>
-          <Plus className="w-4 h-4 text-muted-foreground group-hover:text-brand transition-colors shrink-0" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-brand transition-colors shrink-0" />
         </div>
       </Link>
     )
@@ -94,21 +76,33 @@ function ModuleCard({ mod, viewMode }: { mod: typeof modules[0]; viewMode: "grid
 
   return (
     <Link href={mod.href}>
-      <div className="relative flex flex-col p-5 rounded-2xl border border-border bg-card hover:border-brand/50 hover:bg-brand/5 transition-all group cursor-pointer overflow-hidden h-full">
+      <div className="relative flex flex-col p-5 rounded-xl border border-border bg-card hover:border-brand/50 hover:bg-brand/5 transition-all group cursor-pointer overflow-hidden h-full">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-1.5">
-            <div className={cn("w-2 h-2 rounded-full shrink-0", categoryDotColors[mod.category] ?? "bg-slate-400")} />
-            <span className={cn("text-[10px] font-semibold uppercase tracking-wider", categoryColors[mod.category] ?? "text-muted-foreground")}>{mod.category}</span>
+            <div className={cn("w-2 h-2 rounded-full shrink-0", groupDotColors[mod.group.id] ?? "bg-slate-400")} />
+            <span className={cn("text-[10px] font-semibold uppercase tracking-wider", groupColors[mod.group.id] ?? "text-muted-foreground")}>{mod.group.title}</span>
           </div>
-          {mod.badge && <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full", badgeClass)}>{mod.badge}</span>}
+          {badge && <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full", badgeClass)}>{badge.value}</span>}
         </div>
-        <div className="w-14 h-14 rounded-2xl bg-brand/15 flex items-center justify-center text-brand mb-4 group-hover:bg-brand/25 transition-colors">
-          {mod.icon}
+        <div className="w-14 h-14 rounded-xl bg-brand/15 flex items-center justify-center text-brand mb-4 group-hover:bg-brand/25 transition-colors">
+          <Icon className="w-8 h-8" />
         </div>
         <h3 className="text-sm font-bold text-foreground group-hover:text-brand transition-colors leading-tight mb-1">{mod.title}</h3>
         <p className="text-xs text-muted-foreground leading-relaxed">{mod.desc}</p>
       </div>
     </Link>
+  )
+}
+
+function ModuleGrid({ mods, viewMode }: { mods: HomeModule[]; viewMode: "grid" | "list" }) {
+  return (
+    <div className={cn(
+      viewMode === "grid"
+        ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+        : "flex flex-col gap-2"
+    )}>
+      {mods.map((mod) => <ModuleCard key={mod.id} mod={mod} viewMode={viewMode} />)}
+    </div>
   )
 }
 
@@ -120,10 +114,16 @@ export default function DashboardPage() {
     weekday: "long", month: "long", day: "numeric", year: "numeric",
   })
 
+  // Breadcrumb group links arrive as /home?group=<id>.
+  useEffect(() => {
+    const groupId = new URLSearchParams(window.location.search).get("group")
+    const group = NAV_GROUPS.find((g) => g.id === groupId)
+    if (group) setActiveCategory(group.title)
+  }, [])
+
   const filtered = modules.filter((m) => {
-    if (activeCategory === "All") return true
     if (activeCategory === "Favorites") return favorites.includes(m.id)
-    return m.category === activeCategory
+    return m.group.title === activeCategory
   })
 
   return (
@@ -132,7 +132,7 @@ export default function DashboardPage() {
         {/* Welcome */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground italic mb-1">Welcome back, Vijay</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-1">Welcome back, Vijay</h1>
             <p className="text-sm text-muted-foreground flex flex-wrap gap-1">
               <span>{today}</span>
               <span className="text-border">•</span>
@@ -151,12 +151,12 @@ export default function DashboardPage() {
 
         {/* Quick actions */}
         <div className="flex flex-wrap gap-2 mb-6">
-          <Link href="/grn"><button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"><FileText className="w-4 h-4" /> New GRN</button></Link>
-          <Link href="/3pl"><button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-orange-500/40 bg-orange-500/10 text-orange-400 text-sm font-medium hover:bg-orange-500/20 transition-colors"><Layers className="w-4 h-4" /> 3PL Operations</button></Link>
-          <Link href="/lcl"><button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><Globe className="w-4 h-4" /> LCL Console</button></Link>
-          <Link href="/air-handling"><button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><Wind className="w-4 h-4" /> Air Handling</button></Link>
-          <Link href="/inventory/cycle-counts"><button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><RefreshCw className="w-4 h-4" /> Cycle Count</button></Link>
-          <Link href="/gate-management"><button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><LogIn className="w-4 h-4" /> Gate Entry</button></Link>
+          <Link href="/grn"><button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"><FileText className="w-4 h-4" /> New GRN</button></Link>
+          <Link href="/3pl"><button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-orange-500/40 bg-orange-500/10 text-orange-400 text-sm font-medium hover:bg-orange-500/20 transition-colors"><Layers className="w-4 h-4" /> 3PL Operations</button></Link>
+          <Link href="/lcl"><button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><Ship className="w-4 h-4" /> LCL Console</button></Link>
+          <Link href="/air-handling"><button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><Plane className="w-4 h-4" /> Air Handling</button></Link>
+          <Link href="/inventory/cycle-counts"><button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><RefreshCw className="w-4 h-4" /> Cycle Count</button></Link>
+          <Link href="/gate-management"><button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted transition-colors"><LogIn className="w-4 h-4" /> Gate Entry</button></Link>
         </div>
 
         {/* Category filter */}
@@ -172,14 +172,28 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Modules */}
-        <div className={cn(
-          viewMode === "grid"
-            ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
-            : "flex flex-col gap-2"
-        )}>
-          {filtered.map((mod) => <ModuleCard key={mod.id} mod={mod} viewMode={viewMode} />)}
-        </div>
+        {/* Modules — "All" shows every group in workflow order with a short explanation */}
+        {activeCategory === "All" ? (
+          <div className="space-y-8">
+            {NAV_GROUPS.map((g, i) => (
+              <section key={g.id}>
+                <div className="flex items-baseline gap-3 mb-3">
+                  <span className={cn("flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-bold text-white shrink-0", groupDotColors[g.id] ?? "bg-slate-400")}>{i + 1}</span>
+                  <h2 className="text-base font-bold text-foreground">{g.title}</h2>
+                  <p className="text-xs text-muted-foreground truncate">{g.desc}</p>
+                </div>
+                <ModuleGrid mods={modules.filter((m) => m.group.id === g.id)} viewMode={viewMode} />
+              </section>
+            ))}
+          </div>
+        ) : (
+          <>
+            {NAV_GROUPS.find((g) => g.title === activeCategory) && (
+              <p className="text-sm text-muted-foreground mb-4">{NAV_GROUPS.find((g) => g.title === activeCategory)!.desc}</p>
+            )}
+            <ModuleGrid mods={filtered} viewMode={viewMode} />
+          </>
+        )}
 
         {/* Stats summary */}
         <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4">
